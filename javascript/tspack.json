@@ -15,7 +15,7 @@
   },
   "modules": [
     {
-      "name": "main",
+      "name": "cyder",
       "include": [
         "src/**/*"
       ]
@@ -26,7 +26,7 @@
         "test/**/*"
       ],
       "dependencies": [
-        "main"
+        "cyder"
       ]
     }
   ]

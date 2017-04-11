@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(Cyder)
+project(cyder)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-stdlib=libc++ ")
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
