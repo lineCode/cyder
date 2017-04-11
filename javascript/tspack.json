@@ -2,15 +2,19 @@
   "compilerOptions": {
     "outDir": "built/",
     "target": "ES5",
+    "lib": [
+      "ES5",
+      "ES2015.Collection"
+    ],
     "noImplicitAny": false,
-    "removeComments": true,
+    "removeComments": false,
     "preserveConstEnums": true,
     "sourceMap": false,
     "skipDefaultLibCheck": true,
     "stripInternal": true,
     "declaration": false,
     "accessorOptimization": true,
-    "emitReflection": true,
+    "emitReflection": false,
     "reorderFiles": true
   },
   "modules": [

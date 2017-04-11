@@ -24,22 +24,4 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef CYDER_MACROS_H
-#define CYDER_MACROS_H
-
-namespace cyder {
-
-    // The USE(x) template is used to silence C++ compiler warnings
-    // issued for (yet) unused variables (typically parameters).
-    template<typename T>
-    inline void USE(T) {}
-
-#define METHOD_WRITE "write"
-#define METHOD_GET_TIMER "getTimer"
-#define PROPERTY_STDOUT "stdout"
-#define PROPERTY_STDERR "stderr"
-
-}  // namespace cyder
-
-#endif //CYDER_MACROS_H
+console.log("it works! " + performance.now()+"ms");

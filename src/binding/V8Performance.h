@@ -24,4 +24,20 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-console.log("it works! " + getTimer()+"ms");
+
+#ifndef CYDER_V8PERFORMANCE_H
+#define CYDER_V8PERFORMANCE_H
+
+#include <v8.h>
+#include "base/Environment.h"
+
+namespace cyder {
+
+    class V8Performance {
+    public:
+        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+    };
+
+}  // namespace cyder
+
+#endif //CYDER_V8PERFORMANCE_H

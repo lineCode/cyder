@@ -25,32 +25,16 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-
-#include "V8Console.h"
-#include "base/Macros.h"
-#include <iostream>
+#ifndef CYDER_USE_H
+#define CYDER_USE_H
 
 namespace cyder {
 
-    void stdoutWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto env = Environment::GetCurrent(args);
-        auto text = env->toStdString(args[0]);
-        std::cout << text;
-    }
+    // The USE(x) template is used to silence C++ compiler warnings
+    // issued for (yet) unused variables (typically parameters).
+    template<typename T>
+    inline void USE(T) {}
 
-    void stderrWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto env = Environment::GetCurrent(args);
-        auto text = env->toStdString(args[0]);
-        std::cerr << text;
-    }
+}  // namespace cyder
 
-    void V8Console::install(const v8::Local<v8::Object>& parent, Environment* env) {
-        auto stdoutObject = env->makeObject();
-        env->setObject(stdoutObject, METHOD_WRITE, stdoutWriteMethod);
-        env->setObject(parent, PROPERTY_STDOUT, stdoutObject);
-        auto stderrObject = env->makeObject();
-        env->setObject(stderrObject, METHOD_WRITE, stderrWriteMethod);
-        env->setObject(parent, PROPERTY_STDERR, stderrObject);
-    }
-
-}// namespace cyder
+#endif //CYDER_USE_H

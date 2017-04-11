@@ -76,7 +76,7 @@ namespace cyder {
         }
 
         Environment environment(context);
-        JSMain jsMain(Globals::resolvePath("main.js"), &environment);
+        JSMain jsMain(Globals::resolvePath("cyder.js"), &environment);
         auto result = environment.executeScript(Globals::resolvePath("test.js"));
         ASSERT(!result.IsEmpty());
         jsMain.start("", argc, argv);

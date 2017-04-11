@@ -25,20 +25,19 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-
-#ifndef CYDER_V8CONSOLE_H
-#define CYDER_V8CONSOLE_H
-
-#include <v8.h>
-#include "base/Environment.h"
+#include "V8Performance.h"
+#include "utils/GetTimer.h"
 
 namespace cyder {
 
-    class V8Console {
-    public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
-    };
+    void nowMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        args.GetReturnValue().Set(getTimer());
+    }
 
-}// namespace cyder
+    void V8Performance::install(const v8::Local<v8::Object>& parent, Environment* env) {
+        auto performance = env->makeObject();
+        env->setPropertyToObject(performance, "now", nowMethod);
+        env->setPropertyToObject(parent, "performance", performance);
+    }
 
-#endif //CYDER_V8CONSOLE_H
+}  // namespace cyder

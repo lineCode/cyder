@@ -25,17 +25,20 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "V8GetTimer.h"
-#include "utils/GetTimer.h"
+
+#ifndef CYDER_V8APPLICATION_H
+#define CYDER_V8APPLICATION_H
+
+#include <v8.h>
+#include "base/Environment.h"
 
 namespace cyder {
 
-    void getTimerMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        args.GetReturnValue().Set(getTimer());
-    }
+    class V8Application {
+    public:
+        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+    };
 
-    void V8GetTimer::install(const v8::Local<v8::Object>& parent, Environment* env) {
-        env->setObject(parent, METHOD_GET_TIMER, getTimerMethod);
-    }
+}// namespace cyder
 
-}  // namespace cyder
+#endif //CYDER_V8APPLICATION_H

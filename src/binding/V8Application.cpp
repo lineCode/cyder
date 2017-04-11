@@ -25,19 +25,33 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef CYDER_V8GETTIMER_H
-#define CYDER_V8GETTIMER_H
 
-#include <v8.h>
-#include "base/Environment.h"
+#include "V8Application.h"
+#include <iostream>
 
 namespace cyder {
 
-    class V8GetTimer {
-    public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
-    };
+    void stdoutWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        auto text = env->toStdString(args[0]);
+        std::cout << text;
+    }
 
-}  // namespace cyder
+    void stderrWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        auto text = env->toStdString(args[0]);
+        std::cerr << text;
+    }
 
-#endif //CYDER_V8GETTIMER_H
+    void V8Application::install(const v8::Local<v8::Object>& parent, Environment* env) {
+        auto application = env->makeObject();
+        env->setPropertyToObject(parent, "application", application);
+        auto stdoutObject = env->makeObject();
+        env->setPropertyToObject(stdoutObject, "write", stdoutWriteMethod);
+        env->setPropertyToObject(application, "standardOutput", stdoutObject);
+        auto stderrObject = env->makeObject();
+        env->setPropertyToObject(stderrObject, "write", stderrWriteMethod);
+        env->setPropertyToObject(application, "standardError", stderrObject);
+    }
+
+}// namespace cyder

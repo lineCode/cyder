@@ -27,8 +27,8 @@
 
 #include <libplatform/libplatform.h>
 #include "JSMain.h"
-#include "V8GetTimer.h"
-#include "V8Console.h"
+#include "V8Performance.h"
+#include "V8Application.h"
 
 namespace cyder {
 
@@ -44,8 +44,8 @@ namespace cyder {
     void JSMain::installTemplates(Environment* env) {
         v8::HandleScope scope(env->isolate());
         auto global = env->global();
-        V8GetTimer::install(global, env);
-        V8Console::install(global, env);
+        V8Performance::install(global, env);
+        V8Application::install(global, env);
     }
 
     void JSMain::attachJS(const std::string& path) {
