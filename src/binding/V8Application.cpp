@@ -45,13 +45,13 @@ namespace cyder {
 
     void V8Application::install(const v8::Local<v8::Object>& parent, Environment* env) {
         auto application = env->makeObject();
-        env->setPropertyToObject(parent, "application", application);
+        env->setPropertyOfObject(parent, "application", application);
         auto stdoutObject = env->makeObject();
-        env->setPropertyToObject(stdoutObject, "write", stdoutWriteMethod);
-        env->setPropertyToObject(application, "standardOutput", stdoutObject);
+        env->setPropertyOfObject(stdoutObject, "write", stdoutWriteMethod);
+        env->setPropertyOfObject(application, "standardOutput", stdoutObject);
         auto stderrObject = env->makeObject();
-        env->setPropertyToObject(stderrObject, "write", stderrWriteMethod);
-        env->setPropertyToObject(application, "standardError", stderrObject);
+        env->setPropertyOfObject(stderrObject, "write", stderrWriteMethod);
+        env->setPropertyOfObject(application, "standardError", stderrObject);
     }
 
 }// namespace cyder
