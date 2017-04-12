@@ -28,7 +28,10 @@
 *.out
 *.app
 
-third_party/
-DEPS.cache
-cmake-build-debug
-cmake-build-release
+/third_party
+/DEPS.cache
+/cmake-build-debug
+/cmake-build-release
+/resource/cyder.d.ts
+/resource/cyder.js
+/resource/test.js

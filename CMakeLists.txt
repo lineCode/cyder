@@ -115,8 +115,6 @@ endforeach ()
 #copy natives_blob.bin and snapshot_blob.bin which v8 requires to the root of binary dir.
 copy_file(${CMAKE_SOURCE_DIR}/third_party/v8/${LIB_ARCH}/natives_blob.bin ${CMAKE_BINARY_DIR}/natives_blob.bin)
 copy_file(${CMAKE_SOURCE_DIR}/third_party/v8/${LIB_ARCH}/snapshot_blob.bin ${CMAKE_BINARY_DIR}/snapshot_blob.bin)
-copy_file(${CMAKE_SOURCE_DIR}/javascript/built/cyder.js ${CMAKE_BINARY_DIR}/cyder.js)
-copy_file(${CMAKE_SOURCE_DIR}/javascript/built/test.js ${CMAKE_BINARY_DIR}/test.js)
 
 add_custom_target(Resources ALL DEPENDS ${RESOURCE_FILES})
 
