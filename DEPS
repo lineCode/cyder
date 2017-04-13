@@ -45,8 +45,8 @@
   "actions": {
     "common": [
       {
-        "command": "tspack",
-        "dir": "./"
+        "command": "node build_ts",
+        "dir": "tools"
       }
     ]
   }

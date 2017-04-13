@@ -21,13 +21,13 @@
     {
       "name": "cyder",
       "include": [
-        "javascript/src/**/*"
+        "scripts/src/**/*"
       ]
     },
     {
       "name": "test",
       "include": [
-        "javascript/test/**/*"
+        "scripts/test/**/*"
       ],
       "dependencies": [
         "cyder"

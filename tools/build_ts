@@ -1,0 +1,121 @@
+#!/usr/bin/env node
+
+var childProcess = require('child_process');
+var path = require("path");
+var TSPACK_LOCAL = "node node_modules/tspack/bin/tspack";
+var TSPACK_MIN_VERSION = "1.0.0";
+var projectPath = path.resolve(process.cwd(), "../");
+
+function executeCMD(cmd, cwd, callback) {
+    childProcess.exec(cmd, {cwd: cwd}, function (error, stdout, stderr) {
+        if (error) {
+            console.error(stderr);
+            console.log(stdout);
+            process.exit(1);
+            return;
+        }
+        callback(stdout);
+    });
+}
+
+function getTSPackPath(callback) {
+    var os = require("os");
+    var fs = require("fs");
+    var searchCMD = "";
+    if (os.platform() == "win32") {
+        searchCMD = "where tspack";
+    } else {
+        searchCMD = "which tspack";
+    }
+    childProcess.exec(searchCMD, function (error, stdout, stderr) {
+        var cmdList = [];
+        if (!error && stdout) {
+            var firstLine = stdout.split("\n")[0].trim();
+            if (fs.existsSync(firstLine)) {
+                cmdList.push("tspack");
+            }
+        }
+        if (fs.existsSync("../node_modules/tspack/bin/tspack")) {
+            cmdList.push(TSPACK_LOCAL);
+        }
+        if (cmdList.length == 0) {
+            console.log("tspack not found");
+        }
+        callback(cmdList);
+    });
+}
+
+function checkVersion(cmdList, callback) {
+    if (cmdList.length == 0) {
+        installTSPack(callback);
+        return;
+    }
+    var cmd = cmdList.shift();
+    executeCMD(cmd + " --version", projectPath, function (stdout) {
+        if (stdout) {
+            var version = stdout.split(" ")[1].trim();
+            if (compareVersion(version, TSPACK_MIN_VERSION) >= 0) {
+                if (cmd == "tspack") {
+                    console.log("tspack is found in global modules");
+                } else {
+                    console.log("tspack is found in local modules: " + projectPath);
+                }
+                callback(cmd);
+                return;
+            } else {
+                if (cmd == "tspack") {
+                    console.log("The global tspack version is lower than the required version: " + TSPACK_MIN_VERSION);
+                } else {
+                    console.log("The local tspack version is lower than the required version: " + TSPACK_MIN_VERSION);
+                }
+            }
+        }
+        checkVersion(cmdList, callback);
+    });
+}
+
+function compareVersion(versionA, versionB) {
+    if (versionA == versionB) {
+        return 0;
+    }
+    var listA = versionA.split(".");
+    var listB = versionB.split(".");
+    var length = Math.max(listA.length, listB.length);
+    for (var i = 0; i < length; i++) {
+        if (listA.length <= i) {
+            return -1;
+        }
+        var a = parseInt(listA[i]);
+        if (listB.length <= i) {
+            return 1;
+        }
+        var b = parseInt(listB[i]);
+        if (a == b) {
+            continue;
+        }
+        return a > b ? 1 : -1;
+    }
+    return 0;
+}
+
+function installTSPack(callback) {
+    console.log("installing tspack to: " + projectPath);
+    executeCMD("npm install tspack", projectPath, function (stdout) {
+        callback(TSPACK_LOCAL);
+    });
+}
+
+function build(cmd) {
+    console.log("compiling typescript files in: " + path.resolve(projectPath, "scripts"));
+    executeCMD(cmd, projectPath, function (stdout) {
+        console.log("all done!");
+    });
+}
+
+getTSPackPath(function (cmdList) {
+    if (cmdList.length == 0) {
+        installTSPack(build);
+    } else {
+        checkVersion(cmdList, build);
+    }
+});
