@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "vars": {
     "SKIA_ROOT": "https://raw.githubusercontent.com/cyderjs/libskia/release/m58",
     "V8_ROOT": "https://raw.githubusercontent.com/cyderjs/libv8/release/5.7.492"
