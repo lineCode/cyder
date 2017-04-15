@@ -29,6 +29,7 @@
 #include "JSMain.h"
 #include "V8Performance.h"
 #include "V8Application.h"
+#include "utils/GetTimer.h"
 
 namespace cyder {
 
@@ -52,6 +53,16 @@ namespace cyder {
         v8::HandleScope scope(env->isolate());
         auto result = env->executeScript(path);
         ASSERT(!result.IsEmpty());
+        if (result.IsEmpty()) {
+            return;
+        }
+        auto maybeCyder = env->getObject(env->global(), "cyder");
+        ASSERT(!maybeCyder.IsEmpty());
+        auto cyderScope = maybeCyder.ToLocalChecked();
+        auto maybeUpdate = env->getFunction(cyderScope, "updateFrame");
+        ASSERT(!maybeUpdate.IsEmpty());
+        auto updateFunction = maybeUpdate.ToLocalChecked();
+        updateFunctionIndex = env->saveAlignedValue(updateFunction);
     }
 
     void JSMain::start(const std::string& entryClassName, int argc, const char** argv) {
@@ -59,7 +70,18 @@ namespace cyder {
     }
 
     void JSMain::update() {
-
+        auto isolate = env->isolate();
+        // Create a stack-allocated handle scope each frame.
+        v8::HandleScope scope(isolate);
+        v8::Context::Scope contextScope(env->context());
+        v8::TryCatch tryCatch(isolate);
+        auto updateFunction = env->readAlignedFunction(updateFunctionIndex);
+        auto timeStamp = env->makeValue(getTimer());
+        auto result = env->call(updateFunction, env->makeNull(), timeStamp);
+        if (result.IsEmpty()) {
+            env->printStackTrace(tryCatch);
+            abort();
+        }
     }
 
 

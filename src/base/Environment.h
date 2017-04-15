@@ -126,17 +126,15 @@ namespace cyder {
         //==================================== Aligned Methods ====================================
 
         /**
-         * Save a local handle to persistent list, then use readAlignedValue or other readAligned methods with the index
-         * to retrieve the local handle. <br/>
+         * Save a local handle to persistent list, then you can use readAlignedValue or other readAligned methods with
+         * the returned index value to retrieve the local handle. <br/>
          */
-        void saveAlignedValue(int index, const v8::Local<v8::Value>& handle) {
-            auto maxIndex = persistentList.size();
-            while (maxIndex <= index) {
-                v8::UniquePersistent<v8::Value> persistent;
-                persistentList.push_back(std::move(persistent));
-                maxIndex++;
-            }
+        unsigned long saveAlignedValue(const v8::Local<v8::Value>& handle) {
+            auto index = persistentList.size();
+            v8::UniquePersistent<v8::Value> persistent;
+            persistentList.push_back(std::move(persistent));
             persistentList[index].Reset(_isolate, handle);
+            return index;
         }
 
         /**
@@ -144,7 +142,7 @@ namespace cyder {
          * @param index The index of handle in persistent list, which is returned by saveAlignedValue.
          * @returns The local handle.
          */
-        v8::Local<v8::Value> readAlignedValue(int index) {
+        v8::Local<v8::Value> readAlignedValue(unsigned long index) {
             ASSERT(index < persistentList.size())
             auto& persistent = persistentList[index];
             return *reinterpret_cast<v8::Local<v8::Value>*>(&persistent);
@@ -155,7 +153,7 @@ namespace cyder {
          * @param index The index of handle in persistent list, which is returned by saveAlignedValue.
          * @returns The local handle.
          */
-        v8::Local<v8::Function> readAlignedFunction(int index) {
+        v8::Local<v8::Function> readAlignedFunction(unsigned long index) {
             auto value = readAlignedValue(index);
             auto function = v8::Local<v8::Function>::Cast(value);
             return function;
@@ -166,12 +164,11 @@ namespace cyder {
          * @param index The index of handle in persistent list, which is returned by saveAlignedValue.
          * @returns The local handle.
          */
-        v8::Local<v8::Object> readAlignedObject(int index) {
+        v8::Local<v8::Object> readAlignedObject(unsigned long index) {
             auto value = readAlignedValue(index);
             auto object = v8::Local<v8::Object>::Cast(value);
             return object;
         }
-
 
 
         //==================================== To Methods ====================================

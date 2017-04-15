@@ -68,20 +68,57 @@ namespace cyder {
         write(message:string):void;
     }
 
+    export interface FrameRequestCallback {
+        (time:number):void;
+    }
+
     /**
      * Global variables.
      */
     export interface Global {
+        global:cyder.Global;
         application:cyder.Application;
         performance:Performance;
         console:Console;
+
+        requestAnimationFrame(callback:FrameRequestCallback):number;
+        cancelAnimationFrame(handle:number):void;
     }
 }
 
 
 declare let global:cyder.Global;
+/**
+ * The singleton instance of the Application object, which represents this cyder application.
+ */
 declare let application:cyder.Application;
+/**
+ * The Performance API represents timing-related performance information for the application.
+ */
 declare let performance:cyder.Performance;
+/**
+ * The console read-only property returns a reference to the Console object, which provides methods for logging information
+ * to the cyder's console. These methods are intended for debugging purposes only and should not be relied on for presenting
+ * information to end users.
+ */
 declare let console:Console;
+
+/**
+ * The requestAnimationFrame() method tells the cyder that you wish to perform an animation and requests that the cyder
+ * call a specified function to update an animation before the next repaint. The method takes as an argument a callback
+ * to be invoked before the repaint.
+ * @param callback A parameter specifying a function to call when it's time to update your animation for the next repaint.
+ * The callback has one single argument, a high-resolution timestamp, which indicates the current time (the time returned
+ * from performance.now() ) for when requestAnimationFrame starts to fire callbacks.
+ * @returns A integer value, the request id, that uniquely identifies the entry in the callback list. You can pass this
+ * value to cancelAnimationFrame() to cancel the refresh callback request.
+ */
+declare function requestAnimationFrame(callback:cyder.FrameRequestCallback):number;
+
+/**
+ * Cancels an animation frame request previously scheduled through a call to requestAnimationFrame().
+ * @param handle The ID value returned by the call to requestAnimationFrame() that requested the callback.
+ */
+declare function cancelAnimationFrame(handle:number):void;
 
 global = this;

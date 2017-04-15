@@ -24,10 +24,38 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-console.log("it works! " + performance.now() + "ms");
+/**
+ * @internal
+ */
+namespace cyder {
 
-// requestAnimationFrame(onTick);
-// function onTick(timeStamp:number):void {
-//     console.log(timeStamp);
-//     requestAnimationFrame(onTick);
-// }
+    let callbackList:FrameRequestCallback[] = [];
+
+    export function updateFrame(timestamp:number):void {
+        if (callbackList.length == 0) {
+            return;
+        }
+        let list = callbackList;
+        callbackList = [];
+        for (let callback of list) {
+            callback(timestamp);
+        }
+    }
+
+    function requestAnimationFrame(callback:FrameRequestCallback):number {
+        if (typeof callback != "function") {
+            throw new Error("The callback provided as parameter 1 is not a function.");
+        }
+        callbackList.push(callback);
+        return callbackList.length - 1;
+    }
+
+    function cancelAnimationFrame(handle:number):void {
+        if (handle >= 0 && handle < callbackList.length) {
+            callbackList.splice(handle, 1);
+        }
+    }
+
+    global.requestAnimationFrame = requestAnimationFrame;
+    global.cancelAnimationFrame = cancelAnimationFrame;
+}

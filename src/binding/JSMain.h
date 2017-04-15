@@ -43,6 +43,7 @@ namespace cyder {
 
     private:
         Environment* env;
+        unsigned long updateFunctionIndex;
         void installTemplates(Environment* env);
         void attachJS(const std::string& path);
     };
