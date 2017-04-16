@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "resource/",
+    "outDir": "../resource/",
     "target": "ES5",
     "lib": [
       "ES5",
@@ -21,13 +21,13 @@
     {
       "name": "cyder",
       "include": [
-        "scripts/src/**/*"
+        "src/**/*"
       ]
     },
     {
       "name": "test",
       "include": [
-        "scripts/test/**/*"
+        "test/**/*"
       ],
       "dependencies": [
         "cyder"

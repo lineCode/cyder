@@ -106,8 +106,9 @@ function installTSPack(callback) {
 }
 
 function build(cmd) {
-    console.log("compiling typescript files in: " + path.resolve(projectPath, "scripts"));
-    executeCMD(cmd, projectPath, function (stdout) {
+    var dir = path.resolve(projectPath, "scripts");
+    console.log("compiling typescript files in: " + dir);
+    executeCMD(cmd, dir, function (stdout) {
         console.log("all done!");
     });
 }
