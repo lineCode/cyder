@@ -25,30 +25,33 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef CYDER_JSMAIN_H
-#define CYDER_JSMAIN_H
 
-#include <stdlib.h>
-#include <v8.h>
-#include "base/Environment.h"
+#include "V8NativeApplication.h"
+#include <iostream>
 
 namespace cyder {
 
-    class JSMain {
-    public:
-        JSMain(const std::string& nativeJSPath, Environment* env);
-        ~JSMain();
-        void start(int argc, const char* argv[]);
-        void update();
+    void stdoutWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        auto text = env->toStdString(args[0]);
+        std::cout << text;
+    }
 
-    private:
-        Environment* env;
-        unsigned long updateFrameIndex;
-        unsigned long initCyderIndex;
-        void attachJS(const std::string& path);
-        void installTemplates(Environment* env);
-    };
+    void stderrWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        auto text = env->toStdString(args[0]);
+        std::cerr << text;
+    }
 
-}  // namespace cyder
+    void V8NativeApplication::install(const v8::Local<v8::Object>& parent, Environment* env) {
+        auto application = env->makeObject();
+        env->setPropertyOfObject(parent, "nativeApplication", application);
+        auto stdoutObject = env->makeObject();
+        env->setPropertyOfObject(stdoutObject, "write", stdoutWriteMethod);
+        env->setPropertyOfObject(application, "standardOutput", stdoutObject);
+        auto stderrObject = env->makeObject();
+        env->setPropertyOfObject(stderrObject, "write", stderrWriteMethod);
+        env->setPropertyOfObject(application, "standardError", stderrObject);
+    }
 
-#endif //CYDER_JSMAIN_H
+}// namespace cyder

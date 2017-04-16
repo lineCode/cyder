@@ -77,10 +77,10 @@ namespace cyder {
 
         Environment environment(context);
         JSMain jsMain(Globals::resolvePath("cyder.js"), &environment);
+        jsMain.start(argc, argv);
+        Ticker::Start(std::bind(&JSMain::update, &jsMain));
         auto result = environment.executeScript(Globals::resolvePath("test.js"));
         ASSERT(!result.IsEmpty());
-        jsMain.start("", argc, argv);
-        Ticker::Start(std::bind(&JSMain::update, &jsMain));
         Application::application->run();
 
         Ticker::Stop();

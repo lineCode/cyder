@@ -24,34 +24,21 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-
-#include "V8Application.h"
-#include <iostream>
-
+/**
+ * @internal
+ */
 namespace cyder {
 
-    void stdoutWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto env = Environment::GetCurrent(args);
-        auto text = env->toStdString(args[0]);
-        std::cout << text;
-    }
+    let started = false;
 
-    void stderrWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto env = Environment::GetCurrent(args);
-        auto text = env->toStdString(args[0]);
-        std::cerr << text;
+    /**
+     * @internal
+     */
+    export function initCyder(args:string[]):void {
+        if (started) {
+            return;
+        }
+        started = true;
+        global.console = new Console(nativeApplication.standardOutput, nativeApplication.standardError);
     }
-
-    void V8Application::install(const v8::Local<v8::Object>& parent, Environment* env) {
-        auto application = env->makeObject();
-        env->setPropertyOfObject(parent, "application", application);
-        auto stdoutObject = env->makeObject();
-        env->setPropertyOfObject(stdoutObject, "write", stdoutWriteMethod);
-        env->setPropertyOfObject(application, "standardOutput", stdoutObject);
-        auto stderrObject = env->makeObject();
-        env->setPropertyOfObject(stderrObject, "write", stderrWriteMethod);
-        env->setPropertyOfObject(application, "standardError", stderrObject);
-    }
-
-}// namespace cyder
+} 

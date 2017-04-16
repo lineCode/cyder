@@ -28,14 +28,14 @@
 #include <libplatform/libplatform.h>
 #include "JSMain.h"
 #include "V8Performance.h"
-#include "V8Application.h"
+#include "V8NativeApplication.h"
 #include "utils/GetTimer.h"
 
 namespace cyder {
 
     JSMain::JSMain(const std::string& nativeJSPath, Environment* env) : env(env) {
-        installTemplates(env);
         attachJS(nativeJSPath);
+        installTemplates(env);
     }
 
     JSMain::~JSMain() {
@@ -46,7 +46,7 @@ namespace cyder {
         v8::HandleScope scope(env->isolate());
         auto global = env->global();
         V8Performance::install(global, env);
-        V8Application::install(global, env);
+        V8NativeApplication::install(global, env);
     }
 
     void JSMain::attachJS(const std::string& path) {
@@ -61,12 +61,32 @@ namespace cyder {
         auto cyderScope = maybeCyder.ToLocalChecked();
         auto maybeUpdate = env->getFunction(cyderScope, "updateFrame");
         ASSERT(!maybeUpdate.IsEmpty());
-        auto updateFunction = maybeUpdate.ToLocalChecked();
-        updateFunctionIndex = env->saveAlignedValue(updateFunction);
+        updateFrameIndex = env->saveAlignedValue(maybeUpdate.ToLocalChecked());
+        auto maybeInitCyder = env->getFunction(cyderScope, "initCyder");
+        ASSERT(!maybeInitCyder.IsEmpty());
+        initCyderIndex = env->saveAlignedValue(maybeInitCyder.ToLocalChecked());
     }
 
-    void JSMain::start(const std::string& entryClassName, int argc, const char** argv) {
-
+    void JSMain::start(int argc, const char** argv) {
+        auto isolate = env->isolate();
+        v8::HandleScope scope(isolate);
+        auto initCyderFunction = env->readAlignedFunction(initCyderIndex);
+        auto context = env->context();
+        auto args = v8::Array::New(isolate, argc);
+        for (unsigned int i = 0; i < argc; i++) {
+            auto maybeArg = env->makeString(argv[i]);
+            ASSERT(!maybeArg.IsEmpty());
+            if (maybeArg.IsEmpty()) {
+                return;
+            }
+            auto result = args->Set(context, i, maybeArg.ToLocalChecked());
+            USE(result);
+        }
+        v8::TryCatch tryCatch(isolate);
+        auto callResult = env->call(initCyderFunction, env->makeNull(), args);
+        if (callResult.IsEmpty()) {
+            env->printStackTrace(tryCatch);
+        }
     }
 
     void JSMain::update() {
@@ -75,7 +95,7 @@ namespace cyder {
         v8::HandleScope scope(isolate);
         v8::Context::Scope contextScope(env->context());
         v8::TryCatch tryCatch(isolate);
-        auto updateFunction = env->readAlignedFunction(updateFunctionIndex);
+        auto updateFunction = env->readAlignedFunction(updateFrameIndex);
         auto timeStamp = env->makeValue(getTimer());
         auto result = env->call(updateFunction, env->makeNull(), timeStamp);
         if (result.IsEmpty()) {

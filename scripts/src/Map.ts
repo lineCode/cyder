@@ -24,31 +24,27 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef CYDER_JSMAIN_H
-#define CYDER_JSMAIN_H
-
-#include <stdlib.h>
-#include <v8.h>
-#include "base/Environment.h"
-
+/**
+ * @internal
+ */
 namespace cyder {
-
-    class JSMain {
-    public:
-        JSMain(const std::string& nativeJSPath, Environment* env);
-        ~JSMain();
-        void start(int argc, const char* argv[]);
-        void update();
-
-    private:
-        Environment* env;
-        unsigned long updateFrameIndex;
-        unsigned long initCyderIndex;
-        void attachJS(const std::string& path);
-        void installTemplates(Environment* env);
-    };
-
-}  // namespace cyder
-
-#endif //CYDER_JSMAIN_H
+    /**
+     * @internal
+     */
+    export interface Map<T> {
+        [index:string]:T;
+        [index:number]:T;
+    }
+    /**
+     * @internal
+     */
+    export function createMap<T>():Map<T> {
+        const map:Map<T> = Object.create(null);
+        // Using 'delete' on an object causes V8 to put the object in dictionary mode.
+        // This disables creation of hidden classes, which are expensive when an object is
+        // constantly changing shape.
+        map["__"] = undefined;
+        delete map["__"];
+        return map;
+    }
+}

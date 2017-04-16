@@ -29,7 +29,7 @@
  */
 class Console {
 
-    public constructor(stdout:cyder.WritableStream, stderr:cyder.WritableStream) {
+    public constructor(stdout:WritableStream, stderr:WritableStream) {
         this.stdout = stdout;
         this.stderr = stderr;
     }
@@ -38,13 +38,13 @@ class Console {
      * @internal
      * The standard output stream.
      */
-    private stdout:cyder.WritableStream;
+    private stdout:WritableStream;
 
     /**
      * @internal
      * The standard error stream.
      */
-    private stderr:cyder.WritableStream;
+    private stderr:WritableStream;
 
     private static formatString(format):string {
         let objects = new Array(arguments.length);
@@ -97,5 +97,3 @@ class Console {
     }
 
 }
-
-console = new Console(application.standardOutput, application.standardError);

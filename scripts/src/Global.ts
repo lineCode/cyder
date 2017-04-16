@@ -25,77 +25,29 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-namespace cyder {
+/**
+ * Global variables.
+ */
+interface Global {
+    global:Global;
+    nativeApplication:NativeApplication;
+    performance:Performance;
+    console:Console;
 
-    /**
-     * The Application interface provides application information, application-wide functions, and dispatches application-level
-     * events. The Application object is a singleton object, created automatically at startup. Get the Application instance
-     * with the global 'application' property.
-     */
-    export interface Application {
-        /**
-         * The standard output stream is the default destination of output for applications. In most systems, it is usually
-         * directed by default to the text console (generally, on the screen).
-         */
-        standardOutput:WritableStream;
-
-        /**
-         * The standard error stream is the default destination for error messages and other diagnostic warnings. Like stdout,
-         * it is usually also directed by default to the text console (generally, on the screen).
-         */
-        standardError:WritableStream;
-    }
-
-    /**
-     * The Performance interface represents timing-related performance information for the application.
-     */
-    export interface Performance {
-
-        /**
-         * Returns the high resolution time since the application was initialized, measured in milliseconds, accurate to five
-         * thousandths of a millisecond (5 microseconds).
-         */
-        now():number;
-    }
-
-    /**
-     * Writable streams are an abstraction for a destination to which data is written.
-     */
-    export interface WritableStream {
-        /**
-         * Write a string message to WritableStream.
-         */
-        write(message:string):void;
-    }
-
-    export interface FrameRequestCallback {
-        (time:number):void;
-    }
-
-    /**
-     * Global variables.
-     */
-    export interface Global {
-        global:cyder.Global;
-        application:cyder.Application;
-        performance:Performance;
-        console:Console;
-
-        requestAnimationFrame(callback:FrameRequestCallback):number;
-        cancelAnimationFrame(handle:number):void;
-    }
+    requestAnimationFrame(callback:FrameRequestCallback):number;
+    cancelAnimationFrame(handle:number):void;
 }
 
 
-declare let global:cyder.Global;
+declare let global:Global;
 /**
- * The singleton instance of the Application object, which represents this cyder application.
+ * The singleton instance of the NativeApplication object, which represents this cyder application.
  */
-declare let application:cyder.Application;
+declare let nativeApplication:NativeApplication;
 /**
  * The Performance API represents timing-related performance information for the application.
  */
-declare let performance:cyder.Performance;
+declare let performance:Performance;
 /**
  * The console read-only property returns a reference to the Console object, which provides methods for logging information
  * to the cyder's console. These methods are intended for debugging purposes only and should not be relied on for presenting
@@ -113,7 +65,7 @@ declare let console:Console;
  * @returns A integer value, the request id, that uniquely identifies the entry in the callback list. You can pass this
  * value to cancelAnimationFrame() to cancel the refresh callback request.
  */
-declare function requestAnimationFrame(callback:cyder.FrameRequestCallback):number;
+declare function requestAnimationFrame(callback:FrameRequestCallback):number;
 
 /**
  * Cancels an animation frame request previously scheduled through a call to requestAnimationFrame().
