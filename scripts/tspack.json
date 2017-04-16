@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../resource/",
+    "outDir": "built/",
     "target": "ES5",
     "lib": [
       "ES5",

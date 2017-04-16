@@ -32,7 +32,5 @@
 /DEPS.cache
 /cmake-build-debug
 /cmake-build-release
-/resource/cyder.d.ts
-/resource/cyder.js
-/resource/test.js
+/scripts/built
 node_modules
