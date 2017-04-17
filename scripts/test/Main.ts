@@ -24,10 +24,12 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-console.log("it works! " + performance.now() + "ms");
+requestAnimationFrame(onTick);
+function onTick(timeStamp:number):void {
+    nativeApplication.addEventListener("callback", function () {
+        console.log("it works! " + performance.now() + "ms");
+    });
+    nativeApplication.dispatchEventWith("callback");
 
-// requestAnimationFrame(onTick);
-// function onTick(timeStamp:number):void {
-//     console.log(timeStamp);
-//     requestAnimationFrame(onTick);
-// }
+    // requestAnimationFrame(onTick);
+}

@@ -66,9 +66,6 @@ namespace cyder {
     class Environment {
     public:
 
-        static const int CONTEXT_EMBEDDER_DATA_INDEX = 1;
-
-
         static Environment* GetCurrent(v8::Isolate* isolate) {
             return GetCurrent(isolate->GetCurrentContext());
         }
@@ -213,6 +210,33 @@ namespace cyder {
             auto local = v8::Local<v8::String>::Cast(value);
             v8::String::Utf8Value v(local);
             return std::string(*v);
+        }
+
+        //================================ NewInstance Methods =================================
+
+        v8::MaybeLocal<v8::Object> newInstance(const v8::Local<v8::Function>& function) const {
+            return function->NewInstance(context());
+        }
+
+        v8::MaybeLocal<v8::Object> newInstance(const v8::Local<v8::Function>& function,
+                                               const v8::Local<v8::Value>& arg) const {
+            v8::Local<v8::Value> argv[] = {arg};
+            return function->NewInstance(context(), 1, argv);
+        }
+
+        v8::MaybeLocal<v8::Object> newInstance(const v8::Local<v8::Function>& function,
+                                               const v8::Local<v8::Value>& arg0,
+                                               const v8::Local<v8::Value>& arg1) const {
+            v8::Local<v8::Value> argv[] = {arg0, arg1};
+            return function->NewInstance(context(), 2, argv);
+        }
+
+        v8::MaybeLocal<v8::Object> newInstance(const v8::Local<v8::Function>& function,
+                                               const v8::Local<v8::Value>& arg0,
+                                               const v8::Local<v8::Value>& arg1,
+                                               const v8::Local<v8::Value>& arg2) const {
+            v8::Local<v8::Value> argv[] = {arg0, arg1, arg2};
+            return function->NewInstance(context(), 3, argv);
         }
 
         //==================================== Call Methods ====================================
@@ -457,7 +481,8 @@ namespace cyder {
             }
         }
 
-        void setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, v8::FunctionCallback callback) {
+        void
+        setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, v8::FunctionCallback callback) {
             auto functionTemplate = makeFunctionTemplate(callback);
             auto nameValue = makeString(name);
             ASSERT(!nameValue.IsEmpty());
@@ -476,6 +501,8 @@ namespace cyder {
         }
 
     private:
+        static const int CONTEXT_EMBEDDER_DATA_INDEX = 1;
+
         v8::Isolate* _isolate;
         v8::Persistent<v8::Context> _context;
         v8::Persistent<v8::Object> _global;

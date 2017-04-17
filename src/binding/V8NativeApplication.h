@@ -36,7 +36,8 @@ namespace cyder {
 
     class V8NativeApplication {
     public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+        static void install(const v8::Local<v8::Object>& parent, Environment* env,
+                            v8::Local<v8::Function> EventEmitter);
     };
 
 }// namespace cyder

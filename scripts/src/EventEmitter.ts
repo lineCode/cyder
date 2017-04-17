@@ -197,7 +197,8 @@ namespace cyder {
         }
 
         /**
-         * Dispatches an event into the event flow. The event target is the EventEmitter object upon which dispatchEvent() is called.
+         * Dispatches an event to all objects that have registered listeners for the type of this event. The event target is
+         * the EventEmitter object upon which dispatchEvent() is called.
          * @param event The event object dispatched into the event flow.
          * @returns A value of true unless preventDefault() is called on the event, in which case it returns false.
          */
@@ -233,6 +234,7 @@ namespace cyder {
          * The method uses an internal pool of event objects to avoid allocations.
          * @param type The type of the event.
          * @param cancelable Determines whether the Event object can be canceled. The default values is false.
+         * @returns A value of true unless preventDefault() is called on the event, in which case it returns false.
          */
         public dispatchEventWith(type:string, cancelable?:boolean):boolean {
             if (this.eventsMap[type]) {

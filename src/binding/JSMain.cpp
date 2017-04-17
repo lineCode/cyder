@@ -45,8 +45,9 @@ namespace cyder {
     void JSMain::installTemplates(Environment* env) {
         v8::HandleScope scope(env->isolate());
         auto global = env->global();
+        auto EventEmitter = env->readAlignedFunction(eventEmitterIndex);
         V8Performance::install(global, env);
-        V8NativeApplication::install(global, env);
+        V8NativeApplication::install(global, env, EventEmitter);
     }
 
     void JSMain::attachJS(const std::string& path) {
@@ -65,6 +66,9 @@ namespace cyder {
         auto maybeInitCyder = env->getFunction(cyderScope, "initCyder");
         ASSERT(!maybeInitCyder.IsEmpty());
         initCyderIndex = env->saveAlignedValue(maybeInitCyder.ToLocalChecked());
+        auto maybeEventEmitter = env->getFunction(cyderScope, "EventEmitter");
+        ASSERT(!maybeEventEmitter.IsEmpty());
+        eventEmitterIndex = env->saveAlignedValue(maybeEventEmitter.ToLocalChecked());
     }
 
     void JSMain::start(int argc, const char** argv) {
