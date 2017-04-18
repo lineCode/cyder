@@ -405,39 +405,39 @@ namespace cyder {
 
         //==================================== Set Object Methods ====================================
 
-        void setPropertyOfObject(v8::Local<v8::Object> target, const std::string& name, double value) {
-            setPropertyOfObject(target, name, v8::Number::New(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, double value) {
+            setObjectProperty(target, name, v8::Number::New(_isolate, value));
         }
 
-        void setPropertyOfObject(v8::Local<v8::Object> target, const std::string& name, int value) {
-            setPropertyOfObject(target, name, v8::Integer::New(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, int value) {
+            setObjectProperty(target, name, v8::Integer::New(_isolate, value));
         }
 
-        void setPropertyOfObject(v8::Local<v8::Object> target, const std::string& name, unsigned int value) {
-            setPropertyOfObject(target, name, v8::Integer::NewFromUnsigned(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, unsigned int value) {
+            setObjectProperty(target, name, v8::Integer::NewFromUnsigned(_isolate, value));
         }
 
-        void setPropertyOfObject(v8::Local<v8::Object> target, const std::string& name, bool value) {
-            setPropertyOfObject(target, name, v8::Boolean::New(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, bool value) {
+            setObjectProperty(target, name, v8::Boolean::New(_isolate, value));
         }
 
-        void setPropertyOfObject(v8::Local<v8::Object> target, const std::string& name, const std::string& value) {
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, const std::string& value) {
             auto maybeString = makeString(value);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
-                setPropertyOfObject(target, name, maybeString.ToLocalChecked());
+                setObjectProperty(target, name, maybeString.ToLocalChecked());
             }
 
         }
 
-        void setPropertyOfObject(v8::Local<v8::Object> target, const std::string& name, v8::FunctionCallback callback) {
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, v8::FunctionCallback callback) {
             auto maybeFunction = makeFunction(callback);
             ASSERT(!maybeFunction.IsEmpty());
             if (maybeFunction.IsEmpty()) {
                 return;
             }
             auto function = maybeFunction.ToLocalChecked();
-            setPropertyOfObject(target, name, function);
+            setObjectProperty(target, name, function);
             auto maybeString = makeString(name);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
@@ -445,7 +445,7 @@ namespace cyder {
             }
         }
 
-        void setPropertyOfObject(v8::Local<v8::Object> target, const std::string& name, v8::Local<v8::Value> value) {
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, v8::Local<v8::Value> value) {
             auto maybeString = makeString(name);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
@@ -457,42 +457,42 @@ namespace cyder {
 
         //==================================== Set Template Methods ====================================
 
-        void setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, double value) {
-            setPropertyOfTemplate(target, name, v8::Number::New(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, double value) {
+            setTemplateProperty(target, name, v8::Number::New(_isolate, value));
         }
 
-        void setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, int value) {
-            setPropertyOfTemplate(target, name, v8::Integer::New(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, int value) {
+            setTemplateProperty(target, name, v8::Integer::New(_isolate, value));
         }
 
-        void setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, unsigned int value) {
-            setPropertyOfTemplate(target, name, v8::Integer::NewFromUnsigned(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, unsigned int value) {
+            setTemplateProperty(target, name, v8::Integer::NewFromUnsigned(_isolate, value));
         }
 
-        void setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, bool value) {
-            setPropertyOfTemplate(target, name, v8::Boolean::New(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, bool value) {
+            setTemplateProperty(target, name, v8::Boolean::New(_isolate, value));
         }
 
-        void setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, const std::string& value) {
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, const std::string& value) {
             auto maybeString = makeString(value);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
-                setPropertyOfTemplate(target, name, maybeString.ToLocalChecked());
+                setTemplateProperty(target, name, maybeString.ToLocalChecked());
             }
         }
 
-        void
-        setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, v8::FunctionCallback callback) {
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
+                                 v8::FunctionCallback callback) {
             auto functionTemplate = makeFunctionTemplate(callback);
             auto nameValue = makeString(name);
             ASSERT(!nameValue.IsEmpty());
             if (!nameValue.IsEmpty()) {
                 functionTemplate->SetClassName(nameValue.ToLocalChecked());
             }
-            setPropertyOfTemplate(target, name, functionTemplate);
+            setTemplateProperty(target, name, functionTemplate);
         }
 
-        void setPropertyOfTemplate(v8::Local<v8::Template> target, const std::string& name, v8::Local<v8::Data> value) {
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, v8::Local<v8::Data> value) {
             auto maybeString = makeString(name);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {

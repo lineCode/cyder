@@ -46,13 +46,13 @@ namespace cyder {
     void V8NativeApplication::install(const v8::Local<v8::Object>& parent, Environment* env,
                                       v8::Local<v8::Function> EventEmitter) {
         auto application = env->newInstance(EventEmitter).ToLocalChecked();
-        env->setPropertyOfObject(parent, "nativeApplication", application);
+        env->setObjectProperty(parent, "nativeApplication", application);
         auto stdoutObject = env->makeObject();
-        env->setPropertyOfObject(stdoutObject, "write", stdoutWriteMethod);
-        env->setPropertyOfObject(application, "standardOutput", stdoutObject);
+        env->setObjectProperty(stdoutObject, "write", stdoutWriteMethod);
+        env->setObjectProperty(application, "standardOutput", stdoutObject);
         auto stderrObject = env->makeObject();
-        env->setPropertyOfObject(stderrObject, "write", stderrWriteMethod);
-        env->setPropertyOfObject(application, "standardError", stderrObject);
+        env->setObjectProperty(stderrObject, "write", stderrWriteMethod);
+        env->setObjectProperty(application, "standardError", stderrObject);
     }
 
 }// namespace cyder

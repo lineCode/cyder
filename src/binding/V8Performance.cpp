@@ -36,8 +36,8 @@ namespace cyder {
 
     void V8Performance::install(const v8::Local<v8::Object>& parent, Environment* env) {
         auto performance = env->makeObject();
-        env->setPropertyOfObject(performance, "now", nowMethod);
-        env->setPropertyOfObject(parent, "performance", performance);
+        env->setObjectProperty(performance, "now", nowMethod);
+        env->setObjectProperty(parent, "performance", performance);
     }
 
 }  // namespace cyder
