@@ -39,6 +39,7 @@ namespace cyder {
             return;
         }
         started = true;
+        implementEventEmitter(NativeWindow);
         global.console = new Console(nativeApplication.standardOutput, nativeApplication.standardError);
     }
 } 

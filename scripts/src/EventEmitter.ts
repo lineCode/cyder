@@ -255,4 +255,15 @@ namespace cyder {
         }
     }
 
+    /**
+     * @internal
+     */
+    export function implementEventEmitter(Class:Function):void {
+        let targetProto = Class.prototype;
+        let emitterProto = EventEmitter.prototype;
+        let keys = Object.keys(emitterProto);
+        for (let key of keys) {
+            targetProto[key] = emitterProto[key];
+        }
+    }
 }

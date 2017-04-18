@@ -133,6 +133,11 @@ interface NativeWindow extends EventEmitter {
 
 }
 
+declare let NativeWindow:{
+    prototype:NativeWindow;
+    new():NativeWindow;
+}
+
 /**
  * The Performance interface represents timing-related performance information for the application.
  */
