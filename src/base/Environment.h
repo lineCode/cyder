@@ -123,6 +123,20 @@ namespace cyder {
         //==================================== Aligned Methods ====================================
 
         /**
+         * Save a local handle to persistent list at the given index, then you can use readAlignedValue or other
+         * readAligned methods with the given index value to retrieve the local handle. <br/>
+         */
+        void saveAlignedValue(const v8::Local<v8::Value>& handle, int index) {
+            auto maxIndex = persistentList.size();
+            while (maxIndex <= index) {
+                v8::UniquePersistent<v8::Value> persistent;
+                persistentList.push_back(std::move(persistent));
+                maxIndex++;
+            }
+            persistentList[index].Reset(_isolate, handle);
+        }
+
+        /**
          * Save a local handle to persistent list, then you can use readAlignedValue or other readAligned methods with
          * the returned index value to retrieve the local handle. <br/>
          */

@@ -29,7 +29,9 @@
 #include "JSMain.h"
 #include "V8Performance.h"
 #include "V8NativeApplication.h"
+#include "V8NativeWindow.h"
 #include "utils/GetTimer.h"
+#include "binding/AlignedValues.h"
 
 namespace cyder {
 
@@ -45,9 +47,9 @@ namespace cyder {
     void JSMain::installTemplates(Environment* env) {
         v8::HandleScope scope(env->isolate());
         auto global = env->global();
-        auto EventEmitter = env->readAlignedFunction(eventEmitterIndex);
         V8Performance::install(global, env);
-        V8NativeApplication::install(global, env, EventEmitter);
+        V8NativeApplication::install(global, env);
+        V8NativeWindow::install(global, env);
     }
 
     void JSMain::attachJS(const std::string& path) {
@@ -60,15 +62,16 @@ namespace cyder {
         auto maybeCyder = env->getObject(env->global(), "cyder");
         ASSERT(!maybeCyder.IsEmpty());
         auto cyderScope = maybeCyder.ToLocalChecked();
+        auto maybeEventEmitter = env->getFunction(cyderScope, "EventEmitter");
+        ASSERT(!maybeEventEmitter.IsEmpty());
+        env->saveAlignedValue(maybeEventEmitter.ToLocalChecked(), INDEX_EVENT_EMITTER_CLASS);
+
         auto maybeUpdate = env->getFunction(cyderScope, "updateFrame");
         ASSERT(!maybeUpdate.IsEmpty());
         updateFrameIndex = env->saveAlignedValue(maybeUpdate.ToLocalChecked());
-        auto maybeInitCyder = env->getFunction(cyderScope, "initCyder");
+        auto maybeInitCyder = env->getFunction(cyderScope, "initialize");
         ASSERT(!maybeInitCyder.IsEmpty());
         initCyderIndex = env->saveAlignedValue(maybeInitCyder.ToLocalChecked());
-        auto maybeEventEmitter = env->getFunction(cyderScope, "EventEmitter");
-        ASSERT(!maybeEventEmitter.IsEmpty());
-        eventEmitterIndex = env->saveAlignedValue(maybeEventEmitter.ToLocalChecked());
     }
 
     void JSMain::start(int argc, const char** argv) {

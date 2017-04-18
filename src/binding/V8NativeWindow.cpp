@@ -24,36 +24,42 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-
-#include "V8NativeApplication.h"
-#include <iostream>
+#include "V8NativeWindow.h"
+#include "platform/Window.h"
 #include "binding/AlignedValues.h"
+#include "binding/WeakWrap.h"
 
 namespace cyder {
 
-    void stdoutWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    void activateMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto self = args.This();
+        auto window = static_cast<Window*>(self->GetAlignedPointerFromInternalField(0));
+        window->activate();
+    }
+
+    void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
-        auto text = env->toStdString(args[0]);
-        std::cout << text;
+        v8::HandleScope scope(env->isolate());
+
+        WindowInitOptions options;
+        Window* window = Window::New(options);
+        window->setX(300);
+        window->setY(150);
+        window->setContentSize(800, 600);
+        window->setTitle("CYDER");
+
+        auto self = args.This();
+        auto eventEmitterClass = env->readAlignedFunction(INDEX_EVENT_EMITTER_CLASS);
+        env->call(eventEmitterClass, self); // call the super class function.
+
+        self->SetAlignedPointerInInternalField(0, window);
+        WeakRemove<Window>::Bind(env->isolate(), self, window);
     }
 
-    void stderrWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto env = Environment::GetCurrent(args);
-        auto text = env->toStdString(args[0]);
-        std::cerr << text;
+    void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
+        auto classTemplate = env->makeFunctionTemplate(constructor);
+        auto prototypeTemplate = classTemplate->PrototypeTemplate();
+        env->setTemplateProperty(prototypeTemplate, "activate", activateMethod);
+        env->attachClass(parent, "NativeWindow", classTemplate, 1);
     }
-
-    void V8NativeApplication::install(const v8::Local<v8::Object>& parent, Environment* env) {
-        auto EventEmitter = env->readAlignedFunction(INDEX_EVENT_EMITTER_CLASS);
-        auto application = env->newInstance(EventEmitter).ToLocalChecked();
-        env->setObjectProperty(parent, "nativeApplication", application);
-        auto stdoutObject = env->makeObject();
-        env->setObjectProperty(stdoutObject, "write", stdoutWriteMethod);
-        env->setObjectProperty(application, "standardOutput", stdoutObject);
-        auto stderrObject = env->makeObject();
-        env->setObjectProperty(stderrObject, "write", stderrWriteMethod);
-        env->setObjectProperty(application, "standardError", stderrObject);
-    }
-
-}// namespace cyder
+}

@@ -25,22 +25,57 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef CYDER_WEAKHELPER_H
-#define CYDER_WEAKHELPER_H
+#ifndef CYDER_WEAKWRAP_H
+#define CYDER_WEAKWRAP_H
 
 #include <functional>
 #include <v8.h>
 
 namespace cyder {
+
+    /**
+     * This helper class wraps a v8::Object and a C++ pointer. It will delete the C++ pointer when v8 garbage collects
+     * the v8::Object.
+     */
+    template<class T>
+    class WeakRemove {
+    public:
+
+        static void Bind(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
+            new WeakRemove(isolate, handle, target);
+        }
+
+    private:
+        v8::Persistent<v8::Object> persistent;
+        T* target;
+
+        WeakRemove(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) :
+                persistent(isolate, handle),
+                target(target) {
+            persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
+            persistent.MarkIndependent();
+        }
+
+        static void WeakCallback(const v8::WeakCallbackInfo<WeakRemove>& data) {
+            v8::Isolate* isolate = data.GetIsolate();
+            v8::HandleScope handle_scope(isolate);
+            WeakRemove* handle = data.GetParameter();
+            handle->persistent.Reset();
+            delete handle->target;
+            delete handle;
+        }
+    };
+
+
     /**
      * This helper class wraps a v8::Object and a callback function. It will trigger the callback function when v8 garbage
      * collects the v8::Object, and then delete itself too. <br/>
-     * Notice: The callback function will never trigger if you delete the instance of WeakHandle mamually.
+     * Notice: The callback function will never trigger if you delete the instance of WeakHandle manually.
      */
     class WeakHandle {
     public:
-        static WeakHandle*
-        New(v8::Isolate* isolate, v8::Local<v8::Object> handle, std::function<void()> callback = nullptr) {
+        static WeakHandle* New(v8::Isolate* isolate, v8::Local<v8::Object> handle,
+                               std::function<void()> callback = nullptr) {
             return new WeakHandle(isolate, handle, callback);
         }
 
@@ -87,4 +122,4 @@ namespace cyder {
 
 }  // namespace cyder
 
-#endif //CYDER_WEAKHELPER_H
+#endif //CYDER_WEAKWRAP_H

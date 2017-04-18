@@ -24,6 +24,16 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+interface Canvas {
+    width:number;
+    height:number;
+}
+
+declare let Canvas:{
+    prototype:Canvas;
+    new():Canvas;
+}
+
 /**
  * The EventEmitter interface defines methods for adding or removing event listeners, checks whether specific types
  * of event listeners are registered, and dispatches events.
@@ -99,15 +109,11 @@ interface EventEmitter {
     dispatchEventWith(type:string, cancelable?:boolean):boolean
 }
 
-
 /**
- * Writable streams are an abstraction for a destination to which data is written.
+ * The callback function for requestAnimation method.
  */
-interface WritableStream {
-    /**
-     * Write a string message to WritableStream.
-     */
-    write(message:string):void;
+interface FrameRequestCallback {
+    (time:number):void;
 }
 
 /**
@@ -127,16 +133,29 @@ interface NativeApplication extends EventEmitter {
      * it is usually also directed by default to the text console (generally, on the screen).
      */
     standardError:WritableStream;
+
+    /**
+     * The active application window.<br/>
+     * If the active desktop window does not belong to this application, or there is no active window, activeWindow is null.
+     */
+    activeWindow:NativeWindow;
+
+    /**
+     * An array containing all the open native windows of this application.
+     */
+    openedWindows:NativeWindow[];
 }
 
 interface NativeWindow extends EventEmitter {
-
+    canvas:Canvas;
+    activate():void;
 }
 
 declare let NativeWindow:{
     prototype:NativeWindow;
     new():NativeWindow;
 }
+
 
 /**
  * The Performance interface represents timing-related performance information for the application.
@@ -151,8 +170,11 @@ interface Performance {
 }
 
 /**
- * The callback function for requestAnimation method.
+ * Writable streams are an abstraction for a destination to which data is written.
  */
-interface FrameRequestCallback {
-    (time:number):void;
+interface WritableStream {
+    /**
+     * Write a string message to WritableStream.
+     */
+    write(message:string):void;
 }

@@ -29,16 +29,16 @@
  */
 namespace cyder {
 
-    let started = false;
+    let initialized = false;
 
     /**
      * @internal
      */
-    export function initCyder(args:string[]):void {
-        if (started) {
+    export function initialize(args:string[]):void {
+        if (initialized) {
             return;
         }
-        started = true;
+        initialized = true;
         implementEventEmitter(NativeWindow);
         global.console = new Console(nativeApplication.standardOutput, nativeApplication.standardError);
     }

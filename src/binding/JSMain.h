@@ -44,7 +44,6 @@ namespace cyder {
     private:
         Environment* env;
         unsigned long updateFrameIndex;
-        unsigned long eventEmitterIndex;
         unsigned long initCyderIndex;
         void attachJS(const std::string& path);
         void installTemplates(Environment* env);
