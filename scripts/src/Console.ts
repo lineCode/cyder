@@ -46,7 +46,7 @@ class Console {
      */
     private stderr:WritableStream;
 
-    private static formatString(format):string {
+    private static formatString(format:any):string {
         let objects = new Array(arguments.length);
         for (let index = 0; index < arguments.length; index++) {
             objects[index] = arguments[index];

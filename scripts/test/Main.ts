@@ -29,12 +29,15 @@ let window:NativeWindow;
 requestAnimationFrame(onTick);
 
 function onTick(timeStamp:number):void {
-    nativeApplication.addEventListener("callback", function () {
+    nativeApplication.on("callback", onCallback, null);
+
+    function onCallback() {
         console.log("it works! " + performance.now() + "ms");
         window = new NativeWindow();
         window.activate();
-    });
-    nativeApplication.dispatchEventWith("callback");
+    }
+
+    nativeApplication.emitWith("callback");
 
     // requestAnimationFrame(onTick);
 }

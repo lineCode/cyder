@@ -36,38 +36,38 @@
 class Event {
 
     /**
-     * [broadcast event] Dispatched when the application become active.
+     * Emitted when the application become active.
      */
     public static readonly ACTIVATE:string = "activate";
     /**
-     * [broadcast event] Dispatched when the application become inactive.
+     * Emitted when the application become inactive.
      */
     public static readonly DEACTIVATE:string = "deactivate";
 
     /**
-     * Dispatched when the size of NativeWindow is changed.
+     * Emitted when the size of NativeWindow is changed.
      */
     public static readonly RESIZE:string = "resize";
 
     /**
-     * Dispatched when the size of NativeWindow is going to change. you can cancel this by calling the preventDefault()
+     * Emitted when the size of NativeWindow is going to change. you can cancel this by calling the preventDefault()
      * method.
      */
     public static readonly RESIZING:string = "resizing";
 
     /**
-     * Dispatched when the value or selection of a property is changed.
+     * Emitted when the value or selection of a property is changed.
      */
     public static readonly CHANGE:string = "change";
 
     /**
-     * Dispatched when the value or selection of a property is going to change. you can cancel this by calling the
+     * Emitted when the value or selection of a property is going to change. you can cancel this by calling the
      * preventDefault() method.
      */
     public static readonly CHANGING:string = "changing";
 
     /**
-     * Dispatched when the net request is complete.
+     * Emitted when the net request is complete.
      */
     public static readonly COMPLETE:string = "complete";
 
@@ -102,7 +102,7 @@ class Event {
     }
 
     /**
-     * The event target. It is the EventEmitter object which calls the dispatchEvent() method.
+     * The event target. It is the EventEmitter object which calls the emit() method.
      */
     public target:any;
 
@@ -135,7 +135,7 @@ class Event {
     }
 
     protected initEvent(type:string, cancelable?:boolean) {
-        this.$initEvent(type, cancelable);
+        this.$initEvent(type, !!cancelable);
     }
 
     /**
