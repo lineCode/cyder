@@ -195,4 +195,19 @@ namespace cyder {
         LOG("%s", result.c_str());
     }
 
+    v8::Local<v8::Object> Environment::findObjectInGlobal(const std::string& name, bool saveCache) {
+        auto list = stringSplit(name, ".");
+        auto current = global();
+        for (const auto& key : list) {
+            auto maybeObject = getObject(current, key);
+            ASSERT(!maybeObject.IsEmpty());
+            current = maybeObject.ToLocalChecked();
+        }
+        if (saveCache) {
+            v8::UniquePersistent<v8::Object> persistent(_isolate, current);
+            persistentMap.insert(std::make_pair(name, std::move(persistent)));
+        }
+        return current;
+    }
+
 }  // namespace cyder

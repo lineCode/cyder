@@ -24,9 +24,30 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_ALIGNEDVALUES_H
-#define CYDER_ALIGNEDVALUES_H
+#ifndef CYDER_STRINGSPLIT_H
+#define CYDER_STRINGSPLIT_H
 
-#define INDEX_EVENT_EMITTER_CLASS 0
+#include <string>
+#include <vector>
 
-#endif //CYDER_ALIGNEDVALUES_H
+namespace cyder {
+    inline std::vector<std::string> stringSplit(const std::string& text, const std::string& separator) {
+        std::vector<std::string> result;
+        std::string::size_type pos1, pos2;
+        pos2 = text.find(separator);
+        pos1 = 0;
+        while (std::string::npos != pos2) {
+            result.push_back(text.substr(pos1, pos2 - pos1));
+
+            pos1 = pos2 + separator.size();
+            pos2 = text.find(separator, pos1);
+        }
+        if (pos1 != text.length()) {
+            result.push_back(text.substr(pos1));
+        }
+        return result;
+    }
+
+}
+
+#endif //CYDER_STRINGSPLIT_H

@@ -30,7 +30,9 @@
 
 #include <v8.h>
 #include <string>
+#include <unordered_map>
 #include "utils/USE.h"
+#include "utils/StringSplit.h"
 #include "platform/Log.h"
 
 namespace cyder {
@@ -120,65 +122,23 @@ namespace cyder {
             return StrongPersistentToLocal(_external);
         }
 
-        //==================================== Aligned Methods ====================================
-
-        /**
-         * Save a local handle to persistent list at the given index, then you can use readAlignedValue or other
-         * readAligned methods with the given index value to retrieve the local handle. <br/>
-         */
-        void saveAlignedValue(const v8::Local<v8::Value>& handle, int index) {
-            auto maxIndex = persistentList.size();
-            while (maxIndex <= index) {
-                v8::UniquePersistent<v8::Value> persistent;
-                persistentList.push_back(std::move(persistent));
-                maxIndex++;
+        v8::Local<v8::Function> readGlobalFunction(const std::string& name, bool saveCache = true) {
+            auto item = persistentMap.find(name);
+            if (item != persistentMap.end()) {
+                auto& persistent = item->second;
+                return *reinterpret_cast<v8::Local<v8::Function>*>(&persistent);
             }
-            persistentList[index].Reset(_isolate, handle);
+            auto object = findObjectInGlobal(name, saveCache);
+            return v8::Local<v8::Function>::Cast(object);
         }
 
-        /**
-         * Save a local handle to persistent list, then you can use readAlignedValue or other readAligned methods with
-         * the returned index value to retrieve the local handle. <br/>
-         */
-        unsigned long saveAlignedValue(const v8::Local<v8::Value>& handle) {
-            auto index = persistentList.size();
-            v8::UniquePersistent<v8::Value> persistent;
-            persistentList.push_back(std::move(persistent));
-            persistentList[index].Reset(_isolate, handle);
-            return index;
-        }
-
-        /**
-         * Gets a local handle of v8::Value from persistent list.
-         * @param index The index of handle in persistent list, which is returned by saveAlignedValue.
-         * @returns The local handle.
-         */
-        v8::Local<v8::Value> readAlignedValue(unsigned long index) {
-            ASSERT(index < persistentList.size())
-            auto& persistent = persistentList[index];
-            return *reinterpret_cast<v8::Local<v8::Value>*>(&persistent);
-        }
-
-        /**
-         * Gets a local handle of v8::Function from persistent list.
-         * @param index The index of handle in persistent list, which is returned by saveAlignedValue.
-         * @returns The local handle.
-         */
-        v8::Local<v8::Function> readAlignedFunction(unsigned long index) {
-            auto value = readAlignedValue(index);
-            auto function = v8::Local<v8::Function>::Cast(value);
-            return function;
-        }
-
-        /**
-         * Gets a local handle of v8::Object from persistent list.
-         * @param index The index of handle in persistent list, which is returned by saveAlignedValue.
-         * @returns The local handle.
-         */
-        v8::Local<v8::Object> readAlignedObject(unsigned long index) {
-            auto value = readAlignedValue(index);
-            auto object = v8::Local<v8::Object>::Cast(value);
-            return object;
+        v8::Local<v8::Object> readGlobalObject(const std::string& name, bool saveCache = true) {
+            auto item = persistentMap.find(name);
+            if (item != persistentMap.end()) {
+                auto& persistent = item->second;
+                return *reinterpret_cast<v8::Local<v8::Object>*>(&persistent);
+            }
+            return findObjectInGlobal(name, saveCache);
         }
 
 
@@ -521,7 +481,9 @@ namespace cyder {
         v8::Persistent<v8::Context> _context;
         v8::Persistent<v8::Object> _global;
         v8::Persistent<v8::External> _external;
-        std::vector<v8::UniquePersistent<v8::Value>> persistentList;
+        std::unordered_map<std::string, v8::UniquePersistent<v8::Object>> persistentMap;
+
+        v8::Local<v8::Object> findObjectInGlobal(const std::string& name, bool saveCache);
     };
 
 #undef CHECK_EMPTY

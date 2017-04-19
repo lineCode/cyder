@@ -31,7 +31,6 @@
 #include "V8NativeApplication.h"
 #include "V8NativeWindow.h"
 #include "utils/GetTimer.h"
-#include "binding/AlignedValues.h"
 
 namespace cyder {
 
@@ -59,25 +58,12 @@ namespace cyder {
         if (result.IsEmpty()) {
             return;
         }
-        auto maybeCyder = env->getObject(env->global(), "cyder");
-        ASSERT(!maybeCyder.IsEmpty());
-        auto cyderScope = maybeCyder.ToLocalChecked();
-        auto maybeEventEmitter = env->getFunction(cyderScope, "EventEmitter");
-        ASSERT(!maybeEventEmitter.IsEmpty());
-        env->saveAlignedValue(maybeEventEmitter.ToLocalChecked(), INDEX_EVENT_EMITTER_CLASS);
-
-        auto maybeUpdate = env->getFunction(cyderScope, "updateFrame");
-        ASSERT(!maybeUpdate.IsEmpty());
-        updateFrameIndex = env->saveAlignedValue(maybeUpdate.ToLocalChecked());
-        auto maybeInitCyder = env->getFunction(cyderScope, "initialize");
-        ASSERT(!maybeInitCyder.IsEmpty());
-        initCyderIndex = env->saveAlignedValue(maybeInitCyder.ToLocalChecked());
     }
 
     void JSMain::start(int argc, const char** argv) {
         auto isolate = env->isolate();
         v8::HandleScope scope(isolate);
-        auto initCyderFunction = env->readAlignedFunction(initCyderIndex);
+        auto initCyderFunction = env->readGlobalFunction("cyder.initialize", false);
         auto context = env->context();
         auto args = v8::Array::New(isolate, argc);
         for (unsigned int i = 0; i < argc; i++) {
@@ -102,7 +88,7 @@ namespace cyder {
         v8::HandleScope scope(isolate);
         v8::Context::Scope contextScope(env->context());
         v8::TryCatch tryCatch(isolate);
-        auto updateFunction = env->readAlignedFunction(updateFrameIndex);
+        auto updateFunction = env->readGlobalFunction("cyder.updateFrame");
         auto timeStamp = env->makeValue(getTimer());
         auto result = env->call(updateFunction, env->makeNull(), timeStamp);
         if (result.IsEmpty()) {

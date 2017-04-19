@@ -26,7 +26,6 @@
 
 #include "V8NativeWindow.h"
 #include "platform/Window.h"
-#include "binding/AlignedValues.h"
 #include "binding/WeakWrap.h"
 
 namespace cyder {
@@ -49,7 +48,7 @@ namespace cyder {
         window->setTitle("CYDER");
 
         auto self = args.This();
-        auto eventEmitterClass = env->readAlignedFunction(INDEX_EVENT_EMITTER_CLASS);
+        auto eventEmitterClass = env->readGlobalFunction("cyder.EventEmitter");
         env->call(eventEmitterClass, self); // call the super class function.
 
         self->SetAlignedPointerInInternalField(0, window);

@@ -28,7 +28,6 @@
 
 #include "V8NativeApplication.h"
 #include <iostream>
-#include "binding/AlignedValues.h"
 
 namespace cyder {
 
@@ -45,7 +44,7 @@ namespace cyder {
     }
 
     void V8NativeApplication::install(const v8::Local<v8::Object>& parent, Environment* env) {
-        auto EventEmitter = env->readAlignedFunction(INDEX_EVENT_EMITTER_CLASS);
+        auto EventEmitter = env->readGlobalFunction("cyder.EventEmitter");
         auto application = env->newInstance(EventEmitter).ToLocalChecked();
         env->setObjectProperty(parent, "nativeApplication", application);
         auto stdoutObject = env->makeObject();
