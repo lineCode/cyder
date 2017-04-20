@@ -78,7 +78,7 @@ interface CanvasRenderingContext2D {
     /**
      * A read-only back-reference to the associated canvas object.
      */
-    readonly canvas:HTMLCanvasElement;
+    readonly canvas:Canvas;
 }
 
 

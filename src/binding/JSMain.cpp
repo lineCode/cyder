@@ -30,7 +30,10 @@
 #include "V8Performance.h"
 #include "V8NativeApplication.h"
 #include "V8NativeWindow.h"
+#include "V8CanvasRenderingContext2D.h"
+#include "V8Canvas.h"
 #include "utils/GetTimer.h"
+
 
 namespace cyder {
 
@@ -47,6 +50,8 @@ namespace cyder {
         v8::HandleScope scope(env->isolate());
         auto global = env->global();
         V8Performance::install(global, env);
+        V8CanvasRenderingContext2D::install(global, env);
+        V8Canvas::install(global, env);
         V8NativeApplication::install(global, env);
         V8NativeWindow::install(global, env);
     }

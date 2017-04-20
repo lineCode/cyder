@@ -24,23 +24,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+#ifndef CYDER_V8CANVASRENDERINGCONTEXT2D_H
+#define CYDER_V8CANVASRENDERINGCONTEXT2D_H
 
-requestAnimationFrame(onTick);
+#include <v8.h>
+#include "base/Environment.h"
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
+namespace cyder {
 
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = new Canvas(200,200);
-        let context = canvas.getContext("2d");
-        console.log(context);
-    }
+    class V8CanvasRenderingContext2D {
+    public:
+        static void install(v8::Local <v8::Object> parent, Environment* env);
+    };
 
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
 }
+
+#endif //CYDER_V8CANVASRENDERINGCONTEXT2D_H

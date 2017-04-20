@@ -24,23 +24,15 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+#ifndef CYDER_CONTEXTATTRIBUTES_H
+#define CYDER_CONTEXTATTRIBUTES_H
 
-requestAnimationFrame(onTick);
+namespace cyder {
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
+    class ContextAttributes {
 
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = new Canvas(200,200);
-        let context = canvas.getContext("2d");
-        console.log(context);
-    }
+    };
 
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
 }
+
+#endif //CYDER_CONTEXTATTRIBUTES_H

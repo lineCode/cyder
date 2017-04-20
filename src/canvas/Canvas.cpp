@@ -24,23 +24,29 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+#include "Canvas.h"
+#include "ContextAttributes.h"
+#include "RenderingContext.h"
 
-requestAnimationFrame(onTick);
-
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = new Canvas(200,200);
-        let context = canvas.getContext("2d");
-        console.log(context);
+namespace cyder {
+    Canvas::Canvas(int width, int height) : _width(width), _height(height) {
     }
 
-    nativeApplication.emitWith("callback");
+    void Canvas::setWidth(int value) {
+        if (_width == value) {
+            return;
+        }
+        _width = value;
+    }
 
-    // requestAnimationFrame(onTick);
+    void Canvas::setHeight(int value) {
+        if (_height == value) {
+            return;
+        }
+        _height = value;
+    }
+
+    RenderingContext* Canvas::getContext(const std::string& contextType, const ContextAttributes& contextAttributes) {
+        return new RenderingContext();
+    }
 }

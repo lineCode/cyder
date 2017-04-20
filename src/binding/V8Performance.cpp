@@ -30,7 +30,7 @@
 
 namespace cyder {
 
-    void nowMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void nowMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         args.GetReturnValue().Set(getTimer());
     }
 

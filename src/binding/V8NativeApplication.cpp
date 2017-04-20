@@ -31,13 +31,13 @@
 
 namespace cyder {
 
-    void stdoutWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void stdoutWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         auto text = env->toStdString(args[0]);
         std::cout << text;
     }
 
-    void stderrWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void stderrWriteMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         auto text = env->toStdString(args[0]);
         std::cerr << text;

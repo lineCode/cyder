@@ -24,23 +24,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+#include "ContextAttributes.h"
 
-requestAnimationFrame(onTick);
+namespace cyder {
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = new Canvas(200,200);
-        let context = canvas.getContext("2d");
-        console.log(context);
-    }
-
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
 }

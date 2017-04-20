@@ -24,23 +24,24 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+#include "V8CanvasRenderingContext2D.h"
+#include "canvas2d/CanvasRenderingContext2D.h"
+#include "utils/WeakWrap.h"
 
-requestAnimationFrame(onTick);
+namespace cyder {
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = new Canvas(200,200);
-        let context = canvas.getContext("2d");
-        console.log(context);
+    static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        v8::HandleScope scope(env->isolate());
+        auto context = new CanvasRenderingContext2D();
+        auto self = args.This();
+        self->SetAlignedPointerInInternalField(0, context);
+        WeakRemove<CanvasRenderingContext2D>::Bind(env->isolate(), self, context);
     }
 
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+    void V8CanvasRenderingContext2D::install(v8::Local<v8::Object> parent, Environment* env) {
+        auto classTemplate = env->makeFunctionTemplate(constructor);
+        auto prototypeTemplate = classTemplate->PrototypeTemplate();
+        env->attachClass(parent, "CanvasRenderingContext2D", classTemplate, 1);
+    }
 }

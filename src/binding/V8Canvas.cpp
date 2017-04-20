@@ -24,41 +24,43 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "V8NativeWindow.h"
-#include "platform/Window.h"
+#include "V8Canvas.h"
+#include "canvas/Canvas.h"
 #include "utils/WeakWrap.h"
 
 namespace cyder {
 
-    static void activateMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void getContextMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        v8::HandleScope scope(env->isolate());
         auto self = args.This();
-        auto window = static_cast<Window*>(self->GetAlignedPointerFromInternalField(0));
-        window->activate();
+        auto window = static_cast<Canvas*>(self->GetAlignedPointerFromInternalField(0));
+        auto contextType = env->toStdString(args[0]);
+        //auto contextAttributes = v8::Local<v8::Object>::Cast(args[1]);
+        if (contextType == "2d") {
+            auto CanvasRenderingContext2DClass = env->readGlobalFunction("CanvasRenderingContext2D");
+            auto context = env->newInstance(CanvasRenderingContext2DClass).ToLocalChecked();
+            args.GetReturnValue().Set(context);
+        } else {
+            args.GetReturnValue().Set(env->makeNull());
+        }
     }
 
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
-
-        WindowInitOptions options;
-        Window* window = Window::New(options);
-        window->setX(300);
-        window->setY(150);
-        window->setContentSize(800, 600);
-        window->setTitle("CYDER");
-
+        int width = env->toInt(args[0]);
+        int height = env->toInt(args[1]);
+        auto canvas = new Canvas(width, height);
         auto self = args.This();
-        auto eventEmitterClass = env->readGlobalFunction("cyder.EventEmitter");
-        env->call(eventEmitterClass, self); // call the super class function.
-
-        self->SetAlignedPointerInInternalField(0, window);
-        WeakRemove<Window>::Bind(env->isolate(), self, window);
+        self->SetAlignedPointerInInternalField(0, canvas);
+        WeakRemove<Canvas>::Bind(env->isolate(), self, canvas);
     }
 
-    void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
+    void V8Canvas::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
-        env->setTemplateProperty(prototypeTemplate, "activate", activateMethod);
-        env->attachClass(parent, "NativeWindow", classTemplate, 1);
+        env->setTemplateProperty(prototypeTemplate, "getContext", getContextMethod);
+        env->attachClass(parent, "Canvas", classTemplate, 1);
     }
 }
