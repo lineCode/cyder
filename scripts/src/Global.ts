@@ -41,7 +41,7 @@ interface Global {
 
 declare let global:Global;
 /**
- * The singleton instance of the NativeApplication object, which represents this cyder application.
+ * The singleton instance of the NativeApplication object, which represents this application.
  */
 declare let nativeApplication:NativeApplication;
 /**
@@ -50,13 +50,13 @@ declare let nativeApplication:NativeApplication;
 declare let performance:Performance;
 /**
  * The console read-only property returns a reference to the Console object, which provides methods for logging information
- * to the cyder's console. These methods are intended for debugging purposes only and should not be relied on for presenting
+ * to the application's console. These methods are intended for debugging purposes only and should not be relied on for presenting
  * information to end users.
  */
 declare let console:Console;
 
 /**
- * The requestAnimationFrame() method tells the cyder that you wish to perform an animation and requests that the cyder
+ * The requestAnimationFrame() method tells the runtime that you wish to perform an animation and requests that the runtime
  * call a specified function to update an animation before the next repaint. The method takes as an argument a callback
  * to be invoked before the repaint.
  * @param callback A parameter specifying a function to call when it's time to update your animation for the next repaint.

@@ -24,14 +24,61 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * The Canvas object is a handle onto a raw buffer that is being managed by the screen compositor. It can be used to draw
+ * graphics. For example, draw graphs, make photo compositions, create animations, or even do real-time video processing
+ * or rendering. And it also can be drew to another canvas object.
+ */
 interface Canvas {
-    width:number;
+    /**
+     * Gets or sets the height of a canvas object.
+     */
     height:number;
+    /**
+     * Gets or sets the width of a canvas object.
+     */
+    width:number;
+
+    /**
+     * Returns a drawing context on the canvas, or null if the context identifier is not supported.
+     * @param contextType A string containing the context identifier defining the drawing context associated to the canvas.
+     * @param contextAttributes You can use several context attributes when creating your rendering context.
+     */
+    getContext(contextType:string, contextAttributes?:{}):any;
+    getContext(contextType:"2d", contextAttributes?:Canvas2DContextAttributes):CanvasRenderingContext2D;
 }
 
 declare let Canvas:{
     prototype:Canvas;
-    new():Canvas;
+    new(width:number, height:number):Canvas;
+}
+
+/**
+ * 2d context attributes.
+ */
+interface Canvas2DContextAttributes {
+    /**
+     * A boolean value that indicates whether the canvas contains an alpha channel. If set to false, the runtime now knows
+     * that the backdrop is always opaque, which can speed up drawing of transparent content and images then.
+     */
+    alpha?:boolean;
+    /**
+     * A boolean value that indicates whether a lot of read-back operations are planned. This will force the use of a
+     * software (instead of hardware accelerated) 2D canvas and can save memory when calling getImageData() frequently.
+     */
+    willReadFrequently?:boolean;
+}
+
+/**
+ * The CanvasRenderingContext2D interface is used for drawing rectangles, text, images and other objects onto the canvas
+ * object. It provides the 2D rendering context for the drawing surface of a canvas object.<br/>
+ * To get an object of this interface, call getContext() on a canvas object, supplying "2d" as the contextType argument.
+ */
+interface CanvasRenderingContext2D {
+    /**
+     * A read-only back-reference to the associated canvas object.
+     */
+    readonly canvas:HTMLCanvasElement;
 }
 
 
@@ -145,8 +192,23 @@ interface NativeApplication extends EventEmitter {
     openedWindows:NativeWindow[];
 }
 
+/**
+ * The NativeWindow class provides an interface for creating and controlling native desktop windows.
+ * NativeWindow objects will not be garbage collected after the window constructor has been called and before close()
+ * has been called. It is the responsibility of the application to close its own windows.
+ */
 interface NativeWindow extends EventEmitter {
+    /**
+     * The Canvas object for this window. Anything drew to it will show on the NativeWindow.
+     */
     canvas:Canvas;
+    /**
+     * Activates this window.<br/>
+     * Activating a window will:<br/>
+     * 1. Make the window visible<br/>
+     * 2. Bring the window to the front<br/>
+     * 3. Give the window keyboard and mouse focus<br/>
+     */
     activate():void;
 }
 
