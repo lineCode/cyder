@@ -45,18 +45,6 @@ namespace cyder {
             auto local = maybe.ToLocalChecked()
 
 
-    namespace {
-        template<class T>
-        inline v8::Local<T>& StrongPersistentToLocal(const v8::Persistent<T>& persistent) {
-            return *reinterpret_cast<v8::Local<T>*>(const_cast<v8::Persistent<T>*>(&persistent));
-        }
-
-        inline size_t getSizeOfPointer() {
-            uintptr_t ptr;
-            return sizeof(ptr);
-        }
-    }
-
     enum class ErrorType {
         ERROR = 1,
         TYPE_ERROR = 2,
@@ -476,6 +464,16 @@ namespace cyder {
 
     private:
         static const int CONTEXT_EMBEDDER_DATA_INDEX = 1;
+
+        template<class T>
+        static v8::Local<T>& StrongPersistentToLocal(const v8::Persistent<T>& persistent) {
+            return *reinterpret_cast<v8::Local<T>*>(const_cast<v8::Persistent<T>*>(&persistent));
+        }
+
+        static size_t getSizeOfPointer() {
+            uintptr_t ptr;
+            return sizeof(ptr);
+        }
 
         v8::Isolate* _isolate;
         v8::Persistent<v8::Context> _context;
