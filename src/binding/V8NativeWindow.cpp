@@ -26,7 +26,7 @@
 
 #include "V8NativeWindow.h"
 #include "platform/Window.h"
-#include "utils/WeakWrap.h"
+#include "utils/WeakWrapper.h"
 
 namespace cyder {
 
@@ -52,13 +52,13 @@ namespace cyder {
         env->call(eventEmitterClass, self); // call the super class function.
 
         self->SetAlignedPointerInInternalField(0, window);
-        WeakWrap::BindObject(env->isolate(), self, window);
+        WeakWrapper::BindObject(env->isolate(), self, window);
     }
 
     void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
         env->setTemplateProperty(prototypeTemplate, "activate", activateMethod);
-        env->attachClass(parent, "NativeWindow", classTemplate, 1);
+        env->attachClass(parent, "NativeWindow", classTemplate);
     }
 }

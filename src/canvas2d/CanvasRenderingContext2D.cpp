@@ -27,5 +27,7 @@
 #include "CanvasRenderingContext2D.h"
 
 namespace cyder {
+    CanvasRenderingContext2D::~CanvasRenderingContext2D() {
 
+    }
 }

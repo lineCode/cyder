@@ -65,7 +65,7 @@ namespace cyder {
         }
     }
 
-    void JSMain::start(int argc, const char** argv) {
+    void JSMain::start(int argc, char** argv) {
         auto isolate = env->isolate();
         v8::HandleScope scope(isolate);
         auto initCyderFunction = env->readGlobalFunction("cyder.initialize", false);

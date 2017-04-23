@@ -27,10 +27,16 @@
 #ifndef CYDER_CANVASRENDERINGCONTEXT2D_H
 #define CYDER_CANVASRENDERINGCONTEXT2D_H
 
+#include "canvas/RenderingContext.h"
+
 namespace cyder {
 
-    class CanvasRenderingContext2D {
+    class CanvasRenderingContext2D : public RenderingContext {
+    public:
+        explicit CanvasRenderingContext2D(Canvas* canvas) : RenderingContext(canvas) {
+        }
 
+        ~CanvasRenderingContext2D() override;
     };
 
 }

@@ -38,7 +38,7 @@ namespace cyder {
     public:
         JSMain(const std::string& nativeJSPath, Environment* env);
         ~JSMain();
-        void start(int argc, const char* argv[]);
+        void start(int argc, char* argv[]);
         void update();
 
     private:

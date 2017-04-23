@@ -26,7 +26,7 @@
 
 #include "V8CanvasRenderingContext2D.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
-#include "utils/WeakWrap.h"
+#include "utils/WeakWrapper.h"
 #include <skia.h>
 
 namespace cyder {
@@ -34,15 +34,19 @@ namespace cyder {
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
-        auto context = new CanvasRenderingContext2D();
+        if (!args[0]->IsExternal()) {
+            env->throwError(ErrorType::TYPE_ERROR, "Illegal constructor");
+            return;
+        }
+        auto external = v8::Local<v8::External>::Cast(args[0]);
+        auto context = reinterpret_cast<CanvasRenderingContext2D*>(external->Value());
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, context);
-        WeakWrap::BindObject(env->isolate(), self, context);
     }
 
     void V8CanvasRenderingContext2D::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
-        env->attachClass(parent, "CanvasRenderingContext2D", classTemplate, 1);
+        env->attachClass(parent, "CanvasRenderingContext2D", classTemplate);
     }
 }

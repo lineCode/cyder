@@ -26,21 +26,52 @@
 
 #include "V8Canvas.h"
 #include "canvas/Canvas.h"
-#include "utils/WeakWrap.h"
+#include "utils/WeakWrapper.h"
+#include "canvas2d/CanvasRenderingContext2D.h"
 
 namespace cyder {
+
+    class CanvasWrapper {
+    public:
+        Canvas* canvas;
+        std::string contextType = "";
+        RenderingContext* context = nullptr;
+        v8::Persistent<v8::Object> contextObject;
+
+        CanvasWrapper(Canvas* c) : canvas(c) {
+        }
+
+        ~CanvasWrapper() {
+            contextObject.Reset();
+            delete context;
+            delete canvas;
+        }
+    };
 
     static void getContextMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
         auto self = args.This();
-        auto canvas = static_cast<Canvas*>(self->GetAlignedPointerFromInternalField(0));
+        auto wrapper = static_cast<CanvasWrapper*>(self->GetAlignedPointerFromInternalField(0));
         auto contextType = env->toStdString(args[0]);
+        if (wrapper->context) {
+            if (wrapper->contextType == contextType) {
+                args.GetReturnValue().Set(env->toLocal(wrapper->contextObject));
+            } else {
+                args.GetReturnValue().Set(env->makeNull());
+            }
+            return;
+        }
+
         //auto contextAttributes = v8::Local<v8::Object>::Cast(args[1]);
+        wrapper->contextType = contextType;
         if (contextType == "2d") {
             auto CanvasRenderingContext2DClass = env->readGlobalFunction("CanvasRenderingContext2D");
-            auto context = env->newInstance(CanvasRenderingContext2DClass).ToLocalChecked();
-            args.GetReturnValue().Set(context);
+            wrapper->context = new CanvasRenderingContext2D(wrapper->canvas);
+            auto contextObject = env->newInstance(CanvasRenderingContext2DClass,
+                                                  env->makeExternal(wrapper->context)).ToLocalChecked();
+            wrapper->contextObject.Reset(env->isolate(), contextObject);
+            args.GetReturnValue().Set(contextObject);
         } else {
             args.GetReturnValue().Set(env->makeNull());
         }
@@ -52,15 +83,16 @@ namespace cyder {
         int width = env->toInt(args[0]);
         int height = env->toInt(args[1]);
         auto canvas = new Canvas(width, height);
+        auto wrapper = new CanvasWrapper(canvas);
         auto self = args.This();
-        self->SetAlignedPointerInInternalField(0, canvas);
-        WeakWrap::BindObject(env->isolate(), self, canvas);
+        self->SetAlignedPointerInInternalField(0, wrapper);
+        WeakWrapper::BindObject(env->isolate(), self, wrapper);
     }
 
     void V8Canvas::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
         env->setTemplateProperty(prototypeTemplate, "getContext", getContextMethod);
-        env->attachClass(parent, "Canvas", classTemplate, 1);
+        env->attachClass(parent, "Canvas", classTemplate);
     }
 }

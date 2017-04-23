@@ -51,8 +51,6 @@ namespace cyder {
 
         void setHeight(int value);
 
-        RenderingContext* getContext(const std::string& contextType, const ContextAttributes& contextAttributes);
-
     private:
         int _width;
         int _height;

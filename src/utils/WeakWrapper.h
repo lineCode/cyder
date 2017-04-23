@@ -25,37 +25,37 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef CYDER_WEAKWRAP_H
-#define CYDER_WEAKWRAP_H
+#ifndef CYDER_WEAKWRAPPER_H
+#define CYDER_WEAKWRAPPER_H
 
 #include <functional>
 #include <v8.h>
 
 namespace cyder {
 
-    /**
-     * This helper class wraps a v8::Object and a callback function. It will trigger the callback function when v8 garbage
-     * collects the v8::Object, and then delete itself too. <br/>
-     * Notice: The callback function will never trigger if you delete the instance of WeakWrap manually.
-     */
-    class WeakWrap {
+    class WeakWrapper {
     public:
         /**
          * This method wraps a v8::Object and a C++ pointer. It will automatically delete the C++ pointer when v8 garbage
-         * collects the v8::Object.
+         * collects the v8::Object, and then delete itself too. <br/>
+         * Notice: The C++ pointer will never be automatically deleted if you delete the instance of WeakWrap manually.
          */
         template<class T>
-        static WeakWrap* BindObject(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
-            return new WeakWrap(isolate, handle,
-                                std::bind<void>(WeakWrap::RemoveCallback<T>, std::forward<T*>(target)));
+        static WeakWrapper* BindObject(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
+            return new WeakWrapper(isolate, handle,
+                                std::bind<void>(WeakWrapper::RemoveCallback<T>, std::forward<T*>(target)));
         }
-
-        static WeakWrap* BindFunction(v8::Isolate* isolate, v8::Local<v8::Object> handle,
+        /**
+         * This helper class wraps a v8::Object and a callback function. It will trigger the callback function when v8
+         * garbage collects the v8::Object, and then delete itself too. <br/>
+         * Notice: The callback function will never trigger if you delete the instance of WeakWrap manually.
+         */
+        static WeakWrapper* BindFunction(v8::Isolate* isolate, v8::Local<v8::Object> handle,
                                       std::function<void()> callback) {
-            return new WeakWrap(isolate, handle, callback);
+            return new WeakWrapper(isolate, handle, callback);
         }
 
-        ~WeakWrap() {
+        ~WeakWrapper() {
             if (persistent.IsEmpty()) {
                 return;
             }
@@ -64,12 +64,12 @@ namespace cyder {
         }
 
         v8::Local<v8::Object> getLocal() {
-            return *reinterpret_cast<v8::Local<v8::Object>*>(const_cast<v8::Persistent<v8::Object>*>(&persistent));
+            return *reinterpret_cast<v8::Local<v8::Object>*>(&persistent);
         }
 
     private:
 
-        WeakWrap(v8::Isolate* isolate, v8::Local<v8::Object> handle, std::function<void()> callback) :
+        WeakWrapper(v8::Isolate* isolate, v8::Local<v8::Object> handle, std::function<void()> callback) :
                 persistent(isolate, handle),
                 callback(callback) {
             persistent.SetWeak(this, Callback, v8::WeakCallbackType::kParameter);
@@ -79,10 +79,10 @@ namespace cyder {
         v8::Persistent<v8::Object> persistent;
         std::function<void()> callback;
 
-        static void Callback(const v8::WeakCallbackInfo<WeakWrap>& data) {
+        static void Callback(const v8::WeakCallbackInfo<WeakWrapper>& data) {
             v8::Isolate* isolate = data.GetIsolate();
             v8::HandleScope handle_scope(isolate);
-            WeakWrap* handle = data.GetParameter();
+            WeakWrapper* handle = data.GetParameter();
             handle->persistent.Reset();
             if (handle->callback) {
                 handle->callback();
@@ -99,4 +99,4 @@ namespace cyder {
 
 }  // namespace cyder
 
-#endif //CYDER_WEAKWRAP_H
+#endif //CYDER_WEAKWRAPPER_H

@@ -30,7 +30,7 @@
 
 using namespace cyder;
 
-int main(int argc, const char* argv[]) {
+int main(int argc, char* argv[]) {
     signal(SIGPIPE, SIG_IGN);
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 

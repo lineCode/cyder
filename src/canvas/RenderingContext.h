@@ -27,10 +27,23 @@
 #ifndef CYDER_RENDERINGCONTEXT_H
 #define CYDER_RENDERINGCONTEXT_H
 
+
 namespace cyder {
+    class Canvas;
 
     class RenderingContext {
+    public:
+        Canvas* canvas() const {
+            return _canvas;
+        }
 
+        explicit RenderingContext(Canvas* canvas) : _canvas(canvas) {
+        }
+
+        virtual ~RenderingContext() {};
+
+    private:
+        Canvas* _canvas;
     };
 
 }

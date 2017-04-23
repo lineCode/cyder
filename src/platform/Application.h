@@ -34,7 +34,7 @@ namespace cyder {
     /**
      * Main entry point.
      */
-    extern int Start(int argc, const char* argv[]);
+    extern int Start(int argc, char* argv[]);
 
     class Application{
     public:

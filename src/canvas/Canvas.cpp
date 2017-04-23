@@ -45,8 +45,4 @@ namespace cyder {
         }
         _height = value;
     }
-
-    RenderingContext* Canvas::getContext(const std::string& contextType, const ContextAttributes& contextAttributes) {
-        return new RenderingContext();
-    }
 }

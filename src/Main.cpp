@@ -48,10 +48,11 @@ namespace cyder {
     };
 
 
-    int Start(int argc, const char* argv[]) {
+    int Start(int argc, char* argv[]) {
         Globals::initialize(argv[0]);
 
         // Initialize V8.
+        v8::V8::SetFlagsFromCommandLine(&argc, argv, true);
         v8::V8::InitializeExternalStartupData(Globals::applicationDirectory.c_str());
         auto platform = v8::platform::CreateDefaultPlatform();
         v8::V8::InitializePlatform(platform);

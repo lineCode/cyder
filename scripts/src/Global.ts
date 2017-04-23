@@ -34,12 +34,21 @@ interface Global {
     performance:Performance;
     console:Console;
 
+    gc():void;
     requestAnimationFrame(callback:FrameRequestCallback):number;
     cancelAnimationFrame(handle:number):void;
 }
 
 
 declare let global:Global;
+
+/**
+ * Request garbage collection. It is only valid to call this function if --expose_gc was passed to the command line.
+ * This should only be used for testing purposes and not to enforce a garbage collection schedule. It has strong
+ * negative impact on the garbage collection performance.
+ */
+declare function gc():void;
+
 /**
  * The singleton instance of the NativeApplication object, which represents this application.
  */
