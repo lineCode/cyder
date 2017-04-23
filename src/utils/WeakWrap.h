@@ -34,61 +34,33 @@
 namespace cyder {
 
     /**
-     * This helper class wraps a v8::Object and a C++ pointer. It will delete the C++ pointer when v8 garbage collects
-     * the v8::Object.
-     */
-    template<class T>
-    class WeakRemove {
-    public:
-
-        static void Bind(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
-            new WeakRemove(isolate, handle, target);
-        }
-
-    private:
-        v8::Persistent<v8::Object> persistent;
-        T* target;
-
-        WeakRemove(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) :
-                persistent(isolate, handle),
-                target(target) {
-            persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
-            persistent.MarkIndependent();
-        }
-
-        static void WeakCallback(const v8::WeakCallbackInfo<WeakRemove>& data) {
-            v8::Isolate* isolate = data.GetIsolate();
-            v8::HandleScope handle_scope(isolate);
-            WeakRemove* handle = data.GetParameter();
-            handle->persistent.Reset();
-            delete handle->target;
-            delete handle;
-        }
-    };
-
-
-    /**
      * This helper class wraps a v8::Object and a callback function. It will trigger the callback function when v8 garbage
      * collects the v8::Object, and then delete itself too. <br/>
-     * Notice: The callback function will never trigger if you delete the instance of WeakHandle manually.
+     * Notice: The callback function will never trigger if you delete the instance of WeakWrap manually.
      */
-    class WeakHandle {
+    class WeakWrap {
     public:
-        static WeakHandle* New(v8::Isolate* isolate, v8::Local<v8::Object> handle,
-                               std::function<void()> callback = nullptr) {
-            return new WeakHandle(isolate, handle, callback);
+        /**
+         * This method wraps a v8::Object and a C++ pointer. It will automatically delete the C++ pointer when v8 garbage
+         * collects the v8::Object.
+         */
+        template<class T>
+        static WeakWrap* BindObject(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
+            return new WeakWrap(isolate, handle,
+                                std::bind<void>(WeakWrap::RemoveCallback<T>, std::forward<T*>(target)));
         }
 
-        ~WeakHandle() {
+        static WeakWrap* BindFunction(v8::Isolate* isolate, v8::Local<v8::Object> handle,
+                                      std::function<void()> callback) {
+            return new WeakWrap(isolate, handle, callback);
+        }
+
+        ~WeakWrap() {
             if (persistent.IsEmpty()) {
                 return;
             }
             persistent.ClearWeak();
             persistent.Reset();
-        }
-
-        void setCallback(std::function<void()> callback) {
-            this->callback = callback;
         }
 
         v8::Local<v8::Object> getLocal() {
@@ -97,7 +69,7 @@ namespace cyder {
 
     private:
 
-        WeakHandle(v8::Isolate* isolate, v8::Local<v8::Object> handle, std::function<void()> callback) :
+        WeakWrap(v8::Isolate* isolate, v8::Local<v8::Object> handle, std::function<void()> callback) :
                 persistent(isolate, handle),
                 callback(callback) {
             persistent.SetWeak(this, Callback, v8::WeakCallbackType::kParameter);
@@ -107,15 +79,20 @@ namespace cyder {
         v8::Persistent<v8::Object> persistent;
         std::function<void()> callback;
 
-        static void Callback(const v8::WeakCallbackInfo<WeakHandle>& data) {
+        static void Callback(const v8::WeakCallbackInfo<WeakWrap>& data) {
             v8::Isolate* isolate = data.GetIsolate();
             v8::HandleScope handle_scope(isolate);
-            WeakHandle* handle = data.GetParameter();
+            WeakWrap* handle = data.GetParameter();
             handle->persistent.Reset();
             if (handle->callback) {
                 handle->callback();
             }
             delete handle;
+        }
+
+        template<class T>
+        static void RemoveCallback(T* target) {
+            delete target;
         }
     };
 

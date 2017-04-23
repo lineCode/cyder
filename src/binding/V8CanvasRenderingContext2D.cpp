@@ -27,6 +27,7 @@
 #include "V8CanvasRenderingContext2D.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
 #include "utils/WeakWrap.h"
+#include <skia.h>
 
 namespace cyder {
 
@@ -36,7 +37,7 @@ namespace cyder {
         auto context = new CanvasRenderingContext2D();
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, context);
-        WeakRemove<CanvasRenderingContext2D>::Bind(env->isolate(), self, context);
+        WeakWrap::BindObject(env->isolate(), self, context);
     }
 
     void V8CanvasRenderingContext2D::install(v8::Local<v8::Object> parent, Environment* env) {

@@ -34,7 +34,7 @@ namespace cyder {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
         auto self = args.This();
-        auto window = static_cast<Canvas*>(self->GetAlignedPointerFromInternalField(0));
+        auto canvas = static_cast<Canvas*>(self->GetAlignedPointerFromInternalField(0));
         auto contextType = env->toStdString(args[0]);
         //auto contextAttributes = v8::Local<v8::Object>::Cast(args[1]);
         if (contextType == "2d") {
@@ -54,7 +54,7 @@ namespace cyder {
         auto canvas = new Canvas(width, height);
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, canvas);
-        WeakRemove<Canvas>::Bind(env->isolate(), self, canvas);
+        WeakWrap::BindObject(env->isolate(), self, canvas);
     }
 
     void V8Canvas::install(v8::Local<v8::Object> parent, Environment* env) {

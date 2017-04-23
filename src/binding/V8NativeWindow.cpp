@@ -52,7 +52,7 @@ namespace cyder {
         env->call(eventEmitterClass, self); // call the super class function.
 
         self->SetAlignedPointerInInternalField(0, window);
-        WeakRemove<Window>::Bind(env->isolate(), self, window);
+        WeakWrap::BindObject(env->isolate(), self, window);
     }
 
     void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
