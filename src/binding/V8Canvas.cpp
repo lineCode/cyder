@@ -77,6 +77,31 @@ namespace cyder {
         int _height;
     };
 
+    static void widthGetter(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& args) {
+        auto canvas = static_cast<Canvas*>(args.This()->GetAlignedPointerFromInternalField(0));
+        args.GetReturnValue().Set(canvas->width());
+    }
+
+    static void widthSetter(v8::Local<v8::Name> property, v8::Local<v8::Value> value,
+                            const v8::PropertyCallbackInfo<void>& args) {
+        auto env = Environment::GetCurrent(args);
+        auto canvas = static_cast<Canvas*>(args.This()->GetAlignedPointerFromInternalField(0));
+        canvas->setWidth(env->toInt(value));
+    }
+
+    static void heightGetter(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& args) {
+        auto canvas = static_cast<Canvas*>(args.This()->GetAlignedPointerFromInternalField(0));
+        args.GetReturnValue().Set(canvas->height());
+    }
+
+    static void heightSetter(v8::Local<v8::Name> property, v8::Local<v8::Value> value,
+                             const v8::PropertyCallbackInfo<void>& args) {
+        auto env = Environment::GetCurrent(args);
+        auto canvas = static_cast<Canvas*>(args.This()->GetAlignedPointerFromInternalField(0));
+        canvas->setHeight(env->toInt(value));
+    }
+
+
     static void getContextMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
@@ -122,6 +147,8 @@ namespace cyder {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
         env->setTemplateProperty(prototypeTemplate, "getContext", getContextMethod);
+        env->setTemplateAccessor(prototypeTemplate, "width", widthGetter, widthSetter);
+        env->setTemplateAccessor(prototypeTemplate, "height", heightGetter, heightSetter);
         env->attachClass(parent, "Canvas", classTemplate);
     }
 }

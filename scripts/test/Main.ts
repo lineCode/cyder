@@ -35,9 +35,9 @@ function onTick(timeStamp:number):void {
         console.log("it works! " + performance.now() + "ms");
         window = new NativeWindow();
         window.activate();
-        let canvas = new Canvas(200,200);
+        let canvas = window.canvas;
         let context = canvas.getContext("2d");
-        console.log(context);
+        console.log(context, canvas.width, canvas.height);
     }
 
     nativeApplication.emitWith("callback");

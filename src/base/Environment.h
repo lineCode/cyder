@@ -70,6 +70,16 @@ namespace cyder {
             return static_cast<Environment*>(info.Data().As<v8::External>()->Value());
         }
 
+        static Environment* GetCurrent(const v8::PropertyCallbackInfo<v8::Value>& info) {
+            ASSERT(info.Data()->IsExternal());
+            return static_cast<Environment*>(info.Data().As<v8::External>()->Value());
+        }
+
+        static Environment* GetCurrent(const v8::PropertyCallbackInfo<void>& info) {
+            ASSERT(info.Data()->IsExternal());
+            return static_cast<Environment*>(info.Data().As<v8::External>()->Value());
+        }
+
 
         Environment(const v8::Local<v8::Context>& context);
 
@@ -367,39 +377,45 @@ namespace cyder {
 
         //==================================== Set Object Methods ====================================
 
-        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, double value) {
-            setObjectProperty(target, name, v8::Number::New(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name,
+                               double value, bool readOnly = false) {
+            setObjectProperty(target, name, v8::Number::New(_isolate, value), readOnly);
         }
 
-        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, int value) {
-            setObjectProperty(target, name, v8::Integer::New(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name,
+                               int value, bool readOnly = false) {
+            setObjectProperty(target, name, v8::Integer::New(_isolate, value), readOnly);
         }
 
-        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, unsigned int value) {
-            setObjectProperty(target, name, v8::Integer::NewFromUnsigned(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name,
+                               unsigned int value, bool readOnly = false) {
+            setObjectProperty(target, name, v8::Integer::NewFromUnsigned(_isolate, value), readOnly);
         }
 
-        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, bool value) {
-            setObjectProperty(target, name, v8::Boolean::New(_isolate, value));
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name,
+                               bool value, bool readOnly = false) {
+            setObjectProperty(target, name, v8::Boolean::New(_isolate, value), readOnly);
         }
 
-        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, const std::string& value) {
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name,
+                               const std::string& value, bool readOnly = false) {
             auto maybeString = makeString(value);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
-                setObjectProperty(target, name, maybeString.ToLocalChecked());
+                setObjectProperty(target, name, maybeString.ToLocalChecked(), readOnly);
             }
 
         }
 
-        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, v8::FunctionCallback callback) {
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name,
+                               v8::FunctionCallback callback, bool readOnly = false) {
             auto maybeFunction = makeFunction(callback);
             ASSERT(!maybeFunction.IsEmpty());
             if (maybeFunction.IsEmpty()) {
                 return;
             }
             auto function = maybeFunction.ToLocalChecked();
-            setObjectProperty(target, name, function);
+            setObjectProperty(target, name, function, readOnly);
             auto maybeString = makeString(name);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
@@ -407,60 +423,98 @@ namespace cyder {
             }
         }
 
-        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name, v8::Local<v8::Value> value) {
+        void setObjectProperty(v8::Local<v8::Object> target, const std::string& name,
+                               v8::Local<v8::Value> value, bool readOnly = false) {
             auto maybeString = makeString(name);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
-                auto result = target->Set(context(), maybeString.ToLocalChecked(), value);
-                USE(result);
+                if (readOnly) {
+                    auto result = target->DefineOwnProperty(context(), maybeString.ToLocalChecked(), value,
+                                                            v8::PropertyAttribute::ReadOnly);
+                    USE(result);
+                } else {
+                    auto result = target->Set(context(), maybeString.ToLocalChecked(), value);
+                    USE(result);
+                }
             }
         }
 
+        void setObjectAccessor(v8::Local<v8::Object> target, const std::string& name,
+                               v8::AccessorNameGetterCallback getter,
+                               v8::AccessorNameSetterCallback setter = 0) {
+            auto maybeString = makeString(name);
+            ASSERT(!maybeString.IsEmpty());
+            if (!maybeString.IsEmpty()) {
+                auto data = v8::MaybeLocal<v8::Value>(external());
+                target->SetAccessor(context(), maybeString.ToLocalChecked(), getter, setter, data);
+            }
+        }
 
         //==================================== Set Template Methods ====================================
 
-        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, double value) {
-            setTemplateProperty(target, name, v8::Number::New(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
+                                 double value, bool readOnly = false) {
+            setTemplateProperty(target, name, v8::Number::New(_isolate, value), readOnly);
         }
 
-        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, int value) {
-            setTemplateProperty(target, name, v8::Integer::New(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
+                                 int value, bool readOnly = false) {
+            setTemplateProperty(target, name, v8::Integer::New(_isolate, value), readOnly);
         }
 
-        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, unsigned int value) {
-            setTemplateProperty(target, name, v8::Integer::NewFromUnsigned(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
+                                 unsigned int value, bool readOnly = false) {
+            setTemplateProperty(target, name, v8::Integer::NewFromUnsigned(_isolate, value), readOnly);
         }
 
-        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, bool value) {
-            setTemplateProperty(target, name, v8::Boolean::New(_isolate, value));
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
+                                 bool value, bool readOnly = false) {
+            setTemplateProperty(target, name, v8::Boolean::New(_isolate, value), readOnly);
         }
 
-        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, const std::string& value) {
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
+                                 const std::string& value, bool readOnly = false) {
             auto maybeString = makeString(value);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
-                setTemplateProperty(target, name, maybeString.ToLocalChecked());
+                setTemplateProperty(target, name, maybeString.ToLocalChecked(), readOnly);
             }
         }
 
         void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
-                                 v8::FunctionCallback callback) {
+                                 v8::FunctionCallback callback, bool readOnly = false) {
             auto functionTemplate = makeFunctionTemplate(callback);
             auto nameValue = makeString(name);
             ASSERT(!nameValue.IsEmpty());
             if (!nameValue.IsEmpty()) {
                 functionTemplate->SetClassName(nameValue.ToLocalChecked());
             }
-            setTemplateProperty(target, name, functionTemplate);
+            setTemplateProperty(target, name, functionTemplate, readOnly);
         }
 
-        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name, v8::Local<v8::Data> value) {
+        void setTemplateProperty(v8::Local<v8::Template> target, const std::string& name,
+                                 v8::Local<v8::Data> value, bool readOnly = false) {
             auto maybeString = makeString(name);
             ASSERT(!maybeString.IsEmpty());
             if (!maybeString.IsEmpty()) {
-                target->Set(maybeString.ToLocalChecked(), value);
+                if (readOnly) {
+                    target->Set(maybeString.ToLocalChecked(), value, v8::PropertyAttribute::ReadOnly);
+                } else {
+                    target->Set(maybeString.ToLocalChecked(), value);
+                }
             }
         }
+
+        void setTemplateAccessor(v8::Local<v8::ObjectTemplate> target, const std::string& name,
+                                 v8::AccessorNameGetterCallback getter,
+                                 v8::AccessorNameSetterCallback setter = 0) {
+            auto maybeString = makeString(name);
+            ASSERT(!maybeString.IsEmpty());
+            if (!maybeString.IsEmpty()) {
+                target->SetAccessor(maybeString.ToLocalChecked(), getter, setter, external());
+            }
+        }
+
 
     private:
         static const int CONTEXT_EMBEDDER_DATA_INDEX = 1;
