@@ -24,25 +24,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_CANVASRENDERINGCONTEXT2D_H
-#define CYDER_CANVASRENDERINGCONTEXT2D_H
-
-#include "render/RenderBuffer.h"
-#include "render/RenderContext.h"
+#include "RenderContext.h"
 
 namespace cyder {
 
-    class CanvasRenderingContext2D : public RenderContext {
-    public:
-        explicit CanvasRenderingContext2D(RenderBuffer* buffer) : renderBuffer(buffer) {
-        }
-
-        ~CanvasRenderingContext2D() override;
-
-    private:
-        RenderBuffer* renderBuffer;
-    };
-
 }
-
-#endif //CYDER_CANVASRENDERINGCONTEXT2D_H

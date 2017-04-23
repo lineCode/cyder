@@ -25,38 +25,67 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8Canvas.h"
-#include "canvas/Canvas.h"
 #include "utils/WeakWrapper.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
+#include "render/GPURenderBuffer.h"
+#include "render/RasterRenderBuffer.h"
 
 namespace cyder {
 
-    class CanvasWrapper {
+    class Canvas {
     public:
-        Canvas* canvas;
         std::string contextType = "";
-        RenderingContext* context = nullptr;
+        RenderBuffer* buffer = nullptr;
+        RenderContext* context = nullptr;
         v8::Persistent<v8::Object> contextObject;
 
-        CanvasWrapper(Canvas* c) : canvas(c) {
+        Canvas(int width = 200, int height = 200) : _width(width), _height(height) {
         }
 
-        ~CanvasWrapper() {
+        ~Canvas() {
             contextObject.Reset();
             delete context;
-            delete canvas;
+            delete buffer;
         }
+
+        int width() const {
+            return buffer ? buffer->width() : _width;
+        }
+
+        virtual void setWidth(int value) {
+            if (buffer) {
+                buffer->setWidth(value);
+            } else {
+                _width = value;
+            }
+        }
+
+        int height() const {
+            return buffer ? buffer->height() : _height;
+        }
+
+        virtual void setHeight(int value) {
+            if (buffer) {
+                buffer->setHeight(value);
+            } else {
+                _height = value;
+            }
+        }
+
+    private:
+        int _width;
+        int _height;
     };
 
     static void getContextMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
         auto self = args.This();
-        auto wrapper = static_cast<CanvasWrapper*>(self->GetAlignedPointerFromInternalField(0));
+        auto canvas = static_cast<Canvas*>(self->GetAlignedPointerFromInternalField(0));
         auto contextType = env->toStdString(args[0]);
-        if (wrapper->context) {
-            if (wrapper->contextType == contextType) {
-                args.GetReturnValue().Set(env->toLocal(wrapper->contextObject));
+        if (canvas->context) {
+            if (canvas->contextType == contextType) {
+                args.GetReturnValue().Set(env->toLocal(canvas->contextObject));
             } else {
                 args.GetReturnValue().Set(env->makeNull());
             }
@@ -64,13 +93,14 @@ namespace cyder {
         }
 
         //auto contextAttributes = v8::Local<v8::Object>::Cast(args[1]);
-        wrapper->contextType = contextType;
+        canvas->contextType = contextType;
         if (contextType == "2d") {
             auto CanvasRenderingContext2DClass = env->readGlobalFunction("CanvasRenderingContext2D");
-            wrapper->context = new CanvasRenderingContext2D(wrapper->canvas);
+            canvas->buffer = new GPURenderBuffer(canvas->width(), canvas->height());
+            canvas->context = new CanvasRenderingContext2D(canvas->buffer);
             auto contextObject = env->newInstance(CanvasRenderingContext2DClass,
-                                                  env->makeExternal(wrapper->context)).ToLocalChecked();
-            wrapper->contextObject.Reset(env->isolate(), contextObject);
+                                                  env->makeExternal(canvas->context)).ToLocalChecked();
+            canvas->contextObject.Reset(env->isolate(), contextObject);
             args.GetReturnValue().Set(contextObject);
         } else {
             args.GetReturnValue().Set(env->makeNull());
@@ -83,10 +113,9 @@ namespace cyder {
         int width = env->toInt(args[0]);
         int height = env->toInt(args[1]);
         auto canvas = new Canvas(width, height);
-        auto wrapper = new CanvasWrapper(canvas);
         auto self = args.This();
-        self->SetAlignedPointerInInternalField(0, wrapper);
-        WeakWrapper::BindObject(env->isolate(), self, wrapper);
+        self->SetAlignedPointerInInternalField(0, canvas);
+        WeakWrapper::BindObject(env->isolate(), self, canvas);
     }
 
     void V8Canvas::install(v8::Local<v8::Object> parent, Environment* env) {

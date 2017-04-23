@@ -24,32 +24,34 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_CANVAS_H
-#define CYDER_CANVAS_H
+#ifndef CYDER_RASTERRENDERBUFFER_H
+#define CYDER_RASTERRENDERBUFFER_H
 
-#include <string>
+#include "render/RenderBuffer.h"
 
 namespace cyder {
 
-    class RenderingContext;
-
-    class ContextAttributes;
-
-    class Canvas {
+    class RasterRenderBuffer : public RenderBuffer {
     public:
-        Canvas(int width = 200, int height = 200);
+        RasterRenderBuffer(int width, int height);
 
-        int width() const {
+        ~RasterRenderBuffer() override;
+
+        int width() const override {
             return _width;
         }
 
-        void setWidth(int value);
+        void setWidth(int value) override {
+            _width = value;
+        }
 
-        int height() const {
+        int height() const override {
             return _height;
         }
 
-        void setHeight(int value);
+        void setHeight(int value) override {
+            _height = value;
+        }
 
     private:
         int _width;
@@ -58,4 +60,4 @@ namespace cyder {
 
 }
 
-#endif //CYDER_CANVAS_H
+#endif //CYDER_RASTERRENDERBUFFER_H

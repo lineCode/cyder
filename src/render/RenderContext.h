@@ -24,28 +24,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_RENDERINGCONTEXT_H
-#define CYDER_RENDERINGCONTEXT_H
+#ifndef CYDER_RENDERCONTEXT_H
+#define CYDER_RENDERCONTEXT_H
 
+#include "RenderBuffer.h"
 
 namespace cyder {
-    class Canvas;
 
-    class RenderingContext {
+    class RenderContext {
     public:
-        Canvas* canvas() const {
-            return _canvas;
+        virtual ~RenderContext() {
         }
-
-        explicit RenderingContext(Canvas* canvas) : _canvas(canvas) {
-        }
-
-        virtual ~RenderingContext() {};
-
-    private:
-        Canvas* _canvas;
     };
 
 }
 
-#endif //CYDER_RENDERINGCONTEXT_H
+#endif //CYDER_RENDERCONTEXT_H

@@ -24,8 +24,16 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ContextAttributes.h"
+#include "RasterRenderBuffer.h"
 
 namespace cyder {
+
+    RasterRenderBuffer::RasterRenderBuffer(int width, int height) : _width(width), _height(height) {
+
+    }
+
+    RasterRenderBuffer::~RasterRenderBuffer() {
+
+    }
 
 }

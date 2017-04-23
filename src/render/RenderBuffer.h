@@ -24,8 +24,25 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "RenderingContext.h"
+#ifndef CYDER_RENDERBUFFER_H
+#define CYDER_RENDERBUFFER_H
 
 namespace cyder {
 
+    class RenderBuffer {
+    public:
+
+        virtual ~RenderBuffer() {}
+
+        virtual int width() const =0;
+
+        virtual void setWidth(int value) =0;
+
+        virtual int height() const =0;
+
+        virtual void setHeight(int value)=0;
+    };
+
 }
+
+#endif //CYDER_RENDERBUFFER_H

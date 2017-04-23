@@ -24,15 +24,13 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_CONTEXTATTRIBUTES_H
-#define CYDER_CONTEXTATTRIBUTES_H
+#include "GPURenderBuffer.h"
 
 namespace cyder {
+    GPURenderBuffer::GPURenderBuffer(int width, int height) : _width(width), _height(height) {
+    }
 
-    class ContextAttributes {
+    GPURenderBuffer::~GPURenderBuffer() {
 
-    };
-
+    }
 }
-
-#endif //CYDER_CONTEXTATTRIBUTES_H

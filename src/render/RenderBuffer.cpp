@@ -24,25 +24,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "Canvas.h"
-#include "ContextAttributes.h"
-#include "RenderingContext.h"
+#include "RenderBuffer.h"
 
 namespace cyder {
-    Canvas::Canvas(int width, int height) : _width(width), _height(height) {
-    }
 
-    void Canvas::setWidth(int value) {
-        if (_width == value) {
-            return;
-        }
-        _width = value;
-    }
-
-    void Canvas::setHeight(int value) {
-        if (_height == value) {
-            return;
-        }
-        _height = value;
-    }
 }

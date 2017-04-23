@@ -24,25 +24,40 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_CANVASRENDERINGCONTEXT2D_H
-#define CYDER_CANVASRENDERINGCONTEXT2D_H
+#ifndef CYDER_GPURENDERBUFFER_H
+#define CYDER_GPURENDERBUFFER_H
 
 #include "render/RenderBuffer.h"
-#include "render/RenderContext.h"
 
 namespace cyder {
 
-    class CanvasRenderingContext2D : public RenderContext {
+    class GPURenderBuffer : public RenderBuffer {
     public:
-        explicit CanvasRenderingContext2D(RenderBuffer* buffer) : renderBuffer(buffer) {
+        GPURenderBuffer(int width, int height);
+
+        ~GPURenderBuffer() override;
+
+        int width() const override {
+            return _width;
         }
 
-        ~CanvasRenderingContext2D() override;
+        void setWidth(int value) override {
+            _width = value;
+        }
+
+        int height() const override {
+            return _height;
+        }
+
+        void setHeight(int value) override {
+            _height = value;
+        }
 
     private:
-        RenderBuffer* renderBuffer;
+        int _width;
+        int _height;
     };
 
 }
 
-#endif //CYDER_CANVASRENDERINGCONTEXT2D_H
+#endif //CYDER_GPURENDERBUFFER_H

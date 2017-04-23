@@ -27,21 +27,21 @@
 /**
  * The Canvas object is a handle onto a raw buffer that is being managed by the screen compositor. It can be used to draw
  * graphics. For example, draw graphs, make photo compositions, create animations, or even do real-time video processing
- * or rendering. And it also can be drew to another canvas object.
+ * or rendering. And it also can be drew to another render object.
  */
 interface Canvas {
     /**
-     * Gets or sets the height of a canvas object.
+     * Gets or sets the height of a render object.
      */
     height:number;
     /**
-     * Gets or sets the width of a canvas object.
+     * Gets or sets the width of a render object.
      */
     width:number;
 
     /**
-     * Returns a drawing context on the canvas, or null if the context identifier is not supported.
-     * @param contextType A string containing the context identifier defining the drawing context associated to the canvas.
+     * Returns a drawing context on the render, or null if the context identifier is not supported.
+     * @param contextType A string containing the context identifier defining the drawing context associated to the render.
      * @param contextAttributes You can use several context attributes when creating your rendering context.
      */
     getContext(contextType:string, contextAttributes?:{}):any;
@@ -58,25 +58,25 @@ declare let Canvas:{
  */
 interface Canvas2DContextAttributes {
     /**
-     * A boolean value that indicates whether the canvas contains an alpha channel. If set to false, the runtime now knows
+     * A boolean value that indicates whether the render contains an alpha channel. If set to false, the runtime now knows
      * that the backdrop is always opaque, which can speed up drawing of transparent content and images then.
      */
     alpha?:boolean;
     /**
      * A boolean value that indicates whether a lot of read-back operations are planned. This will force the use of a
-     * software (instead of hardware accelerated) 2D canvas and can save memory when calling getImageData() frequently.
+     * software (instead of hardware accelerated) 2D render and can save memory when calling getImageData() frequently.
      */
     willReadFrequently?:boolean;
 }
 
 /**
- * The CanvasRenderingContext2D interface is used for drawing rectangles, text, images and other objects onto the canvas
- * object. It provides the 2D rendering context for the drawing surface of a canvas object.<br/>
- * To get an object of this interface, call getContext() on a canvas object, supplying "2d" as the contextType argument.
+ * The CanvasRenderingContext2D interface is used for drawing rectangles, text, images and other objects onto the render
+ * object. It provides the 2D rendering context for the drawing surface of a render object.<br/>
+ * To get an object of this interface, call getContext() on a render object, supplying "2d" as the contextType argument.
  */
 interface CanvasRenderingContext2D {
     /**
-     * A read-only back-reference to the associated canvas object.
+     * A read-only back-reference to the associated render object.
      */
     readonly canvas:Canvas;
 }
