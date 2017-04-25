@@ -24,40 +24,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_RASTERRENDERBUFFER_H
-#define CYDER_RASTERRENDERBUFFER_H
-
-#include "render/RenderBuffer.h"
+#include "SurfaceBuffer.h"
 
 namespace cyder {
+    SurfaceBuffer::SurfaceBuffer(int width, int height) : _width(width), _height(height) {
 
-    class RasterRenderBuffer : public RenderBuffer {
-    public:
-        RasterRenderBuffer(int width, int height);
+    }
 
-        ~RasterRenderBuffer() override;
+    SurfaceBuffer::~SurfaceBuffer() {
 
-        int width() const override {
-            return _width;
-        }
-
-        void setWidth(int value) override {
-            _width = value;
-        }
-
-        int height() const override {
-            return _height;
-        }
-
-        void setHeight(int value) override {
-            _height = value;
-        }
-
-    private:
-        int _width;
-        int _height;
-    };
-
+    }
 }
-
-#endif //CYDER_RASTERRENDERBUFFER_H

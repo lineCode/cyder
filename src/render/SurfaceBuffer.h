@@ -24,18 +24,18 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_GPURENDERBUFFER_H
-#define CYDER_GPURENDERBUFFER_H
+#ifndef CYDER_SURFACEBUFFER_H
+#define CYDER_SURFACEBUFFER_H
 
-#include "render/RenderBuffer.h"
+#include "RenderBuffer.h"
 
 namespace cyder {
 
-    class GPURenderBuffer : public RenderBuffer {
+    class SurfaceBuffer : public RenderBuffer {
     public:
-        GPURenderBuffer(int width, int height);
+        SurfaceBuffer(int width, int height);
 
-        ~GPURenderBuffer() override;
+        ~SurfaceBuffer() override;
 
         int width() const override {
             return _width;
@@ -60,4 +60,4 @@ namespace cyder {
 
 }
 
-#endif //CYDER_GPURENDERBUFFER_H
+#endif //CYDER_SURFACEBUFFER_H

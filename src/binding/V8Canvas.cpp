@@ -27,8 +27,7 @@
 #include "V8Canvas.h"
 #include "utils/WeakWrapper.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
-#include "render/GPURenderBuffer.h"
-#include "render/RasterRenderBuffer.h"
+#include "render/SurfaceBuffer.h"
 
 namespace cyder {
 
@@ -121,7 +120,7 @@ namespace cyder {
         canvas->contextType = contextType;
         if (contextType == "2d") {
             auto CanvasRenderingContext2DClass = env->readGlobalFunction("CanvasRenderingContext2D");
-            canvas->buffer = new GPURenderBuffer(canvas->width(), canvas->height());
+            canvas->buffer = new SurfaceBuffer(canvas->width(), canvas->height());
             canvas->context = new CanvasRenderingContext2D(canvas->buffer);
             auto contextObject = env->newInstance(CanvasRenderingContext2DClass,
                                                   env->makeExternal(canvas->context)).ToLocalChecked();

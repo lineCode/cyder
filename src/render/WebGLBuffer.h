@@ -24,16 +24,40 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "RasterRenderBuffer.h"
+#ifndef CYDER_WEBGLBUFFER_H
+#define CYDER_WEBGLBUFFER_H
+
+#include "RenderBuffer.h"
 
 namespace cyder {
 
-    RasterRenderBuffer::RasterRenderBuffer(int width, int height) : _width(width), _height(height) {
+    class WebGLBuffer : public RenderBuffer {
+    public:
+        WebGLBuffer(int width, int height);
 
-    }
+        ~WebGLBuffer() override;
 
-    RasterRenderBuffer::~RasterRenderBuffer() {
+        int width() const override {
+            return _width;
+        }
 
-    }
+        void setWidth(int value) override {
+            _width = value;
+        }
+
+        int height() const override {
+            return _height;
+        }
+
+        void setHeight(int value) override {
+            _height = value;
+        }
+
+    private:
+        int _width;
+        int _height;
+    };
 
 }
+
+#endif //CYDER_WEBGLBUFFER_H

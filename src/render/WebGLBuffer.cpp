@@ -24,13 +24,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "GPURenderBuffer.h"
+#include "WebGLBuffer.h"
 
 namespace cyder {
-    GPURenderBuffer::GPURenderBuffer(int width, int height) : _width(width), _height(height) {
+    WebGLBuffer::WebGLBuffer(int width, int height) : _width(width), _height(height) {
+
     }
 
-    GPURenderBuffer::~GPURenderBuffer() {
+    WebGLBuffer::~WebGLBuffer() {
 
     }
 }
