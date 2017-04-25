@@ -24,22 +24,16 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_GPUCONTEXT_H
-#define CYDER_GPUCONTEXT_H
+#ifndef CYDER_GPUSURFACE_H
+#define CYDER_GPUSURFACE_H
 
 #include <skia.h>
 
 namespace cyder {
-    class GPUContext {
+    class GPUSurface {
     public:
-        static GPUContext* gpuContext;
-
-        virtual void flush() = 0;
-
-        virtual GrContext* grContext() const = 0;
-
-        virtual const GrGLInterface* glInterface() const = 0;
+        static sk_sp<SkSurface> Make(const SkImageInfo& info);
     };
 }
 
-#endif //CYDER_GPUCONTEXT_H
+#endif //CYDER_GPUSURFACE_H

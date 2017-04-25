@@ -24,21 +24,24 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "OSGPUContext.h"
+#include <platform/GPUSurface.h>
+#include "GPUContext.h"
 #include "platform/Log.h"
 
 namespace cyder {
 
-    GPUContext* GPUContext::gpuContext = nullptr;
-    OSGPUContext* OSGPUContext::gpuContext = nullptr;
+    sk_sp<SkSurface> GPUSurface::Make(const SkImageInfo& info) {
+        return SkSurface::MakeRenderTarget(GPUContext::grContext(), SkBudgeted::kNo, info);
+    }
 
-    OSGPUContext::OSGPUContext() {
-        GPUContext::gpuContext = this;
-        OSGPUContext::gpuContext = this;
+    GPUContext* GPUContext::context = nullptr;
+
+    GPUContext::GPUContext() {
+        GPUContext::context = this;
         initContext();
     }
 
-    void OSGPUContext::initContext() {
+    void GPUContext::initContext() {
         const CGLPixelFormatAttribute attributes[] = {
                 kCGLPFAStencilSize, (CGLPixelFormatAttribute) 8,
                 kCGLPFAAccelerated,
@@ -57,8 +60,7 @@ namespace cyder {
         GLint interval = 1;
         CGLSetParameter(cglContext, kCGLCPSwapInterval, &interval);
         CGLSetCurrentContext(cglContext);
-        _openGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:
-        cglContext];
+        _openGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:cglContext];
         ASSERT(_openGLContext);
         CGLReleaseContext(cglContext);
         [_openGLContext makeCurrentContext];
@@ -68,16 +70,17 @@ namespace cyder {
         ASSERT(_grContext);
     }
 
-    OSGPUContext::~OSGPUContext() {
+    GPUContext::~GPUContext() {
         _grContext->abandonContext();
         SkSafeUnref(_grContext);
         SkSafeUnref(_glInterface);
         [_openGLContext release];
     }
 
-    void OSGPUContext::flush() {
-        [_openGLContext makeCurrentContext];
-        _grContext->flush();
-        [_openGLContext flushBuffer];
+    void GPUContext::flush() {
+        auto openGLContext = context->_openGLContext;
+        [openGLContext makeCurrentContext];
+        context->_grContext->flush();
+        [openGLContext flushBuffer];
     }
 }

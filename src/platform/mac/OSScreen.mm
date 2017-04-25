@@ -27,7 +27,7 @@
 
 
 #include "OSScreen.h"
-#include "OSGPUContext.h"
+#include "GPUContext.h"
 #include <platform/Log.h>
 
 
@@ -78,7 +78,7 @@ namespace cyder {
         CGLDescribePixelFormat(format, 0, kCGLPFAStencilSize, &stencilBits);
 
         CGLContextObj ctx;
-        auto globalOpenGLContext = OSGPUContext::gpuContext->openGLContext();
+        auto globalOpenGLContext = GPUContext::openGLContext();
         CGLCreateContext(format, (CGLContextObj)[globalOpenGLContext CGLContextObj], &ctx);
         CGLDestroyPixelFormat(format);
         ASSERT(ctx);
@@ -98,7 +98,7 @@ namespace cyder {
         glClearStencil(0);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        auto glInterface = OSGPUContext::gpuContext->glInterface();
+        auto glInterface = GPUContext::glInterface();
         grContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)glInterface);
         ASSERT(grContext);
         updateSize(width, height, scaleFactor);

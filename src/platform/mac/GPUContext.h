@@ -24,38 +24,38 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_OSGPUCONTEXT_H
-#define CYDER_OSGPUCONTEXT_H
+#ifndef CYDER_GPUCONTEXT_H
+#define CYDER_GPUCONTEXT_H
 
-#include "platform/GPUContext.h"
 #include <Cocoa/Cocoa.h>
 #include <OpenGL/gl.h>
+#include <skia.h>
 
 namespace cyder {
 
-    class OSGPUContext : public GPUContext {
+    class GPUContext {
     public:
-        static OSGPUContext* gpuContext;
+        GPUContext();
 
-        OSGPUContext();
+        ~GPUContext();
 
-        ~OSGPUContext();
-
-        void flush() override;
-
-        GrContext* grContext() const override {
-            return _grContext;
+        static GrContext* grContext() {
+            return context->_grContext;
         }
 
-        const GrGLInterface* glInterface() const override {
-            return _glInterface;
+        static const GrGLInterface* glInterface() {
+            return context->_glInterface;
         }
 
-        NSOpenGLContext* openGLContext() const {
-            return _openGLContext;
+        static NSOpenGLContext* openGLContext() {
+            return context->_openGLContext;
         }
+
+        static void flush();
 
     private:
+        static GPUContext* context;
+
         NSOpenGLContext* _openGLContext;
         GrContext* _grContext;
         const GrGLInterface* _glInterface;
@@ -65,4 +65,4 @@ namespace cyder {
 
 }
 
-#endif //CYDER_OSGPUCONTEXT_H
+#endif //CYDER_GPUCONTEXT_H

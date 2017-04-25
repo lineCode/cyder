@@ -25,20 +25,26 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "SurfaceBuffer.h"
+#include "platform/GPUSurface.h"
 
 namespace cyder {
-    SurfaceBuffer::SurfaceBuffer(int width, int height) : _width(width), _height(height) {
-
+    SurfaceBuffer::SurfaceBuffer(int width, int height, bool alpha, bool useGPU) :
+            _width(width), _height(height), alpha(alpha), useGPU(useGPU) {
     }
 
     SurfaceBuffer::~SurfaceBuffer() {
-
+        SkSafeUnref(_surface);
     }
 
     SkSurface* SurfaceBuffer::surface() {
-        if(sizeChanged){
+        if (sizeChanged) {
             sizeChanged = false;
-            
+            SkImageInfo info = SkImageInfo::MakeN32(_width, _height, alpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
+            if (useGPU) {
+                _surface = GPUSurface::Make(info).release();
+            } else {
+                _surface = SkSurface::MakeRaster(info).release();
+            }
         }
         return _surface;
     }

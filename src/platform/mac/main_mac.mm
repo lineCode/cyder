@@ -26,7 +26,7 @@
 
 
 #include "OSApplication.h"
-#include "OSGPUContext.h"
+#include "GPUContext.h"
 #include "OSTicker.h"
 
 using namespace cyder;
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
     OSApplication app;
-    OSGPUContext gpuContext;
+    GPUContext gpuContext;
     OSTicker* animator = [[OSTicker alloc] init];
 
     auto result = Start(argc, argv);

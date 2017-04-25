@@ -34,7 +34,7 @@ namespace cyder {
 
     class SurfaceBuffer : public RenderBuffer {
     public:
-        SurfaceBuffer(int width, int height);
+        SurfaceBuffer(int width, int height, bool alpha = true, bool useGPU = true);
 
         ~SurfaceBuffer() override;
 
@@ -62,6 +62,8 @@ namespace cyder {
         int _width;
         int _height;
         bool sizeChanged = true;
+        bool useGPU;
+        bool alpha;
         SkSurface* _surface;
     };
 
