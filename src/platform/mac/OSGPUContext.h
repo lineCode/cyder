@@ -24,24 +24,45 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYDER_OSGPUCONTEXT_H
+#define CYDER_OSGPUCONTEXT_H
 
-#include "OSApplication.h"
-#include "OSGPUContext.h"
-#include "OSTicker.h"
+#include "platform/GPUContext.h"
+#include <Cocoa/Cocoa.h>
+#include <OpenGL/gl.h>
 
-using namespace cyder;
+namespace cyder {
 
-int main(int argc, char* argv[]) {
-    signal(SIGPIPE, SIG_IGN);
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    class OSGPUContext : public GPUContext {
+    public:
+        static OSGPUContext* gpuContext;
 
-    OSApplication app;
-    OSGPUContext gpuContext;
-    OSTicker* animator = [[OSTicker alloc] init];
+        OSGPUContext();
 
-    auto result = Start(argc, argv);
+        ~OSGPUContext();
 
-    [animator release];
-    [pool release];
-    return result;
+        void flush() override;
+
+        GrContext* grContext() const override {
+            return _grContext;
+        }
+
+        const GrGLInterface* glInterface() const override {
+            return _glInterface;
+        }
+
+        NSOpenGLContext* openGLContext() const {
+            return _openGLContext;
+        }
+
+    private:
+        NSOpenGLContext* _openGLContext;
+        GrContext* _grContext;
+        const GrGLInterface* _glInterface;
+
+        void initContext();
+    };
+
 }
+
+#endif //CYDER_OSGPUCONTEXT_H

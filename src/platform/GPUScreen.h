@@ -87,20 +87,10 @@ namespace cyder {
         virtual SkSurface* surface() const = 0;
 
         /**
-         * Make the screen become current drawing target. This method is usually called at the begin of one drawing session.
+         * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the
+         * end of one drawing session
          */
-        virtual void makeCurrent() = 0;
-
-        /**
-         * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the end
-         * of one drawing session
-         */
-        virtual void present() = 0;
-
-        /**
-         * Makes the screen ignore all previous drawing to the surface.
-         */
-        virtual void discard() = 0;
+        virtual void flush() = 0;
 
         /**
          * A value of true indicates all the skia surface created by this screen are invalid. Normally it would happen

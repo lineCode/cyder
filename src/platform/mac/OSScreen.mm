@@ -27,6 +27,7 @@
 
 
 #include "OSScreen.h"
+#include "OSGPUContext.h"
 #include <platform/Log.h>
 
 
@@ -47,50 +48,8 @@ namespace cyder {
             grContext->abandonContext();
         }
         SkSafeUnref(grContext);
-        SkSafeUnref(glInterface);
         SkSafeUnref(_surface);
         [openGLContext release];
-    }
-
-    static CGLContextObj createGLContext(int msaaSampleCount) {
-        GLint major, minor;
-        CGLGetVersion(&major, &minor);
-
-        static const CGLPixelFormatAttribute attributes[] = {
-                kCGLPFAStencilSize, (CGLPixelFormatAttribute) 8,
-                kCGLPFAAccelerated,
-                kCGLPFADoubleBuffer,
-                kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
-                (CGLPixelFormatAttribute)0
-        };
-
-        CGLPixelFormatObj format = nullptr;
-        GLint npix = 0;
-        if (msaaSampleCount > 0) {
-            static int kAttributeCount = SK_ARRAY_COUNT(attributes);
-            CGLPixelFormatAttribute msaaAttributes[kAttributeCount + 5];
-            memcpy(msaaAttributes, attributes, sizeof(attributes));
-            ASSERT(0 == msaaAttributes[kAttributeCount - 1]);
-            msaaAttributes[kAttributeCount - 1] = kCGLPFASampleBuffers;
-            msaaAttributes[kAttributeCount + 0] = (CGLPixelFormatAttribute)1;
-            msaaAttributes[kAttributeCount + 1] = kCGLPFAMultisample;
-            msaaAttributes[kAttributeCount + 2] = kCGLPFASamples;
-            msaaAttributes[kAttributeCount + 3] =
-                    (CGLPixelFormatAttribute)msaaSampleCount;
-            msaaAttributes[kAttributeCount + 4] = (CGLPixelFormatAttribute)0;
-            CGLChoosePixelFormat(msaaAttributes, &format, &npix);
-        }
-        if (!npix) {
-            CGLChoosePixelFormat(attributes, &format, &npix);
-        }
-        CGLContextObj ctx;
-        CGLCreateContext(format, NULL, &ctx);
-        CGLDestroyPixelFormat(format);
-
-        static const GLint interval = 1;
-        CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
-        CGLSetCurrentContext(ctx);
-        return ctx;
     }
 
     void OSScreen::reset(float width, float height, float scaleFactor) {
@@ -105,28 +64,41 @@ namespace cyder {
             hasBeenReset = true;
             [openGLContext release];
         }
-        CGLContextObj ctx = createGLContext(0 /*msaa*/);
-        ASSERT(ctx);
-        openGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
-        CGLReleaseContext(ctx);
-        if (!openGLContext) {
-            return;
-        }
-        [openGLContext makeCurrentContext];
-        [openGLContext setView:view];
-        CGLPixelFormatObj format = CGLGetPixelFormat((CGLContextObj)[openGLContext CGLContextObj]);
+        static const CGLPixelFormatAttribute attributes[] = {
+                kCGLPFAStencilSize, (CGLPixelFormatAttribute) 8,
+                kCGLPFAAccelerated,
+                kCGLPFADoubleBuffer,
+                kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
+                (CGLPixelFormatAttribute)0
+        };
+        CGLPixelFormatObj format = nullptr;
+        GLint npix = 0;
+        CGLChoosePixelFormat(attributes, &format, &npix);
         CGLDescribePixelFormat(format, 0, kCGLPFASamples, &sampleCount);
         CGLDescribePixelFormat(format, 0, kCGLPFAStencilSize, &stencilBits);
+
+        CGLContextObj ctx;
+        auto globalOpenGLContext = OSGPUContext::gpuContext->openGLContext();
+        CGLCreateContext(format, (CGLContextObj)[globalOpenGLContext CGLContextObj], &ctx);
+        CGLDestroyPixelFormat(format);
+        ASSERT(ctx);
+
+        static const GLint interval = 1;
+        CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
+        CGLSetCurrentContext(ctx);
+
+        openGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
+        ASSERT(openGLContext);
+        CGLReleaseContext(ctx);
+        [openGLContext makeCurrentContext];
+        [openGLContext setView:view];
+
         glViewport(0, 0, (int)(width * scaleFactor), (int)(height * scaleFactor));
         glClearColor(0, 0, 0, 0);
         glClearStencil(0);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        if(!glInterface){
-            glInterface = GrGLCreateNativeInterface();
-            ASSERT(glInterface);
-        }
-
+        auto glInterface = OSGPUContext::gpuContext->glInterface();
         grContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)glInterface);
         ASSERT(grContext);
         updateSize(width, height, scaleFactor);
@@ -160,28 +132,13 @@ namespace cyder {
         [openGLContext update];
     }
 
-    void OSScreen::makeCurrent() {
+    void OSScreen::flush() {
+        hasBeenReset = false;
         if (!isValid) {
             return;
         }
         [openGLContext makeCurrentContext];
-    }
-
-    void OSScreen::present() {
-        hasBeenReset = false;
-        if (!isValid) {
-            // Discard all draw commands in SkSurface, because the screen is no longer valid. Otherwise it will trigger
-            // the OpenGL error: 0x0506.
-            //grContext->flush();
-            return;
-        }
         grContext->flush();
         [openGLContext flushBuffer];
     }
-
-    void OSScreen::discard() {
-        //grContext->flush();
-    }
-
-
 }  // namespace cyder

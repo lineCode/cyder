@@ -24,24 +24,22 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYDER_GPUCONTEXT_H
+#define CYDER_GPUCONTEXT_H
 
-#include "OSApplication.h"
-#include "OSGPUContext.h"
-#include "OSTicker.h"
+#include <skia.h>
 
-using namespace cyder;
+namespace cyder {
+    class GPUContext {
+    public:
+        static GPUContext* gpuContext;
 
-int main(int argc, char* argv[]) {
-    signal(SIGPIPE, SIG_IGN);
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        virtual void flush() = 0;
 
-    OSApplication app;
-    OSGPUContext gpuContext;
-    OSTicker* animator = [[OSTicker alloc] init];
+        virtual GrContext* grContext() const = 0;
 
-    auto result = Start(argc, argv);
-
-    [animator release];
-    [pool release];
-    return result;
+        virtual const GrGLInterface* glInterface() const = 0;
+    };
 }
+
+#endif //CYDER_GPUCONTEXT_H

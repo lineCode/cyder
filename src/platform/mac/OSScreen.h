@@ -98,20 +98,10 @@ namespace cyder {
         }
 
         /**
-         * Make the screen become current drawing target. This method is usually called at the begin of one drawing session.
-         */
-        void makeCurrent() override;
-
-        /**
          * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the end
          * of one drawing session
          */
-        void present() override;
-
-        /**
-         * Makes the screen ignore all previous drawing to the surface.
-         */
-        void discard() override;
+        void flush() override;
 
         /**
          * A value of true indicates all the skia surface created by this screen are invalid. Normally it would happen
@@ -127,7 +117,6 @@ namespace cyder {
         NSView* view = nullptr;
         NSOpenGLContext* openGLContext = nullptr;
         GrContext* grContext = nullptr;
-        const GrGLInterface* glInterface = nullptr;
         SkSurface* _surface = nullptr;
         int sampleCount = 0;
         int stencilBits = 0;
