@@ -34,4 +34,12 @@ namespace cyder {
     SurfaceBuffer::~SurfaceBuffer() {
 
     }
+
+    SkSurface* SurfaceBuffer::surface() {
+        if(sizeChanged){
+            sizeChanged = false;
+            
+        }
+        return _surface;
+    }
 }

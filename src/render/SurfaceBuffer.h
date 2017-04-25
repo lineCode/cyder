@@ -28,6 +28,7 @@
 #define CYDER_SURFACEBUFFER_H
 
 #include "RenderBuffer.h"
+#include <skia.h>
 
 namespace cyder {
 
@@ -42,6 +43,7 @@ namespace cyder {
         }
 
         void setWidth(int value) override {
+            sizeChanged = true;
             _width = value;
         }
 
@@ -50,12 +52,17 @@ namespace cyder {
         }
 
         void setHeight(int value) override {
+            sizeChanged = true;
             _height = value;
         }
+
+        SkSurface* surface();
 
     private:
         int _width;
         int _height;
+        bool sizeChanged = true;
+        SkSurface* _surface;
     };
 
 }
