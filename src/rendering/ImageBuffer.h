@@ -24,15 +24,15 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_RENDERBUFFER_H
-#define CYDER_RENDERBUFFER_H
+#ifndef CYDER_IMAGEBUFFER_H
+#define CYDER_IMAGEBUFFER_H
 
 namespace cyder {
 
-    class RenderBuffer {
+    class ImageBuffer {
     public:
 
-        virtual ~RenderBuffer() {}
+        virtual ~ImageBuffer() {}
 
         virtual int width() const =0;
 
@@ -45,4 +45,4 @@ namespace cyder {
 
 }
 
-#endif //CYDER_RENDERBUFFER_H
+#endif //CYDER_IMAGEBUFFER_H

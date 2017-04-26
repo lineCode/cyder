@@ -24,8 +24,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "RenderBuffer.h"
+#ifndef CYDER_RENDERINGCONTEXT_H
+#define CYDER_RENDERINGCONTEXT_H
+
+#include "ImageBuffer.h"
 
 namespace cyder {
 
+    class RenderingContext {
+    public:
+        virtual ~RenderingContext() {
+        }
+    };
+
 }
+
+#endif //CYDER_RENDERINGCONTEXT_H

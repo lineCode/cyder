@@ -27,11 +27,11 @@
 #ifndef CYDER_WEBGLBUFFER_H
 #define CYDER_WEBGLBUFFER_H
 
-#include "RenderBuffer.h"
+#include "ImageBuffer.h"
 
 namespace cyder {
 
-    class WebGLBuffer : public RenderBuffer {
+    class WebGLBuffer : public ImageBuffer {
     public:
         WebGLBuffer(int width, int height);
 

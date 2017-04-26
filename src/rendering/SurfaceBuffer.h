@@ -24,19 +24,49 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_RENDERCONTEXT_H
-#define CYDER_RENDERCONTEXT_H
+#ifndef CYDER_SURFACEBUFFER_H
+#define CYDER_SURFACEBUFFER_H
 
-#include "RenderBuffer.h"
+#include "ImageBuffer.h"
+#include <skia.h>
 
 namespace cyder {
 
-    class RenderContext {
+    class SurfaceBuffer : public ImageBuffer {
     public:
-        virtual ~RenderContext() {
+        SurfaceBuffer(int width, int height, bool alpha = true, bool useGPU = true);
+
+        ~SurfaceBuffer() override;
+
+        int width() const override {
+            return _width;
         }
+
+        void setWidth(int value) override {
+            sizeChanged = true;
+            _width = value;
+        }
+
+        int height() const override {
+            return _height;
+        }
+
+        void setHeight(int value) override {
+            sizeChanged = true;
+            _height = value;
+        }
+
+        SkSurface* surface();
+
+    private:
+        int _width;
+        int _height;
+        bool sizeChanged = true;
+        bool useGPU;
+        bool alpha;
+        SkSurface* _surface;
     };
 
 }
 
-#endif //CYDER_RENDERCONTEXT_H
+#endif //CYDER_SURFACEBUFFER_H

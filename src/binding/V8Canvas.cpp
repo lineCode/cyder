@@ -27,15 +27,15 @@
 #include "V8Canvas.h"
 #include "utils/WeakWrapper.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
-#include "render/SurfaceBuffer.h"
+#include "rendering/SurfaceBuffer.h"
 
 namespace cyder {
 
     class Canvas {
     public:
         std::string contextType = "";
-        RenderBuffer* buffer = nullptr;
-        RenderContext* context = nullptr;
+        ImageBuffer* buffer = nullptr;
+        RenderingContext* context = nullptr;
         v8::Persistent<v8::Object> contextObject;
 
         Canvas(int width = 200, int height = 200) : _width(width), _height(height) {

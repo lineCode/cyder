@@ -27,20 +27,20 @@
 #ifndef CYDER_CANVASRENDERINGCONTEXT2D_H
 #define CYDER_CANVASRENDERINGCONTEXT2D_H
 
-#include "render/RenderBuffer.h"
-#include "render/RenderContext.h"
+#include "rendering/ImageBuffer.h"
+#include "rendering/RenderingContext.h"
 
 namespace cyder {
 
-    class CanvasRenderingContext2D : public RenderContext {
+    class CanvasRenderingContext2D : public RenderingContext {
     public:
-        explicit CanvasRenderingContext2D(RenderBuffer* buffer) : renderBuffer(buffer) {
+        explicit CanvasRenderingContext2D(ImageBuffer* buffer) : renderBuffer(buffer) {
         }
 
         ~CanvasRenderingContext2D() override;
 
     private:
-        RenderBuffer* renderBuffer;
+        ImageBuffer* renderBuffer;
     };
 
 }
