@@ -24,49 +24,25 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_SURFACEBUFFER_H
-#define CYDER_SURFACEBUFFER_H
-
-#include "ImageBuffer.h"
-#include <skia.h>
+#ifndef CYDER_DRAWINGBUFFER_H
+#define CYDER_DRAWINGBUFFER_H
 
 namespace cyder {
 
-    class SurfaceBuffer : public ImageBuffer {
+    class DrawingBuffer {
     public:
-        SurfaceBuffer(int width, int height, bool alpha = true, bool useGPU = true);
 
-        ~SurfaceBuffer() override;
+        virtual ~DrawingBuffer() {}
 
-        int width() const override {
-            return _width;
-        }
+        virtual int width() const =0;
 
-        void setWidth(int value) override {
-            sizeChanged = true;
-            _width = value;
-        }
+        virtual void setWidth(int value) =0;
 
-        int height() const override {
-            return _height;
-        }
+        virtual int height() const =0;
 
-        void setHeight(int value) override {
-            sizeChanged = true;
-            _height = value;
-        }
-
-        SkSurface* surface();
-
-    private:
-        int _width;
-        int _height;
-        bool sizeChanged = true;
-        bool useGPU;
-        bool alpha;
-        SkSurface* _surface;
+        virtual void setHeight(int value)=0;
     };
 
 }
 
-#endif //CYDER_SURFACEBUFFER_H
+#endif //CYDER_DRAWINGBUFFER_H

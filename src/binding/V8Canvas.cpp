@@ -27,14 +27,14 @@
 #include "V8Canvas.h"
 #include "utils/WeakWrapper.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
-#include "rendering/SurfaceBuffer.h"
+#include "canvas2d/ImageBuffer.h"
 
 namespace cyder {
 
     class Canvas {
     public:
         std::string contextType = "";
-        ImageBuffer* buffer = nullptr;
+        DrawingBuffer* buffer = nullptr;
         RenderingContext* context = nullptr;
         v8::Persistent<v8::Object> contextObject;
 
@@ -120,7 +120,7 @@ namespace cyder {
         canvas->contextType = contextType;
         if (contextType == "2d") {
             auto CanvasRenderingContext2DClass = env->readGlobalFunction("CanvasRenderingContext2D");
-            canvas->buffer = new SurfaceBuffer(canvas->width(), canvas->height());
+            canvas->buffer = new ImageBuffer(canvas->width(), canvas->height());
             canvas->context = new CanvasRenderingContext2D(canvas->buffer);
             auto contextObject = env->newInstance(CanvasRenderingContext2DClass,
                                                   env->makeExternal(canvas->context)).ToLocalChecked();

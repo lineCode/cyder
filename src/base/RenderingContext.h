@@ -24,25 +24,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_IMAGEBUFFER_H
-#define CYDER_IMAGEBUFFER_H
+#ifndef CYDER_RENDERINGCONTEXT_H
+#define CYDER_RENDERINGCONTEXT_H
+
+#include "DrawingBuffer.h"
 
 namespace cyder {
 
-    class ImageBuffer {
+    class RenderingContext {
     public:
-
-        virtual ~ImageBuffer() {}
-
-        virtual int width() const =0;
-
-        virtual void setWidth(int value) =0;
-
-        virtual int height() const =0;
-
-        virtual void setHeight(int value)=0;
+        virtual ~RenderingContext() {
+        }
     };
 
 }
 
-#endif //CYDER_IMAGEBUFFER_H
+#endif //CYDER_RENDERINGCONTEXT_H

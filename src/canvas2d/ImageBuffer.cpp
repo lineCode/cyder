@@ -24,14 +24,29 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "WebGLBuffer.h"
+#include "ImageBuffer.h"
+#include "platform/GPUSurface.h"
 
 namespace cyder {
-    WebGLBuffer::WebGLBuffer(int width, int height) : _width(width), _height(height) {
+    ImageBuffer::ImageBuffer(int width, int height, bool alpha, bool useGPU):
+            _width(width), _height(height), alpha(alpha), useGPU(useGPU) {
 
     }
 
-    WebGLBuffer::~WebGLBuffer() {
+    ImageBuffer::~ImageBuffer() {
+        SkSafeUnref(_surface);
+    }
 
+    SkSurface* ImageBuffer::surface() {
+        if (sizeChanged) {
+            sizeChanged = false;
+            SkImageInfo info = SkImageInfo::MakeN32(_width, _height, alpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
+            if (useGPU) {
+                _surface = GPUSurface::Make(info).release();
+            } else {
+                _surface = SkSurface::MakeRaster(info).release();
+            }
+        }
+        return _surface;
     }
 }

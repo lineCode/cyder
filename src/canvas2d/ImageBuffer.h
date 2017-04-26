@@ -24,24 +24,26 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_WEBGLBUFFER_H
-#define CYDER_WEBGLBUFFER_H
+#ifndef CYDER_IMAGEBUFFER_H
+#define CYDER_IMAGEBUFFER_H
 
-#include "ImageBuffer.h"
+#include "base/DrawingBuffer.h"
+#include <skia.h>
 
 namespace cyder {
 
-    class WebGLBuffer : public ImageBuffer {
+    class ImageBuffer : public DrawingBuffer {
     public:
-        WebGLBuffer(int width, int height);
+        ImageBuffer(int width, int height, bool alpha = true, bool useGPU = true);
 
-        ~WebGLBuffer() override;
+        ~ImageBuffer() override;
 
         int width() const override {
             return _width;
         }
 
         void setWidth(int value) override {
+            sizeChanged = true;
             _width = value;
         }
 
@@ -50,14 +52,21 @@ namespace cyder {
         }
 
         void setHeight(int value) override {
+            sizeChanged = true;
             _height = value;
         }
+
+        SkSurface* surface();
 
     private:
         int _width;
         int _height;
+        bool sizeChanged = true;
+        bool useGPU;
+        bool alpha;
+        SkSurface* _surface;
     };
 
 }
 
-#endif //CYDER_WEBGLBUFFER_H
+#endif //CYDER_IMAGEBUFFER_H
