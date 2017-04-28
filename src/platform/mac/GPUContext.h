@@ -39,19 +39,17 @@ namespace cyder {
 
         ~GPUContext();
 
-        static GrContext* grContext() {
+        static GrContext* GRContext() {
             return context->_grContext;
         }
 
-        static const GrGLInterface* glInterface() {
+        static const GrGLInterface* GLInterface() {
             return context->_glInterface;
         }
 
-        static NSOpenGLContext* openGLContext() {
+        static NSOpenGLContext* OpenGLContext() {
             return context->_openGLContext;
         }
-
-        static void flush();
 
     private:
         static GPUContext* context;

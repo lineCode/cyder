@@ -27,6 +27,8 @@
 #ifndef CYDER_DRAWINGBUFFER_H
 #define CYDER_DRAWINGBUFFER_H
 
+#include <skia.h>
+
 namespace cyder {
 
     class DrawingBuffer {
@@ -34,13 +36,29 @@ namespace cyder {
 
         virtual ~DrawingBuffer() {}
 
-        virtual int width() const =0;
+        /**
+         * Indicates the width of the DrawingBuffer, in pixels.
+         */
+        virtual int width() const = 0;
 
-        virtual void setWidth(int value) =0;
+        virtual void setWidth(int value) = 0;
+        /**
+         * Indicates the height of the DrawingBuffer, in pixels.
+         */
+        virtual int height() const = 0;
 
-        virtual int height() const =0;
+        virtual void setHeight(int value) = 0;
+        /**
+         * A skia surface instance associated with the DrawingBuffer.
+         * Note: Do not cache the return value of surface(), it may change when DrawingBuffer resizes.
+         */
+        virtual SkSurface* surface() = 0;
 
-        virtual void setHeight(int value)=0;
+        /**
+        * Call to ensure all drawing to the surface has been applied to the DrawingBuffer. This method is usually called
+         * at the end of one drawing session
+        */
+        virtual void flush() = 0;
     };
 
 }

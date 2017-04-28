@@ -31,7 +31,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <functional>
-#import <platform/GPUScreen.h>
+#import "ScreenBuffer.h"
 
 
 namespace cyder {
@@ -41,12 +41,12 @@ namespace cyder {
 using namespace cyder;
 
 @interface OSView : NSView {
-    GPUScreen* screen;
+    ScreenBuffer* screenBuffer;
     OSWindow* osWindow;
 }
 
 @property (nonatomic, readwrite) OSWindow* osWindow;
-@property (nonatomic, readonly) GPUScreen* screen;
+@property (nonatomic, readonly) ScreenBuffer* screenBuffer;
 
 @end
 

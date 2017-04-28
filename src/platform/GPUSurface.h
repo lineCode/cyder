@@ -33,6 +33,8 @@ namespace cyder {
     class GPUSurface {
     public:
         static sk_sp<SkSurface> Make(const SkImageInfo& info);
+
+        static void flush();
     };
 }
 

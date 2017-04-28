@@ -30,11 +30,11 @@
 #import "OSTicker.h"
 #import "platform/Log.h"
 #import "OSWindow.h"
-#import "OSScreen.h"
+#import "ScreenBuffer.h"
 
 
 @implementation OSView
-@synthesize osWindow, screen;
+@synthesize osWindow, screenBuffer;
 
 -(BOOL) isFlipped {
     return YES;
@@ -48,7 +48,7 @@
 - (id) initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     osWindow = nil;
-    screen = nil;
+    screenBuffer = nil;
 
     [self setWantsBestResolutionOpenGLSurface:YES];
     return self;
@@ -72,7 +72,7 @@
                                                  name:@"NSWindowDidBecomeKeyNotification"
                                                object:[self window]];
 
-    screen = new OSScreen(self);
+    screenBuffer = new ScreenBuffer(self);
     
     [self performSelector:@selector(resetBackend) withObject:nil afterDelay:1];
 
@@ -80,10 +80,10 @@
 
 -(void) resetBackend {
     // The window occurs a flicker of blank screen after dragging it to another monitor.
-    // Reseting the opengl backend could fixes this problem.
+    // Resetting the opengl backend could fixes this problem.
     NSSize size = self.bounds.size;
     float scaleFactor = self.window.backingScaleFactor;
-    screen->reset(size.width, size.height, scaleFactor);
+    screenBuffer->reset(SkScalarRoundToInt(size.width*scaleFactor), SkScalarRoundToInt(size.height*scaleFactor));
     if(osWindow->resizeCallback){
         osWindow->resizeCallback();
     }
@@ -96,7 +96,7 @@
 }
 
 - (void) windowWillClose:(NSNotification *)notification {
-    screen->dispose();
+    screenBuffer->dispose();
 }
 
 - (void) windowDidBecomeKey:(NSNotification *)notification {
@@ -107,7 +107,7 @@
 - (void) updateScreenProperties {
     NSSize size = self.bounds.size;
     float scaleFactor = self.window.backingScaleFactor;
-    screen->updateSize(size.width, size.height, scaleFactor);
+    screenBuffer->updateSize(SkScalarRoundToInt(size.width*scaleFactor), SkScalarRoundToInt(size.height*scaleFactor));
 
     if(osWindow->resizeCallback){
         osWindow->resizeCallback();
@@ -136,7 +136,7 @@
                                                  name:@"NSWindowDidBecomeKeyNotification"
                                                object:[self window]];
 
-    delete screen;
+    delete screenBuffer;
     [super dealloc];
 
 }

@@ -143,8 +143,12 @@ namespace cyder {
         [nsWindow setContentSize:size];
     }
 
-    GPUScreen* OSWindow::screen() {
-        return osView.screen;
+    float OSWindow::scaleFactor() const {
+        return nsWindow.backingScaleFactor;
+    }
+
+    DrawingBuffer* OSWindow::screenBuffer() {
+        return osView.screenBuffer;
     }
 
     void OSWindow::setResizeCallback(std::function<void()> callback) {

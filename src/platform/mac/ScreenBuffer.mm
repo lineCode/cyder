@@ -26,24 +26,24 @@
 
 
 
-#include "OSScreen.h"
+#include "ScreenBuffer.h"
 #include "GPUContext.h"
 #include <platform/Log.h>
 
 
 namespace cyder {
 
-    OSScreen::OSScreen(NSView* view) {
+    ScreenBuffer::ScreenBuffer(NSView* view) {
         this->view = view;
         NSSize size = view.bounds.size;
         float scaleFactor = 1;
         if (view.window) {
             scaleFactor = view.window.backingScaleFactor;
         }
-        reset(size.width, size.height, scaleFactor);
+        reset(SkScalarRoundToInt(size.width*scaleFactor), SkScalarRoundToInt(size.height*scaleFactor));
     }
 
-    OSScreen::~OSScreen() {
+    ScreenBuffer::~ScreenBuffer() {
         if(grContext){
             grContext->abandonContext();
         }
@@ -52,7 +52,7 @@ namespace cyder {
         [openGLContext release];
     }
 
-    void OSScreen::reset(float width, float height, float scaleFactor) {
+    void ScreenBuffer::reset(int width, int height) {
         if (!isValid) {
             return;
         }
@@ -61,7 +61,6 @@ namespace cyder {
         }
         SkSafeUnref(grContext);
         if(openGLContext){
-            hasBeenReset = true;
             [openGLContext release];
         }
         static const CGLPixelFormatAttribute attributes[] = {
@@ -78,7 +77,7 @@ namespace cyder {
         CGLDescribePixelFormat(format, 0, kCGLPFAStencilSize, &stencilBits);
 
         CGLContextObj ctx;
-        auto globalOpenGLContext = GPUContext::openGLContext();
+        auto globalOpenGLContext = GPUContext::OpenGLContext();
         CGLCreateContext(format, (CGLContextObj)[globalOpenGLContext CGLContextObj], &ctx);
         CGLDestroyPixelFormat(format);
         ASSERT(ctx);
@@ -93,31 +92,38 @@ namespace cyder {
         [openGLContext makeCurrentContext];
         [openGLContext setView:view];
 
-        glViewport(0, 0, (int)(width * scaleFactor), (int)(height * scaleFactor));
+        glViewport(0, 0, width, height);
         glClearColor(0, 0, 0, 0);
         glClearStencil(0);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        auto glInterface = GPUContext::glInterface();
+        auto glInterface = GPUContext::GLInterface();
         grContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)glInterface);
         ASSERT(grContext);
-        updateSize(width, height, scaleFactor);
+        updateSize(width, height);
     }
 
-    void OSScreen::updateSize(float width, float height, float scaleFactor) {
+    void ScreenBuffer::updateSize(int width, int height) {
         if (!isValid) {
             return;
         }
         _width = width;
         _height = height;
-        _scaleFactor = scaleFactor;
+        sizeChanged = true;
+    }
+
+    SkSurface* ScreenBuffer::surface() {
+        if(!sizeChanged){
+            return _surface;
+        }
+        sizeChanged = false;
         SkSafeUnref(_surface);
 
         [openGLContext makeCurrentContext];
 
         GrBackendRenderTargetDesc desc;
-        desc.fWidth = SkScalarRoundToInt(width * scaleFactor);
-        desc.fHeight = SkScalarRoundToInt(height * scaleFactor);
+        desc.fWidth = _width;
+        desc.fHeight = _height;
         desc.fConfig = kSkia8888_GrPixelConfig;
         desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
         desc.fSampleCnt = sampleCount;
@@ -130,10 +136,10 @@ namespace cyder {
         // the GL_COLOR_BUFFER_BIT has been cleared already.
         glClear(GL_STENCIL_BUFFER_BIT);
         [openGLContext update];
+        return _surface;
     }
 
-    void OSScreen::flush() {
-        hasBeenReset = false;
+    void ScreenBuffer::flush() {
         if (!isValid) {
             return;
         }

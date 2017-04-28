@@ -62,7 +62,8 @@ namespace cyder {
         float contentHeight() const override;
         void setContentSize(float width, float height) override;
 
-        GPUScreen* screen() override;
+        float scaleFactor() const override;
+        DrawingBuffer* screenBuffer() override;
         
         void setResizeCallback(std::function<void()> callback) override;
         

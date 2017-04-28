@@ -30,7 +30,7 @@
 #include <string>
 #include <functional>
 #include "WindowInitOptions.h"
-#include "GPUScreen.h"
+#include "base/DrawingBuffer.h"
 
 namespace cyder {
 
@@ -58,11 +58,15 @@ namespace cyder {
         virtual float contentHeight() const = 0;
         virtual void setContentSize(float width, float height) = 0;
 
+        /**
+         * Specifies the effective pixel scaling factor of the screen. This value is 1 on standard screens and doubled on
+         * HiDPI (Retina display) screens.
+         */
+        virtual float scaleFactor() const = 0;
+        virtual DrawingBuffer* screenBuffer() = 0;
+
         virtual void activate() = 0;
         virtual void close() = 0;
-
-        virtual GPUScreen* screen() = 0;
-
         virtual void setResizeCallback(std::function<void()> callback) = 0;
 
     };

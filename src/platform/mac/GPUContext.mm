@@ -31,7 +31,14 @@
 namespace cyder {
 
     sk_sp<SkSurface> GPUSurface::Make(const SkImageInfo& info) {
-        return SkSurface::MakeRenderTarget(GPUContext::grContext(), SkBudgeted::kNo, info);
+        return SkSurface::MakeRenderTarget(GPUContext::GRContext(), SkBudgeted::kNo, info);
+    }
+
+    void GPUSurface::flush() {
+        auto openGLContext = GPUContext::OpenGLContext();
+        [openGLContext makeCurrentContext];
+        GPUContext::GRContext()->flush();
+        [openGLContext flushBuffer];
     }
 
     GPUContext* GPUContext::context = nullptr;
@@ -75,12 +82,5 @@ namespace cyder {
         SkSafeUnref(_grContext);
         SkSafeUnref(_glInterface);
         [_openGLContext release];
-    }
-
-    void GPUContext::flush() {
-        auto openGLContext = context->_openGLContext;
-        [openGLContext makeCurrentContext];
-        context->_grContext->flush();
-        [openGLContext flushBuffer];
     }
 }

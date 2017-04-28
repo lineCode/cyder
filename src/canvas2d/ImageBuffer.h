@@ -56,7 +56,9 @@ namespace cyder {
             _height = value;
         }
 
-        SkSurface* surface();
+        SkSurface* surface() override ;
+
+        void flush() override;
 
     private:
         int _width;

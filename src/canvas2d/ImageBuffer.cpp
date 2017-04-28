@@ -28,7 +28,7 @@
 #include "platform/GPUSurface.h"
 
 namespace cyder {
-    ImageBuffer::ImageBuffer(int width, int height, bool alpha, bool useGPU):
+    ImageBuffer::ImageBuffer(int width, int height, bool alpha, bool useGPU) :
             _width(width), _height(height), alpha(alpha), useGPU(useGPU) {
 
     }
@@ -48,5 +48,11 @@ namespace cyder {
             }
         }
         return _surface;
+    }
+
+    void ImageBuffer::flush() {
+        if (useGPU) {
+            GPUSurface::flush();
+        }
     }
 }
