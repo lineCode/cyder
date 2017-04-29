@@ -41,10 +41,15 @@ namespace cyder {
         Canvas(int width = 200, int height = 200) : _width(width), _height(height) {
         }
 
+        Canvas(DrawingBuffer* buffer) : buffer(buffer), externalBuffer(true) {
+        }
+
         ~Canvas() {
             contextObject.Reset();
             delete context;
-            delete buffer;
+            if(!externalBuffer){
+                delete buffer;
+            }
         }
 
         int width() const {
@@ -74,6 +79,7 @@ namespace cyder {
     private:
         int _width;
         int _height;
+        bool externalBuffer = false;
     };
 
     static void widthGetter(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& args) {
@@ -120,7 +126,9 @@ namespace cyder {
         canvas->contextType = contextType;
         if (contextType == "2d") {
             auto CanvasRenderingContext2DClass = env->readGlobalFunction("CanvasRenderingContext2D");
-            canvas->buffer = new ImageBuffer(canvas->width(), canvas->height());
+            if(!canvas->buffer){
+                canvas->buffer = new ImageBuffer(canvas->width(), canvas->height());
+            }
             canvas->context = new CanvasRenderingContext2D(canvas->buffer);
             auto contextObject = env->newInstance(CanvasRenderingContext2DClass,
                                                   env->makeExternal(canvas->context)).ToLocalChecked();
@@ -134,9 +142,16 @@ namespace cyder {
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
-        int width = env->toInt(args[0]);
-        int height = env->toInt(args[1]);
-        auto canvas = new Canvas(width, height);
+        Canvas* canvas;
+        if (args[0]->IsExternal()) {
+            auto external = v8::Local<v8::External>::Cast(args[0]);
+            auto buffer = reinterpret_cast<DrawingBuffer*>(external->Value());
+            canvas = new Canvas(buffer);
+        } else {
+            int width = env->toInt(args[0]);
+            int height = env->toInt(args[1]);
+            canvas = new Canvas(width, height);
+        }
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, canvas);
         WeakWrapper::BindObject(env->isolate(), self, canvas);

@@ -27,7 +27,16 @@
 #include "CanvasRenderingContext2D.h"
 
 namespace cyder {
-    CanvasRenderingContext2D::~CanvasRenderingContext2D() {
+    CanvasRenderingContext2D::CanvasRenderingContext2D(DrawingBuffer* buffer) : buffer(buffer) {
+        auto canvas = buffer->surface()->getCanvas();
+        SkPaint paint;
+        paint.setColor(SK_ColorGREEN);
+        paint.setAntiAlias(true);
+        canvas->clear(0XFFECECEC);
+        canvas->drawRoundRect(SkRect::MakeXYWH(200, 200, 400, 400), 20, 20, paint);
+        buffer->flush();
+    }
 
+    CanvasRenderingContext2D::~CanvasRenderingContext2D() {
     }
 }

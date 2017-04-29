@@ -34,13 +34,12 @@ namespace cyder {
 
     class CanvasRenderingContext2D : public RenderingContext {
     public:
-        explicit CanvasRenderingContext2D(DrawingBuffer* buffer) : renderBuffer(buffer) {
-        }
+        explicit CanvasRenderingContext2D(DrawingBuffer* buffer);
 
         ~CanvasRenderingContext2D() override;
 
     private:
-        DrawingBuffer* renderBuffer;
+        DrawingBuffer* buffer;
     };
 
 }

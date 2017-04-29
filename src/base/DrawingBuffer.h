@@ -55,9 +55,9 @@ namespace cyder {
         virtual SkSurface* surface() = 0;
 
         /**
-        * Call to ensure all drawing to the surface has been applied to the DrawingBuffer. This method is usually called
+         * Call to ensure all drawing to the surface has been applied to the DrawingBuffer. This method is usually called
          * at the end of one drawing session
-        */
+         */
         virtual void flush() = 0;
     };
 

@@ -47,6 +47,7 @@ namespace cyder {
         OSView* customView = [[OSView alloc] initWithFrame:contentRect];
         osView = customView;
         customView.osWindow = this;
+        customView.screenBuffer = new ScreenBuffer(this);
 
 
         [customView setTranslatesAutoresizingMaskIntoConstraints:NO];

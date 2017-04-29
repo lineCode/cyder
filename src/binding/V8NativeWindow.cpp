@@ -52,8 +52,7 @@ namespace cyder {
         env->call(eventEmitterClass, self); // call the super class function.
         auto CanvasClass = env->readGlobalFunction("Canvas");
         auto canvas = env->newInstance(CanvasClass,
-                                       env->makeValue(window->contentWidth()),
-                                       env->makeValue(window->contentHeight())).ToLocalChecked();
+                                       env->makeExternal(window->screenBuffer())).ToLocalChecked();
         env->setObjectProperty(self, "canvas", canvas, true);
         self->SetAlignedPointerInInternalField(0, window);
         WeakWrapper::BindObject(env->isolate(), self, window);

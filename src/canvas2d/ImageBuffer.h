@@ -43,6 +43,9 @@ namespace cyder {
         }
 
         void setWidth(int value) override {
+            if(value < 0){
+                return;
+            }
             sizeChanged = true;
             _width = value;
         }
@@ -52,6 +55,9 @@ namespace cyder {
         }
 
         void setHeight(int value) override {
+            if(value < 0){
+                return;
+            }
             sizeChanged = true;
             _height = value;
         }

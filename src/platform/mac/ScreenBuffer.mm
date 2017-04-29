@@ -29,18 +29,11 @@
 #include "ScreenBuffer.h"
 #include "GPUContext.h"
 #include <platform/Log.h>
-
+#include "OSWindow.h"
 
 namespace cyder {
 
-    ScreenBuffer::ScreenBuffer(NSView* view) {
-        this->view = view;
-        NSSize size = view.bounds.size;
-        float scaleFactor = 1;
-        if (view.window) {
-            scaleFactor = view.window.backingScaleFactor;
-        }
-        reset(SkScalarRoundToInt(size.width*scaleFactor), SkScalarRoundToInt(size.height*scaleFactor));
+    ScreenBuffer::ScreenBuffer(OSWindow* window) : window(window) {
     }
 
     ScreenBuffer::~ScreenBuffer() {
@@ -52,10 +45,17 @@ namespace cyder {
         [openGLContext release];
     }
 
-    void ScreenBuffer::reset(int width, int height) {
+    void ScreenBuffer::reset(NSView* view) {
         if (!isValid) {
             return;
         }
+        NSSize size = view.bounds.size;
+        float scaleFactor = 1;
+        if (view.window) {
+            scaleFactor = view.window.backingScaleFactor;
+        }
+        int width = SkScalarRoundToInt(size.width * scaleFactor);
+        int height = SkScalarRoundToInt(size.height * scaleFactor);
         if(grContext){
             grContext->abandonContext();
         }
@@ -92,11 +92,6 @@ namespace cyder {
         [openGLContext makeCurrentContext];
         [openGLContext setView:view];
 
-        glViewport(0, 0, width, height);
-        glClearColor(0, 0, 0, 0);
-        glClearStencil(0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
         auto glInterface = GPUContext::GLInterface();
         grContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)glInterface);
         ASSERT(grContext);
@@ -110,6 +105,27 @@ namespace cyder {
         _width = width;
         _height = height;
         sizeChanged = true;
+    }
+
+    void ScreenBuffer::setWidth(int value) {
+        if(!isValid || value < 0){
+            return;
+        }
+        if(value < 0){
+            return;
+        }
+        sizeChanged = true;
+        _width = value;
+        window->setContentSize(_width, _height);
+    }
+
+    void ScreenBuffer::setHeight(int value) {
+        if(!isValid || value < 0){
+            return;
+        }
+        sizeChanged = true;
+        _height = value;
+        window->setContentSize(_width, _height);
     }
 
     SkSurface* ScreenBuffer::surface() {

@@ -46,7 +46,7 @@ using namespace cyder;
 }
 
 @property (nonatomic, readwrite) OSWindow* osWindow;
-@property (nonatomic, readonly) ScreenBuffer* screenBuffer;
+@property (nonatomic, readwrite) ScreenBuffer* screenBuffer;
 
 @end
 

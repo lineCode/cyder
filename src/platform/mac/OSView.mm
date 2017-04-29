@@ -47,9 +47,6 @@
 
 - (id) initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
-    osWindow = nil;
-    screenBuffer = nil;
-
     [self setWantsBestResolutionOpenGLSurface:YES];
     return self;
 }
@@ -72,18 +69,13 @@
                                                  name:@"NSWindowDidBecomeKeyNotification"
                                                object:[self window]];
 
-    screenBuffer = new ScreenBuffer(self);
-    
-    [self performSelector:@selector(resetBackend) withObject:nil afterDelay:1];
-
+    [self resetBackend];
 }
 
 -(void) resetBackend {
     // The window occurs a flicker of blank screen after dragging it to another monitor.
     // Resetting the opengl backend could fixes this problem.
-    NSSize size = self.bounds.size;
-    float scaleFactor = self.window.backingScaleFactor;
-    screenBuffer->reset(SkScalarRoundToInt(size.width*scaleFactor), SkScalarRoundToInt(size.height*scaleFactor));
+    screenBuffer->reset(self);
     if(osWindow->resizeCallback){
         osWindow->resizeCallback();
     }
@@ -138,7 +130,6 @@
 
     delete screenBuffer;
     [super dealloc];
-
 }
 
 

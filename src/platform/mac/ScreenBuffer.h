@@ -36,9 +36,11 @@
 
 namespace cyder {
 
+    class OSWindow;
+
     class ScreenBuffer : public DrawingBuffer {
     public:
-        ScreenBuffer(NSView* view);
+        ScreenBuffer(OSWindow* window);
         ~ScreenBuffer();
 
         /**
@@ -54,10 +56,7 @@ namespace cyder {
             return _width;
         }
 
-        void setWidth(int value) override {
-            sizeChanged = true;
-            _width = value;
-        }
+        void setWidth(int value) override;
 
         /**
          * Indicates the height of the ScreenBuffer, in pixels. It includes the scaleFactor property.
@@ -66,10 +65,7 @@ namespace cyder {
             return _height;
         }
 
-        void setHeight(int value) override {
-            sizeChanged = true;
-            _height = value;
-        }
+        void setHeight(int value) override;
 
         /**
          * A skia surface instance associated with the ScreenBuffer. Anything drew to it will show on the native window.<br/>
@@ -88,7 +84,7 @@ namespace cyder {
         * @param width The width of the ScreenBuffer, in pixels. It includes the scaleFactor property.
         * @param height The height of the ScreenBuffer, in pixels. It includes the scaleFactor property.
         */
-        void reset(int width, int height);
+        void reset(NSView* view);
 
         /**
          * Destroys the backend context, and marks the ScreenBuffer as invalid. When the dispose() method is called on a
@@ -100,7 +96,7 @@ namespace cyder {
 
     private:
         bool sizeChanged = true;
-        NSView* view = nullptr;
+        OSWindow* window;
         NSOpenGLContext* openGLContext = nullptr;
         GrContext* grContext = nullptr;
         SkSurface* _surface = nullptr;
