@@ -36,6 +36,7 @@
 node_modules
 /CMakeFiles
 /CMakeScripts
-/*.xcodeproj
+/cyder.xcodeproj
 /CMakeCache.txt
 /cmake_install.cmake
+/cyder.build
