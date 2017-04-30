@@ -34,3 +34,8 @@
 /cmake-build-release
 /scripts/built
 node_modules
+/CMakeFiles
+/CMakeScripts
+/*.xcodeproj
+/CMakeCache.txt
+/cmake_install.cmake
