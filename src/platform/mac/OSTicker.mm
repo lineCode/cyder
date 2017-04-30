@@ -45,13 +45,13 @@ void Ticker::Stop() {
     [ticker stopTicker];
 }
 
-static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink,
-        const CVTimeStamp* inNow,
-        const CVTimeStamp* inOutputTime,
-        CVOptionFlags flagsIn,
-        CVOptionFlags* flagsOut,
-        void* displayLinkContext) {
-    [static_cast<OSTicker*>(displayLinkContext) performSelectorOnMainThread:@selector(mainThreadUpdate) withObject:nil waitUntilDone:YES];
+static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* inNow,
+        const CVTimeStamp* inOutputTime, CVOptionFlags flagsIn,
+        CVOptionFlags* flagsOut, void* displayLinkContext) {
+    OSTicker* ticker = static_cast<OSTicker*>(displayLinkContext);
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [ticker mainThreadUpdate];
+    });
     return 0;
 }
 
