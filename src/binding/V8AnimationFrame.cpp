@@ -24,35 +24,33 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#include "V8AnimationFrame.h"
+#include "platform/AnimationFrame.h"
+
+namespace cyder {
+
+    static void update(Environment* env, double timestamp) {
+        auto isolate = env->isolate();
+        // Create a stack-allocated handle scope each frame.
+        v8::HandleScope scope(isolate);
+        v8::Context::Scope contextScope(env->context());
+        v8::TryCatch tryCatch(isolate);
+        auto updateFunction = env->readGlobalFunction("cyder.updateFrame");
+        auto result = env->call(updateFunction, env->makeNull(), env->makeValue(timestamp));
+        if (result.IsEmpty()) {
+            env->printStackTrace(tryCatch);
+            abort();
+        }
+    }
+
+    static void requestAnimationFrameMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        AnimationFrame::Request(std::bind(update, env, std::placeholders::_1));
+    }
 
 
-#ifndef CYDER_OSANIMATOR_H
-#define CYDER_OSANIMATOR_H
-
-#import <Cocoa/Cocoa.h>
-#import "platform/Ticker.h"
-
-using namespace cyder;
-
-@interface OSTicker : NSObject {
-    CVDisplayLinkRef displayLink;
-    Updater updater;
-    BOOL forceUpdated;
+    void V8AnimationFrame::install(v8::Local<v8::Object> parent, Environment* env) {
+        auto cyderScope = env->readGlobalObject("cyder");
+        env->setObjectProperty(cyderScope, "requestFrame", requestAnimationFrameMethod);
+    }
 }
-
-@property (atomic, readwrite) Updater updater;
-
-+(OSTicker*) globalTicker;
-
--(void) startTicker;
-
--(void) stopTicker;
-
--(void) mainThreadUpdate;
-
--(void) forceUpdate;
-
-@end
-
-
-#endif  //CYDER_OSANIMATOR_H

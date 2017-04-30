@@ -27,7 +27,7 @@
 
 #include "OSApplication.h"
 #include "GPUContext.h"
-#include "OSTicker.h"
+#include "OSAnimationFrame.h"
 
 using namespace cyder;
 
@@ -37,11 +37,10 @@ int main(int argc, char* argv[]) {
 
     OSApplication app;
     GPUContext gpuContext;
-    OSTicker* animator = [[OSTicker alloc] init];
+    OSAnimationFrame animationFrame;
 
     auto result = Start(argc, argv);
 
-    [animator release];
     [pool release];
     return result;
 }

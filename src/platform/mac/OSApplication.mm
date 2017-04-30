@@ -27,12 +27,13 @@
 
 
 #include "OSApplication.h"
+#include "OSAnimationFrame.h"
 
 namespace cyder {
 
     Application* Application::application = nullptr;
 
-    OSApplication::OSApplication() {
+    OSApplication::OSApplication():_openedWindows(new std::vector<OSWindow*>()) {
         Application::application = this;
         nsApp = [NSApplication sharedApplication];
         appDelegate = [[AppDelegate alloc] init];
@@ -41,7 +42,9 @@ namespace cyder {
     }
 
     OSApplication::~OSApplication() {
+        delete _openedWindows;
         [appDelegate release];
+        Application::application = nullptr;
     }
 
     void OSApplication::exit(int errorCode) {
@@ -58,26 +61,27 @@ namespace cyder {
 
     void OSApplication::windowActivated(OSWindow* window) {
         auto windows = _openedWindows;
-        auto result = std::find(windows.begin(), windows.end(), window);
-        if (result == windows.end() - 1) {
+        auto result = std::find(windows->begin(), windows->end(), window);
+        if (result == windows->end() - 1) {
             return;
         }
-        if (result != windows.end()) {
-            windows.erase(result);
+        if (result != windows->end()) {
+            windows->erase(result);
         }
-        windows.push_back(window);
+        windows->push_back(window);
+        OSAnimationFrame::RequestScreenUpdate();
     }
 
     void OSApplication::windowClosed(OSWindow* window) {
         auto windows = _openedWindows;
-        auto result = std::find(windows.begin(), windows.end(), window);
-        if (result != windows.end()) {
-            if (result == windows.end() - 1) {
-                auto size = windows.size();
-                auto activeWindow = size > 1 ? windows[size - 2] : nullptr;
+        auto result = std::find(windows->begin(), windows->end(), window);
+        if (result != windows->end()) {
+            if (result == windows->end() - 1) {
+                auto size = windows->size();
+                auto activeWindow = size > 1 ? (*windows)[size - 2] : nullptr;
                 windowActivated(activeWindow);
             }
-            windows.erase(result);
+            windows->erase(result);
         }
     }
 

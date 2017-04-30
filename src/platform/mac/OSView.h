@@ -43,6 +43,7 @@ using namespace cyder;
 @interface OSView : NSView {
     ScreenBuffer* screenBuffer;
     OSWindow* osWindow;
+    bool hasActivatedOnce;
 }
 
 @property (nonatomic, readwrite) OSWindow* osWindow;

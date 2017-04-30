@@ -27,7 +27,7 @@
 
 
 #import "OSView.h"
-#import "OSTicker.h"
+#import "OSAnimationFrame.h"
 #import "platform/Log.h"
 #import "OSWindow.h"
 #import "ScreenBuffer.h"
@@ -47,6 +47,7 @@
 
 - (id)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
+    hasActivatedOnce = false;
     [self setWantsBestResolutionOpenGLSurface:YES];
     return self;
 }
@@ -79,8 +80,10 @@
     if (osWindow->resizeCallback) {
         osWindow->resizeCallback();
     }
-    // Update the screen immediately after the backend resetting to prevent flickering.
-    [[OSTicker globalTicker] forceUpdate];
+    if(hasActivatedOnce){
+        // Update the screen immediately after the backend resetting to prevent flickering.
+        OSAnimationFrame::Update();
+    }
 }
 
 - (void)backingPropertiesChanged:(NSNotification*)notification {
@@ -92,6 +95,7 @@
 }
 
 - (void)windowDidBecomeKey:(NSNotification*)notification {
+    hasActivatedOnce = true;
     osWindow->windowDidActivated();
 }
 
@@ -104,9 +108,10 @@
     if (osWindow->resizeCallback) {
         osWindow->resizeCallback();
     }
-    // the main thread is fully blocked while window resizing, we need to trigger animation callbacks manually.
-    [[OSTicker globalTicker] forceUpdate];
-
+    if(hasActivatedOnce){
+        // the main thread is fully blocked while window resizing, we need to trigger animation callbacks manually.
+        OSAnimationFrame::Update();
+    }
 }
 
 - (void)setFrameSize:(NSSize)newSize {

@@ -29,7 +29,6 @@
 #ifndef CYDER_V8NATIVEAPPLICATION_H
 #define CYDER_V8NATIVEAPPLICATION_H
 
-#include <v8.h>
 #include "base/Environment.h"
 
 namespace cyder {

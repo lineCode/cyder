@@ -149,7 +149,7 @@ namespace cyder {
         return nsWindow.backingScaleFactor;
     }
 
-    DrawingBuffer* OSWindow::screenBuffer() {
+    ScreenBuffer* OSWindow::screenBuffer() {
         return osView.screenBuffer;
     }
 

@@ -51,7 +51,7 @@ namespace cyder {
             return _activeWindow;
         }
         
-        std::vector<OSWindow*> openedWindows() const {
+        const std::vector<OSWindow*>* openedWindows() const {
             return _openedWindows;
         }
 
@@ -60,7 +60,7 @@ namespace cyder {
         NSApplication* nsApp;
         AppDelegate* appDelegate;
         OSWindow* _activeWindow;
-        std::vector<OSWindow*> _openedWindows;
+        std::vector<OSWindow*>* _openedWindows;
         
         void windowActivated(OSWindow* window);
         void windowClosed(OSWindow* window);

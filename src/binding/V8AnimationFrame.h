@@ -24,35 +24,18 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ImageBuffer.h"
-#include "platform/GPUSurface.h"
+#ifndef CYDER_V8ANIMATIONFRAME_H
+#define CYDER_V8ANIMATIONFRAME_H
+
+#include "base/Environment.h"
 
 namespace cyder {
-    ImageBuffer::ImageBuffer(int width, int height, bool alpha, bool useGPU) :
-            _width(width), _height(height), alpha(alpha), useGPU(useGPU) {
 
-    }
+    class V8AnimationFrame {
+    public:
+        static void install(v8::Local<v8::Object> parent, Environment* env);
+    };
 
-    ImageBuffer::~ImageBuffer() {
-        SkSafeUnref(_surface);
-    }
-
-    SkSurface* ImageBuffer::surface() {
-        if (sizeChanged) {
-            sizeChanged = false;
-            SkImageInfo info = SkImageInfo::MakeN32(_width, _height, alpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
-            if (useGPU) {
-                _surface = GPUSurface::Make(info).release();
-            } else {
-                _surface = SkSurface::MakeRaster(info).release();
-            }
-        }
-        return _surface;
-    }
-
-    void ImageBuffer::flush() {
-        if (useGPU) {
-            GPUSurface::flush();
-        }
-    }
 }
+
+#endif //CYDER_V8ANIMATIONFRAME_H

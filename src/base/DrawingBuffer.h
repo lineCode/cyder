@@ -48,17 +48,23 @@ namespace cyder {
         virtual int height() const = 0;
 
         virtual void setHeight(int value) = 0;
-        /**
-         * A skia surface instance associated with the DrawingBuffer.
-         * Note: Do not cache the return value of surface(), it may change when DrawingBuffer resizes.
-         */
-        virtual SkSurface* surface() = 0;
 
         /**
-         * Call to ensure all drawing to the surface has been applied to the DrawingBuffer. This method is usually called
-         * at the end of one drawing session
+         * Return a canvas that will draw into this drawing buffer.
+         * Note: Do not cache the return value of surface(), it may change when DrawingBuffer resizes.
          */
-        virtual void flush() = 0;
+        virtual SkCanvas* getCanvas() = 0;
+
+        /**
+         * Draws this buffer directly into another canvas.
+         */
+        virtual void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) = 0;
+
+        /**
+         * Copy the pixels from the drawing buffer into the specified buffer (pixels + rowBytes), converting them into
+         * the requested format (dstInfo). The surface pixels are read starting at the specified (srcX,srcY) location.
+         */
+        virtual bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) = 0;
     };
 
 }

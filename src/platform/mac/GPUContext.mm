@@ -31,6 +31,8 @@
 namespace cyder {
 
     sk_sp<SkSurface> GPUSurface::Make(const SkImageInfo &info) {
+        auto openGLContext = GPUContext::OpenGLContext();
+        [openGLContext makeCurrentContext];
         return SkSurface::MakeRenderTarget(GPUContext::GRContext(), SkBudgeted::kNo, info);
     }
 
@@ -64,8 +66,6 @@ namespace cyder {
         CGLCreateContext(format, NULL, &cglContext);
         ASSERT(cglContext);
         CGLDestroyPixelFormat(format);
-        GLint interval = 1;
-        CGLSetParameter(cglContext, kCGLCPSwapInterval, &interval);
         CGLSetCurrentContext(cglContext);
         _openGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:cglContext];
         ASSERT(_openGLContext);

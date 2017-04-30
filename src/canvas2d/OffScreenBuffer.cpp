@@ -24,57 +24,49 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_IMAGEBUFFER_H
-#define CYDER_IMAGEBUFFER_H
-
-#include "base/DrawingBuffer.h"
-#include <skia.h>
+#include "OffScreenBuffer.h"
+#include "platform/GPUSurface.h"
 
 namespace cyder {
+    OffScreenBuffer::OffScreenBuffer(int width, int height, bool alpha, bool useGPU) :
+            _width(width), _height(height), alpha(alpha), useGPU(useGPU) {
 
-    class ImageBuffer : public DrawingBuffer {
-    public:
-        ImageBuffer(int width, int height, bool alpha = true, bool useGPU = true);
+    }
 
-        ~ImageBuffer() override;
+    OffScreenBuffer::~OffScreenBuffer() {
+        SkSafeUnref(surface);
+    }
 
-        int width() const override {
-            return _width;
-        }
+    SkCanvas* OffScreenBuffer::getCanvas() {
+        contentChanged = true;
+        return getSurface()->getCanvas();
+    }
 
-        void setWidth(int value) override {
-            if(value < 0){
-                return;
+    void OffScreenBuffer::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+        if (contentChanged) {
+            contentChanged = false;
+            if (useGPU) {
+                GPUSurface::flush();
             }
-            sizeChanged = true;
-            _width = value;
         }
+        getSurface()->draw(canvas, x, y, paint);
+    }
 
-        int height() const override {
-            return _height;
-        }
+    bool OffScreenBuffer::readPixels(const SkImageInfo& dstInfo, void* dstPixels,
+                                     size_t dstRowBytes, int srcX, int srcY) {
+        return getSurface()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+    }
 
-        void setHeight(int value) override {
-            if(value < 0){
-                return;
+    SkSurface* OffScreenBuffer::getSurface() {
+        if (sizeChanged) {
+            sizeChanged = false;
+            SkImageInfo info = SkImageInfo::MakeN32(_width, _height, alpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
+            if (useGPU) {
+                surface = GPUSurface::Make(info).release();
+            } else {
+                surface = SkSurface::MakeRaster(info).release();
             }
-            sizeChanged = true;
-            _height = value;
         }
-
-        SkSurface* surface() override ;
-
-        void flush() override;
-
-    private:
-        int _width;
-        int _height;
-        bool sizeChanged = true;
-        bool useGPU;
-        bool alpha;
-        SkSurface* _surface;
-    };
-
+        return surface;
+    }
 }
-
-#endif //CYDER_IMAGEBUFFER_H

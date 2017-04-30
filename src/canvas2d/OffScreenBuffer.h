@@ -24,61 +24,62 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYDER_OFFSCREENBUFFER_H
+#define CYDER_OFFSCREENBUFFER_H
 
-#ifndef CYDER_OSWINDOW_H
-#define CYDER_OSWINDOW_H
-
-#include <string>
-#include "OSView.h"
-#include "platform/WindowInitOptions.h"
-#include "platform/Window.h"
-#include "ScreenBuffer.h"
+#include "base/DrawingBuffer.h"
+#include <skia.h>
 
 namespace cyder {
 
-    class OSWindow : public Window {
+    class OffScreenBuffer : public DrawingBuffer {
     public:
-        explicit OSWindow(const WindowInitOptions& initOptions);
-        ~OSWindow() override;
+        OffScreenBuffer(int width, int height, bool alpha = true, bool useGPU = true);
 
+        ~OffScreenBuffer() override;
 
-        void activate() override;
-        void close() override;
+        int width() const override {
+            return _width;
+        }
 
-        std::string title() override;
-        void setTitle(const std::string& title) override;
+        void setWidth(int value) override {
+            if(value < 0){
+                return;
+            }
+            sizeChanged = true;
+            _width = value;
+        }
 
-        float x() const override;
-        void setX(float value) override;
+        int height() const override {
+            return _height;
+        }
 
-        float y() const override;
-        void setY(float value) override;
+        void setHeight(int value) override {
+            if(value < 0){
+                return;
+            }
+            sizeChanged = true;
+            _height = value;
+        }
 
-        float width() const override;
+        SkCanvas* getCanvas() override;
 
-        float height() const override;
+        void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
 
-
-        float contentWidth() const override;
-        float contentHeight() const override;
-        void setContentSize(float width, float height) override;
-
-        float scaleFactor() const override;
-        ScreenBuffer* screenBuffer() override;
-        
-        void setResizeCallback(std::function<void()> callback) override;
-        
-        std::function<void()> resizeCallback = nullptr;
-        
-        void windowDidActivated();
-
+        bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) override;
 
     private:
-        NSWindow* nsWindow;
-        NSWindow* createNSWindow(const WindowInitOptions& options);
-        OSView* osView;
+        int _width;
+        int _height;
+        bool useGPU;
+        bool alpha;
+        bool sizeChanged = true;
+        bool contentChanged = false;
+        SkSurface* surface = nullptr;
+
+        SkSurface* getSurface();
     };
 
-} // namespace cyder
+}
 
-#endif //CYDER_OSWINDOW_H
+#endif //CYDER_OFFSCREENBUFFER_H

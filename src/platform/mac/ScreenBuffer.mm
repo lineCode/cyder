@@ -30,6 +30,7 @@
 #include "GPUContext.h"
 #include <platform/Log.h>
 #include "OSWindow.h"
+#import "OSAnimationFrame.h"
 
 namespace cyder {
 
@@ -50,7 +51,7 @@ namespace cyder {
             return;
         }
         NSSize size = view.bounds.size;
-        float scaleFactor = 1;
+        CGFloat scaleFactor = 1;
         if (view.window) {
             scaleFactor = view.window.backingScaleFactor;
         }
@@ -82,8 +83,8 @@ namespace cyder {
         CGLDestroyPixelFormat(format);
         ASSERT(ctx);
 
-        static const GLint interval = 1;
-        CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
+//        static const GLint interval = 1;
+//        CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
         CGLSetCurrentContext(ctx);
 
         openGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
@@ -128,15 +129,34 @@ namespace cyder {
         window->setContentSize(_width, _height);
     }
 
-    SkSurface* ScreenBuffer::surface() {
+    SkCanvas* ScreenBuffer::getCanvas() {
+        if(!contentChanged){
+            contentChanged = true;
+            OSAnimationFrame::RequestScreenUpdate();
+        }
+        return getSurface()->getCanvas();
+    }
+
+    void ScreenBuffer::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+        if (contentChanged) {
+            flush();
+        }
+        getSurface()->draw(canvas, x, y, paint);
+    }
+
+    bool ScreenBuffer::readPixels(const SkImageInfo &dstInfo, void* dstPixels,
+            size_t dstRowBytes, int srcX, int srcY) {
+        return getSurface()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+    }
+
+    SkSurface* ScreenBuffer::getSurface() {
         if (!sizeChanged) {
             return _surface;
         }
         sizeChanged = false;
-        SkSafeUnref(_surface);
 
         [openGLContext makeCurrentContext];
-
+        SkSafeUnref(_surface);
         GrBackendRenderTargetDesc desc;
         desc.fWidth = _width;
         desc.fHeight = _height;
@@ -156,9 +176,10 @@ namespace cyder {
     }
 
     void ScreenBuffer::flush() {
-        if (!isValid) {
+        if (!isValid || !contentChanged) {
             return;
         }
+        contentChanged = false;
         [openGLContext makeCurrentContext];
         grContext->flush();
         [openGLContext flushBuffer];

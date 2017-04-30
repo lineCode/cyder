@@ -29,7 +29,7 @@
 #include <libplatform.h>
 #include "base/Globals.h"
 #include "base/Environment.h"
-#include "platform/Ticker.h"
+#include "platform/AnimationFrame.h"
 #include "binding/JSMain.h"
 #include "binding/DebugAgent.h"
 
@@ -79,12 +79,10 @@ namespace cyder {
         Environment environment(context);
         JSMain jsMain(Globals::resolvePath("cyder.js"), &environment);
         jsMain.start(argc, argv);
-        Ticker::Start(std::bind(&JSMain::update, &jsMain));
         auto result = environment.executeScript(Globals::resolvePath("test.js"));
         ASSERT(!result.IsEmpty());
         Application::application->run();
 
-        Ticker::Stop();
         DebugAgent::Disable();
         isolate->Dispose();
         v8::V8::Dispose();

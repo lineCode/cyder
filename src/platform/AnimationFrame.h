@@ -31,14 +31,27 @@
 
 namespace cyder {
 
-    typedef std::function<void()> Updater;
+    typedef std::function<void(double timestamp)> FrameRequestCallback;
 
-    class Ticker {
+    class AnimationFrame {
     public:
+        /**
+         * The AnimationFrame::Request() method tells the runtime that you wish to perform an animation and requests that
+         * the runtime call a specified function to update an animation before the next repaint. The method takes as an
+         * argument a callback to be invoked before the repaint.
+         * @param callback A parameter specifying a function to call when it's time to update your animation for the next
+         * repaint. The callback has one single argument, a high-resolution timestamp, which indicates the current time
+         * for when requestAnimationFrame starts to fire callbacks.
+         * @returns A integer value, the request id, that uniquely identifies the entry in the callback list. You can pass
+         * this value to AnimationFrame::Cancel() to cancel the refresh callback request.
+         */
+        static unsigned long Request(FrameRequestCallback callback);
 
-        static void Start(Updater updater);
-
-        static void Stop();
+        /**
+         * Cancels an animation frame request previously scheduled through a call to AnimationFrame::Request().
+         * @param handle The ID value returned by the call to AnimationFrame::Request() that requested the callback.
+         */
+        static void Cancel(unsigned long handle);
     };
 
 

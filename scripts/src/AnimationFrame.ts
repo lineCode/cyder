@@ -30,8 +30,12 @@
 namespace cyder {
 
     let callbackList:FrameRequestCallback[] = [];
+    let requested = false;
+
+    export declare function requestFrame():void;
 
     export function updateFrame(timestamp:number):void {
+        requested = false;
         if (callbackList.length == 0) {
             return;
         }
@@ -47,6 +51,10 @@ namespace cyder {
             throw new Error("The callback provided as parameter 1 is not a function.");
         }
         callbackList.push(callback);
+        if (!requested) {
+            requested = true;
+            cyder.requestFrame();
+        }
         return callbackList.length - 1;
     }
 

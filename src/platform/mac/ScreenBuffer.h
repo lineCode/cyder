@@ -68,16 +68,27 @@ namespace cyder {
         void setHeight(int value) override;
 
         /**
-         * A skia surface instance associated with the ScreenBuffer. Anything drew to it will show on the native window.<br/>
-         * Note: Do not cache the return value of surface(), it may change when ScreenBuffer resizes.
+         * Return a canvas that will draw into this drawing buffer.
+         * Note: Do not cache the return value of surface(), it may change when DrawingBuffer resizes.
          */
-        SkSurface* surface() override;
+        SkCanvas* getCanvas() override;
+
+        /**
+         * Draws this buffer directly into another canvas.
+         */
+        void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
+
+        /**
+         * Copy the pixels from the drawing buffer into the specified buffer (pixels + rowBytes), converting them into
+         * the requested format (dstInfo). The surface pixels are read starting at the specified (srcX,srcY) location.
+         */
+        bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) override;
 
         /**
          * Call to ensure all drawing to the surface has been applied to the ScreenBuffer. This method is usually called
          * at the end of one drawing session
          */
-        void flush() override;
+        void flush();
 
        /**
         * Updates the size of the ScreenBuffer. Then destroys the backend context, and creates a new one.
@@ -96,6 +107,7 @@ namespace cyder {
 
     private:
         bool sizeChanged = true;
+        bool contentChanged = false;
         OSWindow* window;
         NSOpenGLContext* openGLContext = nullptr;
         GrContext* grContext = nullptr;
@@ -105,6 +117,8 @@ namespace cyder {
         bool isValid = true;
         int _width = 0;
         int _height = 0;
+
+        SkSurface* getSurface();
     };
 
 }  // namespace cyder

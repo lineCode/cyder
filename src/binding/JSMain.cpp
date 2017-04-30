@@ -28,11 +28,11 @@
 #include <libplatform/libplatform.h>
 #include "JSMain.h"
 #include "V8Performance.h"
+#include "V8AnimationFrame.h"
 #include "V8NativeApplication.h"
 #include "V8NativeWindow.h"
 #include "V8CanvasRenderingContext2D.h"
 #include "V8Canvas.h"
-#include "utils/GetTimer.h"
 
 
 namespace cyder {
@@ -50,6 +50,7 @@ namespace cyder {
         v8::HandleScope scope(env->isolate());
         auto global = env->global();
         V8Performance::install(global, env);
+        V8AnimationFrame::install(global, env);
         V8CanvasRenderingContext2D::install(global, env);
         V8Canvas::install(global, env);
         V8NativeApplication::install(global, env);
@@ -86,21 +87,5 @@ namespace cyder {
             env->printStackTrace(tryCatch);
         }
     }
-
-    void JSMain::update() {
-        auto isolate = env->isolate();
-        // Create a stack-allocated handle scope each frame.
-        v8::HandleScope scope(isolate);
-        v8::Context::Scope contextScope(env->context());
-        v8::TryCatch tryCatch(isolate);
-        auto updateFunction = env->readGlobalFunction("cyder.updateFrame");
-        auto timeStamp = env->makeValue(getTimer());
-        auto result = env->call(updateFunction, env->makeNull(), timeStamp);
-        if (result.IsEmpty()) {
-            env->printStackTrace(tryCatch);
-            abort();
-        }
-    }
-
 
 }  // namespace cyder
