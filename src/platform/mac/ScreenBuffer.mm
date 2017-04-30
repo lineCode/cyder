@@ -37,7 +37,7 @@ namespace cyder {
     }
 
     ScreenBuffer::~ScreenBuffer() {
-        if(grContext){
+        if (grContext) {
             grContext->abandonContext();
         }
         SkSafeUnref(grContext);
@@ -56,11 +56,11 @@ namespace cyder {
         }
         int width = SkScalarRoundToInt(size.width * scaleFactor);
         int height = SkScalarRoundToInt(size.height * scaleFactor);
-        if(grContext){
+        if (grContext) {
             grContext->abandonContext();
         }
         SkSafeUnref(grContext);
-        if(openGLContext){
+        if (openGLContext) {
             [openGLContext release];
         }
         static const CGLPixelFormatAttribute attributes[] = {
@@ -68,7 +68,7 @@ namespace cyder {
                 kCGLPFAAccelerated,
                 kCGLPFADoubleBuffer,
                 kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
-                (CGLPixelFormatAttribute)0
+                (CGLPixelFormatAttribute) 0
         };
         CGLPixelFormatObj format = nullptr;
         GLint npix = 0;
@@ -78,7 +78,7 @@ namespace cyder {
 
         CGLContextObj ctx;
         auto globalOpenGLContext = GPUContext::OpenGLContext();
-        CGLCreateContext(format, (CGLContextObj)[globalOpenGLContext CGLContextObj], &ctx);
+        CGLCreateContext(format, (CGLContextObj) [globalOpenGLContext CGLContextObj], &ctx);
         CGLDestroyPixelFormat(format);
         ASSERT(ctx);
 
@@ -93,7 +93,7 @@ namespace cyder {
         [openGLContext setView:view];
 
         auto glInterface = GPUContext::GLInterface();
-        grContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)glInterface);
+        grContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) glInterface);
         ASSERT(grContext);
         updateSize(width, height);
     }
@@ -108,10 +108,10 @@ namespace cyder {
     }
 
     void ScreenBuffer::setWidth(int value) {
-        if(!isValid || value < 0){
+        if (!isValid || value < 0) {
             return;
         }
-        if(value < 0){
+        if (value < 0) {
             return;
         }
         sizeChanged = true;
@@ -120,7 +120,7 @@ namespace cyder {
     }
 
     void ScreenBuffer::setHeight(int value) {
-        if(!isValid || value < 0){
+        if (!isValid || value < 0) {
             return;
         }
         sizeChanged = true;
@@ -129,7 +129,7 @@ namespace cyder {
     }
 
     SkSurface* ScreenBuffer::surface() {
-        if(!sizeChanged){
+        if (!sizeChanged) {
             return _surface;
         }
         sizeChanged = false;

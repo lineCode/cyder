@@ -34,9 +34,4 @@
 /cmake-build-release
 /scripts/built
 node_modules
-/CMakeFiles
-/CMakeScripts
-/cyder.xcodeproj
-/CMakeCache.txt
-/cmake_install.cmake
-/cyder.build
+/Xcode

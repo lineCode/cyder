@@ -34,11 +34,11 @@
 
 namespace cyder {
 
-    Window* Window::New(const WindowInitOptions& initOptions) {
+    Window* Window::New(const WindowInitOptions &initOptions) {
         return new OSWindow(initOptions);
     }
 
-    OSWindow::OSWindow(const WindowInitOptions& initOptions) {
+    OSWindow::OSWindow(const WindowInitOptions &initOptions) {
         nsWindow = createNSWindow(initOptions);
         [nsWindow setAcceptsMouseMovedEvents:YES];
         NSRect windowRect = [nsWindow frame];
@@ -53,23 +53,23 @@ namespace cyder {
         [customView setTranslatesAutoresizingMaskIntoConstraints:NO];
         NSView* contentView = nsWindow.contentView;
         [contentView addSubview:customView];
-        NSDictionary *views = NSDictionaryOfVariableBindings(customView);
+        NSDictionary* views = NSDictionaryOfVariableBindings(customView);
 
         [contentView addConstraints:
-        [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[customView]|"
-        options:0
-        metrics:nil
-        views:views]];
+                [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[customView]|"
+                                                        options:0
+                                                        metrics:nil
+                                                          views:views]];
 
         [contentView addConstraints:
-        [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[customView]|"
-        options:0
-        metrics:nil
-        views:views]];
+                [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[customView]|"
+                                                        options:0
+                                                        metrics:nil
+                                                          views:views]];
     }
 
     OSWindow::~OSWindow() {
-        if([nsWindow screen]){
+        if ([nsWindow screen]) {
             close();
         }
         [osView release];
@@ -95,7 +95,8 @@ namespace cyder {
     std::string OSWindow::title() {
         return std::string([nsWindow.title UTF8String]);
     }
-    void OSWindow::setTitle(const std::string& title) {
+
+    void OSWindow::setTitle(const std::string &title) {
         nsWindow.title = [NSString stringWithCString:title.c_str() encoding:[NSString defaultCStringEncoding]];
     }
 
@@ -156,20 +157,20 @@ namespace cyder {
         resizeCallback = callback;
     }
 
-    NSWindow* OSWindow::createNSWindow(const WindowInitOptions& options){
+    NSWindow* OSWindow::createNSWindow(const WindowInitOptions &options) {
         NSRect contentSize = NSMakeRect(0, 0, 500, 400);
         NSUInteger windowStyleMask = NSClosableWindowMask;
-        if(options.systemChrome==WindowSystemChrome::STANDARD){
+        if (options.systemChrome == WindowSystemChrome::STANDARD) {
             windowStyleMask |= NSTitledWindowMask;
         }
-        if(options.resizable){
+        if (options.resizable) {
             windowStyleMask |= NSResizableWindowMask;
         }
-        if(options.minimizable){
+        if (options.minimizable) {
             windowStyleMask |= NSMiniaturizableWindowMask;
         }
         NSWindow* window = [[NSWindow alloc] initWithContentRect:contentSize styleMask:windowStyleMask backing:NSBackingStoreBuffered defer:NO];
-        if(options.systemChrome==WindowSystemChrome::NONE&&options.transparent){
+        if (options.systemChrome == WindowSystemChrome::NONE && options.transparent) {
             window.backgroundColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.0];
             [window setOpaque:NO];
         }

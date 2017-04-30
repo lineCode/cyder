@@ -29,7 +29,7 @@
 #include "OSApplication.h"
 
 namespace cyder {
-    
+
     Application* Application::application = nullptr;
 
     OSApplication::OSApplication() {
@@ -45,10 +45,9 @@ namespace cyder {
     }
 
     void OSApplication::exit(int errorCode) {
-        if(errorCode==0){
+        if (errorCode == 0) {
             [nsApp terminate:nil];
-        }
-        else{
+        } else {
             ::exit(errorCode);
         }
     }
@@ -56,26 +55,26 @@ namespace cyder {
     void OSApplication::run() {
         [nsApp run];
     }
-    
+
     void OSApplication::windowActivated(OSWindow* window) {
         auto windows = _openedWindows;
-        auto result = std::find(windows.begin(),windows.end(),window);
-        if(result==windows.end()-1){
+        auto result = std::find(windows.begin(), windows.end(), window);
+        if (result == windows.end() - 1) {
             return;
         }
-        if(result != windows.end()){
+        if (result != windows.end()) {
             windows.erase(result);
         }
         windows.push_back(window);
     }
-    
+
     void OSApplication::windowClosed(OSWindow* window) {
         auto windows = _openedWindows;
-        auto result = std::find(windows.begin(),windows.end(),window);
-        if(result != windows.end()){
-            if(result == windows.end()-1){
+        auto result = std::find(windows.begin(), windows.end(), window);
+        if (result != windows.end()) {
+            if (result == windows.end() - 1) {
                 auto size = windows.size();
-                auto activeWindow = size > 1 ? windows[size-2] : nullptr;
+                auto activeWindow = size > 1 ? windows[size - 2] : nullptr;
                 windowActivated(activeWindow);
             }
             windows.erase(result);

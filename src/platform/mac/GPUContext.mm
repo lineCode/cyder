@@ -30,7 +30,7 @@
 
 namespace cyder {
 
-    sk_sp<SkSurface> GPUSurface::Make(const SkImageInfo& info) {
+    sk_sp<SkSurface> GPUSurface::Make(const SkImageInfo &info) {
         return SkSurface::MakeRenderTarget(GPUContext::GRContext(), SkBudgeted::kNo, info);
     }
 

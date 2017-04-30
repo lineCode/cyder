@@ -33,10 +33,9 @@ static OSTicker* ticker = nullptr;
 
 void Ticker::Start(Updater updater) {
     ticker.updater = updater;
-    if(updater) {
+    if (updater) {
         [ticker startTicker];
-    }
-    else {
+    } else {
         [ticker stopTicker];
     }
 }
@@ -47,24 +46,23 @@ void Ticker::Stop() {
 }
 
 static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink,
-                                      const CVTimeStamp * inNow,
-                                      const CVTimeStamp * inOutputTime,
-                                      CVOptionFlags flagsIn,
-                                      CVOptionFlags *  flagsOut,
-                                      void * displayLinkContext )
-{
-    [static_cast<OSTicker*>(displayLinkContext) performSelectorOnMainThread: @selector(mainThreadUpdate) withObject:nil waitUntilDone:YES];
+        const CVTimeStamp* inNow,
+        const CVTimeStamp* inOutputTime,
+        CVOptionFlags flagsIn,
+        CVOptionFlags* flagsOut,
+        void* displayLinkContext) {
+    [static_cast<OSTicker*>(displayLinkContext) performSelectorOnMainThread:@selector(mainThreadUpdate) withObject:nil waitUntilDone:YES];
     return 0;
 }
 
 @implementation OSTicker
 @synthesize updater;
 
-+(OSTicker*) globalTicker {
++ (OSTicker*)globalTicker {
     return ticker;
 }
 
--(id) init {
+- (id)init {
     self = [super init];
     updater = nil;
     forceUpdated = false;
@@ -74,31 +72,31 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink,
     return self;
 }
 
--(void) startTicker {
-    if(!CVDisplayLinkIsRunning(displayLink)){
+- (void)startTicker {
+    if (!CVDisplayLinkIsRunning(displayLink)) {
         CVDisplayLinkStart(displayLink);
     }
 }
 
--(void) stopTicker {
-    if(CVDisplayLinkIsRunning(displayLink)){
+- (void)stopTicker {
+    if (CVDisplayLinkIsRunning(displayLink)) {
         CVDisplayLinkStop(displayLink);
     }
 }
 
--(void) mainThreadUpdate {
-    if(forceUpdated){
+- (void)mainThreadUpdate {
+    if (forceUpdated) {
         // We have already triggered the updater() method, so skip this one.
         forceUpdated = false;
         return;
     }
-    if(updater){
+    if (updater) {
         updater();
     }
 }
 
--(void) forceUpdate {
-    if(updater){
+- (void)forceUpdate {
+    if (updater) {
         updater();
     }
     forceUpdated = true;

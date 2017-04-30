@@ -36,34 +36,34 @@
 @implementation OSView
 @synthesize osWindow, screenBuffer;
 
--(BOOL) isFlipped {
+- (BOOL)isFlipped {
     return YES;
 }
 
-- (BOOL) acceptsFirstResponder {
+- (BOOL)acceptsFirstResponder {
     return YES;
 }
 
 
-- (id) initWithFrame:(NSRect)frameRect {
+- (id)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     [self setWantsBestResolutionOpenGLSurface:YES];
     return self;
 }
 
-- (void) viewDidMoveToWindow {
+- (void)viewDidMoveToWindow {
     [super viewDidMoveToWindow];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(backingPropertiesChanged:)
                                                  name:@"NSWindowDidChangeBackingPropertiesNotification"
                                                object:[self window]];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowWillClose:)
                                                  name:@"NSWindowWillCloseNotification"
                                                object:[self window]];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowDidBecomeKey:)
                                                  name:@"NSWindowDidBecomeKeyNotification"
@@ -72,61 +72,61 @@
     [self resetBackend];
 }
 
--(void) resetBackend {
+- (void)resetBackend {
     // The window occurs a flicker of blank screen after dragging it to another monitor.
     // Resetting the opengl backend could fixes this problem.
     screenBuffer->reset(self);
-    if(osWindow->resizeCallback){
+    if (osWindow->resizeCallback) {
         osWindow->resizeCallback();
     }
     // Update the screen immediately after the backend resetting to prevent flickering.
     [[OSTicker globalTicker] forceUpdate];
 }
 
-- (void) backingPropertiesChanged:(NSNotification *)notification {
+- (void)backingPropertiesChanged:(NSNotification*)notification {
     [self resetBackend];
 }
 
-- (void) windowWillClose:(NSNotification *)notification {
+- (void)windowWillClose:(NSNotification*)notification {
     screenBuffer->dispose();
 }
 
-- (void) windowDidBecomeKey:(NSNotification *)notification {
+- (void)windowDidBecomeKey:(NSNotification*)notification {
     osWindow->windowDidActivated();
 }
 
 
-- (void) updateScreenProperties {
+- (void)updateScreenProperties {
     NSSize size = self.bounds.size;
     float scaleFactor = self.window.backingScaleFactor;
-    screenBuffer->updateSize(SkScalarRoundToInt(size.width*scaleFactor), SkScalarRoundToInt(size.height*scaleFactor));
+    screenBuffer->updateSize(SkScalarRoundToInt(size.width * scaleFactor), SkScalarRoundToInt(size.height * scaleFactor));
 
-    if(osWindow->resizeCallback){
+    if (osWindow->resizeCallback) {
         osWindow->resizeCallback();
     }
     // the main thread is fully blocked while window resizing, we need to trigger animation callbacks manually.
     [[OSTicker globalTicker] forceUpdate];
-    
+
 }
 
-- (void) setFrameSize:(NSSize)newSize {
+- (void)setFrameSize:(NSSize)newSize {
     [super setFrameSize:newSize];
     [self updateScreenProperties];
 }
 
 
-- (void) dealloc {
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                 name:@"NSWindowDidChangeBackingPropertiesNotification"
-                                               object:[self window]];
-    
+                                                    name:@"NSWindowDidChangeBackingPropertiesNotification"
+                                                  object:[self window]];
+
     [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                 name:@"NSWindowWillCloseNotification"
-                                               object:[self window]];
-    
+                                                    name:@"NSWindowWillCloseNotification"
+                                                  object:[self window]];
+
     [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                 name:@"NSWindowDidBecomeKeyNotification"
-                                               object:[self window]];
+                                                    name:@"NSWindowDidBecomeKeyNotification"
+                                                  object:[self window]];
 
     delete screenBuffer;
     [super dealloc];
