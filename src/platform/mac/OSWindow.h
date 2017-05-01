@@ -66,9 +66,9 @@ namespace cyder {
         float scaleFactor() const override;
         ScreenBuffer* screenBuffer() override;
         
-        void setResizeCallback(std::function<void()> callback) override;
-        
-        std::function<void()> resizeCallback = nullptr;
+        void setResizeCallback(WindowCallback callback) override;
+
+        WindowCallback resizeCallback = nullptr;
         
         void windowDidActivated();
 

@@ -69,7 +69,7 @@ namespace cyder {
             windows->erase(result);
         }
         windows->push_back(window);
-        OSAnimationFrame::RequestScreenUpdate();
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     void OSApplication::windowClosed(OSWindow* window) {

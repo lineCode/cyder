@@ -31,6 +31,20 @@
 
 namespace cyder {
 
+    static void onWindowResized(Window* window) {
+        auto buffer = new OffScreenBuffer(800, 600, true, true);
+        auto c = buffer->getCanvas();
+        SkPaint paint;
+        paint.setColor(SK_ColorGREEN);
+        paint.setAntiAlias(true);
+        c->clear(0XFFECECEC);
+        c->drawRoundRect(SkRect::MakeXYWH(200, 200, 400, 400), 20, 20, paint);
+        auto windowCanvas = window->screenBuffer()->getCanvas();
+        windowCanvas->clear(0XFFECECEC);
+        buffer->draw(windowCanvas, 100, 100, &paint);
+        delete buffer;
+    }
+
     static void activateMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto self = args.This();
         auto window = static_cast<Window*>(self->GetAlignedPointerFromInternalField(0));
@@ -47,16 +61,8 @@ namespace cyder {
         window->setY(150);
         window->setContentSize(800, 600);
         window->setTitle("CYDER");
-
-        auto buffer = new OffScreenBuffer(800, 600, true, true);
-        auto c = buffer->getCanvas();
-        SkPaint paint;
-        paint.setColor(SK_ColorGREEN);
-        paint.setAntiAlias(true);
-        c->clear(0XFFECECEC);
-        c->drawRoundRect(SkRect::MakeXYWH(200, 200, 400, 400), 20, 20, paint);
-        auto windowCanvas = window->screenBuffer()->getCanvas();
-        buffer->draw(windowCanvas, 100, 100, &paint);
+        window->setResizeCallback(onWindowResized);
+        onWindowResized(window);
 
         auto self = args.This();
         auto eventEmitterClass = env->readGlobalFunction("cyder.EventEmitter");

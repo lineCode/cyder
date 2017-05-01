@@ -153,7 +153,7 @@ namespace cyder {
         return osView.screenBuffer;
     }
 
-    void OSWindow::setResizeCallback(std::function<void()> callback) {
+    void OSWindow::setResizeCallback(WindowCallback callback) {
         resizeCallback = callback;
     }
 

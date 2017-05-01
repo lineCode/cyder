@@ -34,6 +34,10 @@
 
 namespace cyder {
 
+    class Window;
+
+    typedef std::function<void(Window*)> WindowCallback;
+
     class Window {
     public:
 
@@ -67,7 +71,7 @@ namespace cyder {
 
         virtual void activate() = 0;
         virtual void close() = 0;
-        virtual void setResizeCallback(std::function<void()> callback) = 0;
+        virtual void setResizeCallback(WindowCallback callback) = 0;
 
     };
 

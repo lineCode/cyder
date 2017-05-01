@@ -78,11 +78,11 @@
     // Resetting the opengl backend could fixes this problem.
     screenBuffer->reset(self);
     if (osWindow->resizeCallback) {
-        osWindow->resizeCallback();
+        osWindow->resizeCallback(osWindow);
     }
     if(hasActivatedOnce){
         // Update the screen immediately after the backend resetting to prevent flickering.
-        OSAnimationFrame::Update();
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 }
 
@@ -106,11 +106,11 @@
     screenBuffer->updateSize(SkScalarRoundToInt(size.width * scaleFactor), SkScalarRoundToInt(size.height * scaleFactor));
 
     if (osWindow->resizeCallback) {
-        osWindow->resizeCallback();
+        osWindow->resizeCallback(osWindow);
     }
     if(hasActivatedOnce){
         // the main thread is fully blocked while window resizing, we need to trigger animation callbacks manually.
-        OSAnimationFrame::Update();
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 }
 

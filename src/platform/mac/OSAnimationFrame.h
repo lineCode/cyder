@@ -29,47 +29,38 @@
 #ifndef CYDER_OSANIMATIONFRAME_H
 #define CYDER_OSANIMATIONFRAME_H
 
-#import <Cocoa/Cocoa.h>
-#import <vector>
-#import "platform/AnimationFrame.h"
+#include <Cocoa/Cocoa.h>
+#include <vector>
+#include <mutex>
+#include "platform/AnimationFrame.h"
 
 namespace cyder {
 
     class OSAnimationFrame {
     public:
         static void RequestScreenUpdate() {
-            if (animationFrame->needUpdateScreen) {
+            if(animationFrame->needUpdateScreen){
                 return;
             }
-            animationFrame->needUpdateScreen = true;
-            if (!animationFrame->displayLinkIsRunning) {
-                animationFrame->startDisplayLink();
-            }
+            animationFrame->requestScreenUpdate();
         }
 
         static unsigned long Request(FrameRequestCallback callback) {
-            auto& callbackList = animationFrame->callbackList;
-            callbackList->push_back(callback);
-            if (!animationFrame->displayLinkIsRunning) {
-                animationFrame->startDisplayLink();
-            }
-            return callbackList->size() - 1;
+            return animationFrame->request(callback);
         }
 
         static void Cancel(unsigned long handle) {
-            auto& callbackList = animationFrame->callbackList;
-            if (handle < callbackList->size()) {
-                callbackList->erase(callbackList->begin() + handle);
-            }
+            animationFrame->cancel(handle);
         }
 
-        static void Update() {
-            animationFrame->update();
+        static void ForceScreenUpdateNow() {
+            animationFrame->forceScreenUpdateNow();
         }
 
         OSAnimationFrame();
         ~OSAnimationFrame();
-        bool displayLinkIsRunning = false;
+
+        void stopDisplayLinkIfNeed();
 
     private:
         static OSAnimationFrame* animationFrame;
@@ -77,16 +68,16 @@ namespace cyder {
         CVDisplayLinkRef displayLink;
         std::vector<FrameRequestCallback>* callbackList;
         bool needUpdateScreen = false;
+        bool displayLinkIsRunning = false;
+        std::mutex locker;
 
-
+        void requestScreenUpdate();
+        void forceScreenUpdateNow();
+        unsigned long request(FrameRequestCallback callback);
+        void cancel(unsigned long handle);
         void update();
 
-        void startDisplayLink() {
-            if (!displayLinkIsRunning) {
-                displayLinkIsRunning = true;
-                CVDisplayLinkStart(displayLink);
-            }
-        }
+        friend class AnimationFrame;
     };
 }
 
