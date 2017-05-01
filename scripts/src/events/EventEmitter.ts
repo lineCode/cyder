@@ -76,7 +76,7 @@ namespace cyder {
         /**
          * Registers an event listener object with an EventEmitter object so that the listener receives notification of an
          * event. After the listener is registered, subsequent calls to on() with a different value for either type or
-         * thisObject result in the creation of a separate listener registration. <br/>
+         * thisArg result in the creation of a separate listener registration. <br/>
          * When you no longer need an event listener, remove it by calling removeListener(); otherwise, memory problems
          * might result. Objects with registered event listeners are not automatically removed from memory because the garbage
          * collector does not remove objects that still have references. If the event listener is being registered on a target
@@ -275,7 +275,7 @@ interface EventEmitter {
     /**
      * Registers an event listener object with an EventEmitter object so that the listener receives notification of an
      * event. After the listener is registered, subsequent calls to on() with a different value for either type or
-     * thisObject result in the creation of a separate listener registration. <br/>
+     * thisArg result in the creation of a separate listener registration. <br/>
      * When you no longer need an event listener, remove it by calling removeListener(); otherwise, memory problems
      * might result. Objects with registered event listeners are not automatically removed from memory because the garbage
      * collector does not remove objects that still have references. If the event listener is being registered on a target

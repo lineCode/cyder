@@ -24,37 +24,30 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+/**
+ * An IOErrorEvent object is emitted when an error causes input or output operations to fail.
+ */
+class IOErrorEvent extends Event {
 
-requestAnimationFrame(onTick);
+    /**
+     * Emitted when an error causes input or output operations to fail.
+     */
+    public static readonly IO_ERROR:string = "ioError";
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
+    /**
+     * Creates an Event object that contains specific information about ioError events. Event objects are passed as
+     * parameters to Event listeners.
+     * @param type The type of the event.
+     * @param cancelable Determine whether the Event object can be canceled. The default value is false.
+     * @param text Text to be displayed as an error message.
+     */
+    public constructor(type:string, cancelable?:boolean, text:string = "") {
+        super(type, cancelable);
+        this.text = text;
     }
 
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+    /**
+     * Text to be displayed as an error message.
+     */
+    public text:string;
 }
-
-let loader = new ImageLoader();
-loader.on(Event.COMPLETE, function (event:Event):void {
-    let image = loader.data;
-    console.log("Image:", image.width, image.height);
-    let subset = image.makeSubset(50, 50, 10, 10);
-    let data = subset.getImageData(0, 0, 10, 10);
-    console.log(data.data.length, data.width, data.height);
-    console.log(image.toDataURL());
-    console.log(subset.toDataURL("image/png"));
-    console.log("subset:", subset.width, subset.height);
-    image.toDataURL();
-}, null);
-loader.load("test.png");

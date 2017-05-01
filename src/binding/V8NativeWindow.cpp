@@ -72,7 +72,7 @@ namespace cyder {
                                        env->makeExternal(window->screenBuffer())).ToLocalChecked();
         env->setObjectProperty(self, "canvas", canvas, true);
         self->SetAlignedPointerInInternalField(0, window);
-        WeakWrapper::BindObject(env->isolate(), self, window);
+        WeakWrapper::BindPointer(env->isolate(), self, window);
     }
 
     void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {

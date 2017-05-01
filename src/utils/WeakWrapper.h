@@ -30,6 +30,7 @@
 
 #include <functional>
 #include <v8.h>
+#include <skia.h>
 
 namespace cyder {
 
@@ -41,17 +42,27 @@ namespace cyder {
          * Notice: The C++ pointer will never be automatically deleted if you delete the instance of WeakWrap manually.
          */
         template<class T>
-        static WeakWrapper* BindObject(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
+        static WeakWrapper* BindPointer(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
             return new WeakWrapper(isolate, handle,
-                                std::bind<void>(WeakWrapper::RemoveCallback<T>, std::forward<T*>(target)));
+                                   std::bind<void>(WeakWrapper::DeleteTarget<T>, std::forward<T*>(target)));
+        }
+        /**
+         * This method wraps a v8::Object and a skia object. It will automatically unreference the skia object when v8
+         * garbage collects the v8::Object, and then delete itself too. <br/>
+         * Notice: The skia object will never be automatically unreferenced if you delete the instance of WeakWrap manually.
+         */
+        template<typename T>
+        static WeakWrapper* BindReference(v8::Isolate* isolate, v8::Local<v8::Object> handle, T* target) {
+            return new WeakWrapper(isolate, handle,
+                                   std::bind<void>(WeakWrapper::UnrefTarget<T>, std::forward<T*>(target)));
         }
         /**
          * This helper class wraps a v8::Object and a callback function. It will trigger the callback function when v8
          * garbage collects the v8::Object, and then delete itself too. <br/>
          * Notice: The callback function will never trigger if you delete the instance of WeakWrap manually.
          */
-        static WeakWrapper* BindFunction(v8::Isolate* isolate, v8::Local<v8::Object> handle,
-                                      std::function<void()> callback) {
+        static WeakWrapper* BindCallback(v8::Isolate* isolate, v8::Local<v8::Object> handle,
+                                         std::function<void()> callback) {
             return new WeakWrapper(isolate, handle, callback);
         }
 
@@ -91,8 +102,13 @@ namespace cyder {
         }
 
         template<class T>
-        static void RemoveCallback(T* target) {
+        static void DeleteTarget(T* target) {
             delete target;
+        }
+
+        template<typename T>
+        static void UnrefTarget(T* target) {
+            SkSafeUnref(target);
         }
     };
 

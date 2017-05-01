@@ -166,7 +166,7 @@ namespace cyder {
         }
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, canvas);
-        WeakWrapper::BindObject(env->isolate(), self, canvas);
+        WeakWrapper::BindPointer(env->isolate(), self, canvas);
     }
 
     void V8Canvas::install(v8::Local<v8::Object> parent, Environment* env) {

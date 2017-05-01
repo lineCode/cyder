@@ -31,6 +31,8 @@
 #include "V8AnimationFrame.h"
 #include "V8NativeApplication.h"
 #include "V8NativeWindow.h"
+#include "V8Image.h"
+#include "V8ImageLoader.h"
 #include "V8CanvasRenderingContext2D.h"
 #include "V8Canvas.h"
 
@@ -51,6 +53,8 @@ namespace cyder {
         auto global = env->global();
         V8Performance::install(global, env);
         V8AnimationFrame::install(global, env);
+        V8Image::install(global, env);
+        V8ImageLoader::install(global, env);
         V8CanvasRenderingContext2D::install(global, env);
         V8Canvas::install(global, env);
         V8NativeApplication::install(global, env);

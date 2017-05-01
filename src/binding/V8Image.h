@@ -24,37 +24,30 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
 
-requestAnimationFrame(onTick);
+#ifndef CYDER_V8IMAGE_H
+#define CYDER_V8IMAGE_H
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
+#include <v8.h>
+#include <skia.h>
+#include "base/Environment.h"
 
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
+namespace cyder {
+
+    inline SkImage* getInternalImage(const v8::Local<v8::Object>& self, Environment* env) {
+        auto bitmapData = static_cast<SkImage*>(self->GetAlignedPointerFromInternalField(0));
+        if (!bitmapData) {
+            env->throwError(ErrorType::ERROR, "Invalid Image.");
+            return nullptr;
+        }
+        return bitmapData;
     }
 
-    nativeApplication.emitWith("callback");
+    class V8Image {
+    public:
+        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+    };
 
-    // requestAnimationFrame(onTick);
 }
 
-let loader = new ImageLoader();
-loader.on(Event.COMPLETE, function (event:Event):void {
-    let image = loader.data;
-    console.log("Image:", image.width, image.height);
-    let subset = image.makeSubset(50, 50, 10, 10);
-    let data = subset.getImageData(0, 0, 10, 10);
-    console.log(data.data.length, data.width, data.height);
-    console.log(image.toDataURL());
-    console.log(subset.toDataURL("image/png"));
-    console.log("subset:", subset.width, subset.height);
-    image.toDataURL();
-}, null);
-loader.load("test.png");
+#endif //CYDER_V8IMAGE_H
