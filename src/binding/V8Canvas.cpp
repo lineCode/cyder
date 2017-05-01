@@ -47,7 +47,7 @@ namespace cyder {
         ~Canvas() {
             contextObject.Reset();
             delete context;
-            if(!externalBuffer){
+            if (!externalBuffer) {
                 delete buffer;
             }
         }
@@ -106,7 +106,6 @@ namespace cyder {
         canvas->setHeight(env->toInt(value));
     }
 
-
     static void getContextMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
@@ -122,12 +121,25 @@ namespace cyder {
             return;
         }
 
-        //auto contextAttributes = v8::Local<v8::Object>::Cast(args[1]);
         canvas->contextType = contextType;
         if (contextType == "2d") {
             auto CanvasRenderingContext2DClass = env->readGlobalFunction("CanvasRenderingContext2D");
-            if(!canvas->buffer){
-                canvas->buffer = new OffScreenBuffer(canvas->width(), canvas->height());
+            if (!canvas->buffer) {
+                bool hasAlpha = true;
+                bool useGPU = true;
+                if (args[1]->IsObject()) {
+                    auto contextAttributes = v8::Local<v8::Object>::Cast(args[1]);
+                    auto alphaValue = env->getValue(contextAttributes, "alpha");
+                    if (!alphaValue.IsEmpty()) {
+                        hasAlpha = alphaValue.ToLocalChecked()->BooleanValue(env->context()).FromMaybe(false);
+                    }
+                    auto willReadFrequentlyValue = env->getValue(contextAttributes, "willReadFrequently");
+                    if (!willReadFrequentlyValue.IsEmpty()) {
+                        useGPU = !willReadFrequentlyValue.ToLocalChecked()->
+                                BooleanValue(env->context()).FromMaybe(false);
+                    }
+                }
+                canvas->buffer = new OffScreenBuffer(canvas->width(), canvas->height(), hasAlpha, useGPU);
             }
             canvas->context = new CanvasRenderingContext2D(canvas->buffer);
             auto contextObject = env->newInstance(CanvasRenderingContext2DClass,
