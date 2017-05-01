@@ -24,23 +24,20 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
-
-requestAnimationFrame(onTick);
-
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
-    }
-
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+/**
+ * 2d context attributes.
+ */
+interface Canvas2DContextAttributes {
+    /**
+     * A boolean value that indicates whether the render contains an alpha channel. If set to false, the runtime now knows
+     * that the backdrop is always opaque, which can speed up drawing of transparent content and images then.
+     * @default true
+     */
+    alpha?:boolean;
+    /**
+     * A boolean value that indicates whether a lot of read-back operations are planned. This will force the use of a
+     * software (instead of hardware accelerated) 2D render and can save memory when calling getImageData() frequently.
+     * @default false
+     */
+    willReadFrequently?:boolean;
 }

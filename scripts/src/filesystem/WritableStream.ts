@@ -24,23 +24,12 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
-
-requestAnimationFrame(onTick);
-
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
-    }
-
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+/**
+ * Writable streams are an abstraction for a destination to which data is written.
+ */
+interface WritableStream {
+    /**
+     * Write a string message to WritableStream.
+     */
+    write(message:string):void;
 }

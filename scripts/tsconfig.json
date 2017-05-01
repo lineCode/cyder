@@ -12,7 +12,7 @@
     "sourceMap": false,
     "skipDefaultLibCheck": true,
     "stripInternal": true,
-    "declaration": false,
+    "declaration": true,
     "accessorOptimization": true,
     "emitReflection": false,
     "reorderFiles": true
@@ -26,6 +26,7 @@
     },
     {
       "name": "test",
+      "declaration": false,
       "include": [
         "test/**/*"
       ],

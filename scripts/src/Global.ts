@@ -24,6 +24,12 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * The callback function for requestAnimation method.
+ */
+interface FrameRequestCallback {
+    (time:number):void;
+}
 
 /**
  * Global variables.

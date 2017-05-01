@@ -24,23 +24,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+/**
+ * The Performance interface represents timing-related performance information for the application.
+ */
+interface Performance {
 
-requestAnimationFrame(onTick);
-
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
-    }
-
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+    /**
+     * Returns the high resolution time since the application was initialized, measured in milliseconds, accurate to five
+     * thousandths of a millisecond (5 microseconds).
+     */
+    now():number;
 }

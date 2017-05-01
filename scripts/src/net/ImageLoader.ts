@@ -24,23 +24,36 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+/**
+ * The Loader class is used to load image (JPG, PNG, or GIF) files. Use the load() method to initiate loading.
+ * The loaded image data is in the data property of ImageLoader.
+ * @event Event.COMPLETE Emitted when the net request is complete.
+ * @event IOErrorEvent.IO_ERROR Emitted when the net request is failed.
+ */
+interface ImageLoader extends EventEmitter {
+    /**
+     * The data received from the load operation.
+     */
+    data:Image;
 
-requestAnimationFrame(onTick);
+    /**
+     * start a load operation。<br/>
+     * Note: Calling this method for an already active request (one for which load() has already been called) will abort
+     * the last load operation immediately.
+     * @param url The URL of the image to be loaded.
+     */
+    load(url:string):void;
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
-    }
-
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+    /**
+     * Loads image from binary data stored in a ArrayBuffer object.
+     * @param bytes The binary data of the image to be loaded.
+     */
+    loadBytes(bytes:ArrayBuffer):void;
 }
+
+let ImageLoader:{
+    /**
+     * Creates a ImageLoader instance.
+     */
+    new():ImageLoader;
+};

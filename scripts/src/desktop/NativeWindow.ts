@@ -24,23 +24,27 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+/**
+ * The NativeWindow class provides an interface for creating and controlling native desktop windows.
+ * NativeWindow objects will not be garbage collected after the window constructor has been called and before close()
+ * has been called. It is the responsibility of the application to close its own windows.
+ */
+interface NativeWindow extends EventEmitter {
+    /**
+     * The Canvas object for this window. Anything drawn to it will show on the NativeWindow.
+     */
+    canvas:Canvas;
+    /**
+     * Activates this window.<br/>
+     * Activating a window will:<br/>
+     * 1. Make the window visible<br/>
+     * 2. Bring the window to the front<br/>
+     * 3. Give the window keyboard and mouse focus<br/>
+     */
+    activate():void;
+}
 
-requestAnimationFrame(onTick);
-
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
-
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
-    }
-
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+declare let NativeWindow:{
+    prototype:NativeWindow;
+    new():NativeWindow;
 }

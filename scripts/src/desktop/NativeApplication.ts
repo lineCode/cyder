@@ -24,23 +24,31 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+/**
+ * The NativeApplication interface provides application information, application-wide functions, and emits application-level events. The NativeApplication object is a singleton object, created automatically at startup.
+ * Get the NativeApplication instance with the global 'nativeApplication' property.
+ */
+interface NativeApplication extends EventEmitter {
+    /**
+     * The standard output stream is the default destination of output for applications. In most systems, it is usually
+     * directed by default to the text console (generally, on the screen).
+     */
+    standardOutput:WritableStream;
 
-requestAnimationFrame(onTick);
+    /**
+     * The standard error stream is the default destination for error messages and other diagnostic warnings. Like stdout,
+     * it is usually also directed by default to the text console (generally, on the screen).
+     */
+    standardError:WritableStream;
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
+    /**
+     * The active application window.<br/>
+     * If the active desktop window does not belong to this application, or there is no active window, activeWindow is null.
+     */
+    activeWindow:NativeWindow;
 
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        console.log(context, canvas.width, canvas.height);
-    }
-
-    nativeApplication.emitWith("callback");
-
-    // requestAnimationFrame(onTick);
+    /**
+     * An array containing all the open native windows of this application.
+     */
+    openedWindows:NativeWindow[];
 }
