@@ -39,45 +39,61 @@ namespace cyder {
     class OSAnimationFrame {
     public:
         static void RequestScreenUpdate() {
-            if(animationFrame->needUpdateScreen){
+            if (animationFrame->needUpdateScreen) {
                 return;
             }
-            animationFrame->requestScreenUpdate();
+            animationFrame->needUpdateScreen = true;
+            animationFrame->requestNextFrame();
         }
 
         static unsigned long Request(FrameRequestCallback callback) {
-            return animationFrame->request(callback);
+            auto callbackList = animationFrame->callbackList;
+            auto handle = callbackList->size();
+            callbackList->push_back(callback);
+            animationFrame->requestNextFrame();
+            return handle;
         }
 
         static void Cancel(unsigned long handle) {
-            animationFrame->cancel(handle);
+            auto callbackList = animationFrame->callbackList;
+            if (handle < callbackList->size()) {
+                callbackList->erase(callbackList->begin() + handle);
+            }
+            animationFrame->requestNextFrame();
         }
 
         static void ForceScreenUpdateNow() {
-            animationFrame->forceScreenUpdateNow();
+            animationFrame->needUpdateScreen = true;
+            animationFrame->update();
         }
 
         OSAnimationFrame();
         ~OSAnimationFrame();
 
+        void update();
         void stopDisplayLinkIfNeed();
-
     private:
         static OSAnimationFrame* animationFrame;
 
         CVDisplayLinkRef displayLink;
         std::vector<FrameRequestCallback>* callbackList;
         bool needUpdateScreen = false;
-        bool displayLinkIsRunning = false;
+        bool hasNextFrame = false;
         std::mutex locker;
 
-        void requestScreenUpdate();
-        void forceScreenUpdateNow();
-        unsigned long request(FrameRequestCallback callback);
-        void cancel(unsigned long handle);
-        void update();
 
-        friend class AnimationFrame;
+
+        void requestNextFrame() {
+            if (hasNextFrame) {
+                return;
+            }
+            locker.lock();
+            hasNextFrame = true;
+            locker.unlock();
+            if (!CVDisplayLinkIsRunning(displayLink)) {
+                CVDisplayLinkStart(displayLink);
+            }
+        }
     };
 }
 

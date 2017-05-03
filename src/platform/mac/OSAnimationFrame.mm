@@ -32,11 +32,11 @@
 
 namespace cyder {
     unsigned long AnimationFrame::Request(FrameRequestCallback callback) {
-        return OSAnimationFrame::animationFrame->request(callback);
+        return OSAnimationFrame::Request(callback);
     }
 
     void AnimationFrame::Cancel(unsigned long handle) {
-        OSAnimationFrame::animationFrame->cancel(handle);
+        OSAnimationFrame::Cancel(handle);
     }
 
 
@@ -47,7 +47,7 @@ namespace cyder {
                                           CVOptionFlags* flagsOut, void* displayLinkContext) {
         OSAnimationFrame* animationFrame = static_cast<OSAnimationFrame*>(displayLinkContext);
         dispatch_sync(dispatch_get_main_queue(), ^{
-            OSAnimationFrame::ForceScreenUpdateNow();
+            animationFrame->update();
         });
         animationFrame->stopDisplayLinkIfNeed();
         return 0;
@@ -68,51 +68,14 @@ namespace cyder {
 
     void OSAnimationFrame::stopDisplayLinkIfNeed() {
         locker.lock();
-        if (displayLinkIsRunning && !needUpdateScreen && !callbackList->size()) {
-            displayLinkIsRunning = false;
+        if (!hasNextFrame) {
             CVDisplayLinkStop(displayLink);
         }
         locker.unlock();
     }
 
-    void OSAnimationFrame::requestScreenUpdate() {
-        locker.lock();
-        needUpdateScreen = true;
-        if (!displayLinkIsRunning) {
-            displayLinkIsRunning = true;
-            CVDisplayLinkStart(displayLink);
-        }
-        locker.unlock();
-    }
-
-    void OSAnimationFrame::forceScreenUpdateNow() {
-        locker.lock();
-        needUpdateScreen = true;
-        locker.unlock();
-        update();
-    }
-
-    unsigned long OSAnimationFrame::request(FrameRequestCallback callback) {
-        locker.lock();
-        auto handle = callbackList->size();
-        callbackList->push_back(callback);
-        if (!displayLinkIsRunning) {
-            displayLinkIsRunning = true;
-            CVDisplayLinkStart(displayLink);
-        }
-        locker.unlock();
-        return handle;
-    }
-
-    void OSAnimationFrame::cancel(unsigned long handle) {
-        locker.lock();
-        if (handle < callbackList->size()) {
-            callbackList->erase(callbackList->begin() + handle);
-        }
-        locker.unlock();
-    }
-
     void OSAnimationFrame::update() {
+        hasNextFrame = false;
         if (callbackList->size()) {
             std::vector<FrameRequestCallback> list;
             callbackList->swap(list);
