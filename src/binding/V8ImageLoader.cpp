@@ -33,7 +33,30 @@
 
 namespace cyder {
 
-    void loadImageFromURLMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static SkImage* Decode(const void* bytes, size_t length) {
+        if (!length) {
+            return nullptr;
+        }
+        auto codec = SkCodec::NewFromData(SkData::MakeWithoutCopy(bytes, length));
+        if (!codec) {
+            return nullptr;
+        }
+
+        SkImageInfo codecInfo = codec->getInfo();
+        SkBitmap bitmap;
+        bitmap.allocN32Pixels(codecInfo.width(), codecInfo.height(),
+                              codecInfo.isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+        auto result = codec->getPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes());
+        delete codec;
+        if (result != SkCodec::kSuccess) {
+            return nullptr;
+        }
+        bitmap.setImmutable();
+        bitmap.lockPixels();
+        return SkImage::MakeFromBitmap(bitmap).release();;
+    }
+
+    static void loadImageFromURLMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
         auto url = env->toStdString(args[0]);
@@ -73,7 +96,8 @@ namespace cyder {
             env->call(callback, thisArg, env->makeNull());
             return;
         }
-        auto image = SkImage::MakeFromEncoded(SkData::MakeWithoutCopy(buffer, length)).release();
+
+        auto image = Decode(buffer, length);
         delete[] buffer;
         if (!image) {
             env->call(callback, thisArg, env->makeNull());
@@ -84,7 +108,7 @@ namespace cyder {
         env->call(callback, thisArg, imageObject);
     }
 
-    void loadImageFromBytesMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void loadImageFromBytesMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
         auto arrayBuffer = v8::Local<v8::ArrayBuffer>::Cast(args[0]);
@@ -92,7 +116,7 @@ namespace cyder {
         auto length = arrayBuffer->ByteLength();
         auto callback = v8::Local<v8::Function>::Cast(args[1]);
         auto thisArg = v8::Local<v8::Object>::Cast(args[2]);
-        auto image = SkImage::MakeFromEncoded(SkData::MakeWithoutCopy(buffer, length)).release();
+        auto image = Decode(buffer, length);
         if (!image) {
             env->call(callback, thisArg, env->makeNull());
             return;

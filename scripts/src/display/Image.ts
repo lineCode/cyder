@@ -82,8 +82,7 @@ interface Image {
     getImageData(x:number, y:number, width:number, height:number):ImageData;
 
     /**
-     * Returns a new image that is a subset of this image. The underlying implementation may share the pixels, or it
-     * may make a copy.
+     * Returns a new image that is a subset of this image.
      * @param x The x coordinate of the upper left corner of the subset rectangle.
      * @param y The y coordinate of the upper left corner of the subset rectangle.
      * @param width The width of the subset rectangle.
