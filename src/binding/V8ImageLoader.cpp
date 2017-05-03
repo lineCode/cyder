@@ -44,8 +44,7 @@ namespace cyder {
 
         SkImageInfo codecInfo = codec->getInfo();
         SkBitmap bitmap;
-        bitmap.allocN32Pixels(codecInfo.width(), codecInfo.height(),
-                              codecInfo.isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+        bitmap.allocN32Pixels(codecInfo.width(), codecInfo.height(), codecInfo.isOpaque());
         auto result = codec->getPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes());
         delete codec;
         if (result != SkCodec::kSuccess) {
@@ -53,7 +52,7 @@ namespace cyder {
         }
         bitmap.setImmutable();
         bitmap.lockPixels();
-        return SkImage::MakeFromBitmap(bitmap).release();;
+        return SkImage::MakeFromBitmap(bitmap).release();
     }
 
     static void loadImageFromURLMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
