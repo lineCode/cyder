@@ -24,47 +24,20 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_WINDOW_H
-#define CYDER_WINDOW_H
-
-#include <string>
-#include <functional>
-#include "WindowInitOptions.h"
-#include "base/DrawingBuffer.h"
-#include "WindowDelegate.h"
+#ifndef CYDER_WINDOWDELEGATE_H
+#define CYDER_WINDOWDELEGATE_H
 
 namespace cyder {
-    class Window {
+    class WindowDelegate {
     public:
+        virtual ~WindowDelegate() {};
+        virtual void onResized() = 0;
+        virtual void onScaleFactorChanged() = 0;
+        virtual void onOpened() = 0;
+        virtual void onClosed() = 0;
+        virtual bool onClosing() = 0;
 
-        static Window* New(const WindowInitOptions& initOptions);
-
-        virtual ~Window() {};
-
-        virtual std::string title() = 0;
-        virtual void setTitle(const std::string& title) = 0;
-
-        virtual float x() const = 0;
-        virtual void setX(float value) = 0;
-
-        virtual float y() const = 0;
-        virtual void setY(float value) = 0;
-
-        virtual float width() const = 0;
-
-        virtual float height() const = 0;
-
-        virtual float contentWidth() const = 0;
-        virtual float contentHeight() const = 0;
-        virtual void setContentSize(float width, float height) = 0;
-        virtual float scaleFactor() const = 0;
-        virtual void setDelegate(WindowDelegate* delegate) = 0;
-        virtual DrawingBuffer* screenBuffer() = 0;
-
-        virtual void activate() = 0;
-        virtual void close() = 0;
     };
+}
 
-} // namespace cyder
-
-#endif //CYDER_WINDOW_H
+#endif //CYDER_WINDOWDELEGATE_H

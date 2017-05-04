@@ -24,31 +24,34 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYDER_NATIVEWINDOWDELEGATE_H
+#define CYDER_NATIVEWINDOWDELEGATE_H
 
-
-#ifndef CYDER_OSVIEW_H
-#define CYDER_OSVIEW_H
-
-#import <Cocoa/Cocoa.h>
-#import <functional>
-#import "ScreenBuffer.h"
-
+#include "platform/WindowDelegate.h"
+#include "platform/Window.h"
+#include <v8.h>
+#include "base/Environment.h"
 
 namespace cyder {
-    class OSWindow;
+
+    class NativeWindowDelegate : public WindowDelegate {
+    public:
+        NativeWindowDelegate(Environment* env, v8::Local<v8::Object>& handle);
+
+        ~NativeWindowDelegate() override;
+
+        void onResized() override;
+        void onOpened() override ;
+        void onClosed() override;
+        bool onClosing() override;
+        void onScaleFactorChanged() override;
+
+    private:
+        Window* window;
+        Environment* env;
+        v8::Persistent<v8::Object> persistent;
+    };
+
 }
 
-using namespace cyder;
-
-@interface OSView : NSView {
-    ScreenBuffer* screenBuffer;
-    OSWindow* osWindow;
-    bool hasActivatedOnce;
-}
-
-@property (nonatomic, readwrite) OSWindow* osWindow;
-@property (nonatomic, readwrite) ScreenBuffer* screenBuffer;
-
-@end
-
-#endif //CYDER_OSVIEW_H
+#endif //CYDER_NATIVEWINDOWDELEGATE_H

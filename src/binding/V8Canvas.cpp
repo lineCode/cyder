@@ -28,59 +28,9 @@
 #include "utils/WeakWrapper.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
 #include "canvas2d/OffScreenBuffer.h"
+#include "binding/internal/Canvas.h"
 
 namespace cyder {
-
-    class Canvas {
-    public:
-        std::string contextType = "";
-        DrawingBuffer* buffer = nullptr;
-        RenderingContext* context = nullptr;
-        v8::Persistent<v8::Object> contextObject;
-
-        Canvas(int width = 200, int height = 200) : _width(width), _height(height) {
-        }
-
-        Canvas(DrawingBuffer* buffer) : buffer(buffer), externalBuffer(true) {
-        }
-
-        ~Canvas() {
-            contextObject.Reset();
-            delete context;
-            if (!externalBuffer) {
-                delete buffer;
-            }
-        }
-
-        int width() const {
-            return buffer ? buffer->width() : _width;
-        }
-
-        virtual void setWidth(int value) {
-            if (buffer) {
-                buffer->setWidth(value);
-            } else {
-                _width = value;
-            }
-        }
-
-        int height() const {
-            return buffer ? buffer->height() : _height;
-        }
-
-        virtual void setHeight(int value) {
-            if (buffer) {
-                buffer->setHeight(value);
-            } else {
-                _height = value;
-            }
-        }
-
-    private:
-        int _width;
-        int _height;
-        bool externalBuffer = false;
-    };
 
     static void widthGetter(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& args) {
         auto canvas = static_cast<Canvas*>(args.This()->GetAlignedPointerFromInternalField(0));

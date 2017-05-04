@@ -28,9 +28,8 @@
 
 #import <Cocoa/Cocoa.h>
 #include "OSWindow.h"
-#include "platform/Log.h"
 #include "OSApplication.h"
-
+#include "OSAnimationFrame.h"
 
 namespace cyder {
 
@@ -42,48 +41,53 @@ namespace cyder {
         nsWindow = createNSWindow(initOptions);
         [nsWindow setAcceptsMouseMovedEvents:YES];
         NSRect windowRect = [nsWindow frame];
-        NSUInteger windowStyle = [nsWindow styleMask];
+        NSWindowStyleMask windowStyle = [nsWindow styleMask];
         NSRect contentRect = [NSWindow contentRectForFrameRect:windowRect styleMask:windowStyle];
-        OSView* customView = [[OSView alloc] initWithFrame:contentRect];
-        osView = customView;
-        customView.osWindow = this;
-        customView.screenBuffer = new ScreenBuffer(this);
-
-
-        [customView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        nsView = [[OSWindowDelegate alloc] initWithFrame:contentRect];
+        [nsView setWantsBestResolutionOpenGLSurface:YES];
+        [nsView setTranslatesAutoresizingMaskIntoConstraints:NO];
         NSView* contentView = nsWindow.contentView;
-        [contentView addSubview:customView];
-        NSDictionary* views = NSDictionaryOfVariableBindings(customView);
+        [contentView addSubview:nsView];
+        _screenBuffer = new ScreenBuffer(this);
+        _screenBuffer->reset(nsView);
+        osWindowDelegate = [[OSWindowDelegate alloc] initWithWindow:this];
+        [nsWindow setDelegate:osWindowDelegate];
+        NSDictionary* views = NSDictionaryOfVariableBindings(nsView);
 
         [contentView addConstraints:
-                [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[customView]|"
+                [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[nsView]|"
                                                         options:0
                                                         metrics:nil
                                                           views:views]];
 
         [contentView addConstraints:
-                [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[customView]|"
+                [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[nsView]|"
                                                         options:0
                                                         metrics:nil
                                                           views:views]];
     }
 
     OSWindow::~OSWindow() {
-        if ([nsWindow screen]) {
-            close();
+        delete _screenBuffer;
+        [osWindowDelegate release];
+        [nsView release];
+        if (!opened) {
+            [nsWindow release];
         }
-        [osView release];
-        [nsWindow release];
     }
 
     void OSWindow::activate() {
         [nsWindow makeKeyAndOrderFront:nil];
-    }
-
-    void OSWindow::windowDidActivated() {
         auto app = static_cast<OSApplication*>(Application::application);
         app->windowActivated(this);
+        if (!opened) {
+            opened = true;
+            if (delegate) {
+                delegate->onOpened();
+            }
+        }
     }
+
 
     void OSWindow::close() {
         auto app = static_cast<OSApplication*>(Application::application);
@@ -101,7 +105,7 @@ namespace cyder {
     }
 
     float OSWindow::x() const {
-        return nsWindow.frame.origin.x;
+        return static_cast<float>(nsWindow.frame.origin.x);
     }
 
     void OSWindow::setX(float value) {
@@ -112,32 +116,32 @@ namespace cyder {
     float OSWindow::y() const {
         NSRect screenFrame = nsWindow.screen.frame;
         NSRect frame = nsWindow.frame;
-        return screenFrame.size.height - frame.origin.y - frame.size.height;
+        return static_cast<float>(screenFrame.size.height - frame.origin.y - frame.size.height);
     }
 
     void OSWindow::setY(float value) {
         NSRect screenFrame = nsWindow.screen.frame;
         NSRect frame = nsWindow.frame;
-        float y = screenFrame.size.height - value - frame.size.height;
+        float y = static_cast<float>(screenFrame.size.height - value - frame.size.height);
         NSPoint point = NSMakePoint(frame.origin.x, y);
         [nsWindow setFrameOrigin:point];
     }
 
     float OSWindow::width() const {
-        return nsWindow.frame.size.width;
+        return static_cast<float>(nsWindow.frame.size.width);
     }
 
     float OSWindow::height() const {
-        return nsWindow.frame.size.height;
+        return static_cast<float>(nsWindow.frame.size.height);
     }
 
 
     float OSWindow::contentWidth() const {
-        return nsWindow.contentView.frame.size.width;
+        return static_cast<float>(nsWindow.contentView.frame.size.width);
     }
 
     float OSWindow::contentHeight() const {
-        return nsWindow.contentView.frame.size.height;
+        return static_cast<float>(nsWindow.contentView.frame.size.height);
     }
 
     void OSWindow::setContentSize(float width, float height) {
@@ -146,15 +150,52 @@ namespace cyder {
     }
 
     float OSWindow::scaleFactor() const {
-        return nsWindow.backingScaleFactor;
+        return static_cast<float>(nsWindow.backingScaleFactor);
     }
 
-    ScreenBuffer* OSWindow::screenBuffer() {
-        return osView.screenBuffer;
+    void OSWindow::setDelegate(WindowDelegate* delegate) {
+        this->delegate = delegate;
     }
 
-    void OSWindow::setResizeCallback(WindowCallback callback) {
-        resizeCallback = callback;
+    bool OSWindow::windowShouldClose() {
+        if (delegate) {
+            return delegate->onClosing();
+        }
+        return true;
+    }
+
+    void OSWindow::windowWillClose() {
+        _screenBuffer->dispose();
+        if (delegate) {
+            delegate->onClosed();
+        }
+    }
+
+    void OSWindow::windowDidBecomeKey() {
+        auto app = static_cast<OSApplication*>(Application::application);
+        app->windowActivated(this);
+    }
+
+    void OSWindow::windowDidResize() {
+        NSSize size = nsWindow.contentView.frame.size;
+        float scaleFactor = static_cast<float>(nsWindow.backingScaleFactor);
+        _screenBuffer->updateSize(SkScalarRoundToInt(size.width * scaleFactor), SkScalarRoundToInt(size.height * scaleFactor));
+        if (delegate) {
+            delegate->onResized();
+        }
+        // the main thread is fully blocked while window resizing, we need to trigger animation callbacks manually.
+        OSAnimationFrame::ForceScreenUpdateNow();
+    }
+
+    void OSWindow::windowDidChangeBackingProperties() {
+        // The window occurs a flicker of blank screen after dragging it to another monitor.
+        // Resetting the opengl backend could fixes this problem.
+        _screenBuffer->reset(nsView);
+        if (delegate) {
+            delegate->onScaleFactorChanged();
+        }
+        // Update the screen immediately after the backend resetting to prevent flickering.
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     NSWindow* OSWindow::createNSWindow(const WindowInitOptions &options) {

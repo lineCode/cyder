@@ -29,7 +29,7 @@
 #define CYDER_OSWINDOW_H
 
 #include <string>
-#include "OSView.h"
+#include "OSWindowDelegate.h"
 #include "platform/WindowInitOptions.h"
 #include "platform/Window.h"
 #include "ScreenBuffer.h"
@@ -38,20 +38,25 @@ namespace cyder {
 
     class OSWindow : public Window {
     public:
-        explicit OSWindow(const WindowInitOptions& initOptions);
+        OSWindow(const WindowInitOptions &initOptions);
+
         ~OSWindow() override;
 
 
         void activate() override;
+
         void close() override;
 
         std::string title() override;
-        void setTitle(const std::string& title) override;
+
+        void setTitle(const std::string &title) override;
 
         float x() const override;
+
         void setX(float value) override;
 
         float y() const override;
+
         void setY(float value) override;
 
         float width() const override;
@@ -60,23 +65,35 @@ namespace cyder {
 
 
         float contentWidth() const override;
+
         float contentHeight() const override;
+
         void setContentSize(float width, float height) override;
 
         float scaleFactor() const override;
-        ScreenBuffer* screenBuffer() override;
-        
-        void setResizeCallback(WindowCallback callback) override;
 
-        WindowCallback resizeCallback = nullptr;
-        
-        void windowDidActivated();
+        void setDelegate(WindowDelegate* delegate) override;
+
+        ScreenBuffer* screenBuffer() override {
+            return _screenBuffer;
+        }
+
+        bool windowShouldClose();
+        void windowWillClose();
+        void windowDidBecomeKey();
+        void windowDidResize();
+        void windowDidChangeBackingProperties();
 
 
     private:
+        bool opened = false;
+        WindowDelegate* delegate = nullptr;
+        ScreenBuffer* _screenBuffer;
         NSWindow* nsWindow;
-        NSWindow* createNSWindow(const WindowInitOptions& options);
-        OSView* osView;
+        OSWindowDelegate* nsView;
+        OSWindowDelegate* osWindowDelegate;
+
+        NSWindow* createNSWindow(const WindowInitOptions &options);
     };
 
 } // namespace cyder

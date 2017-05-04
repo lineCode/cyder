@@ -24,47 +24,41 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_WINDOW_H
-#define CYDER_WINDOW_H
 
-#include <string>
-#include <functional>
-#include "WindowInitOptions.h"
-#include "base/DrawingBuffer.h"
-#include "WindowDelegate.h"
 
-namespace cyder {
-    class Window {
-    public:
+#import "OSWindowDelegate.h"
+#import "OSAnimationFrame.h"
+#import "platform/Log.h"
+#import "OSWindow.h"
+#import "ScreenBuffer.h"
 
-        static Window* New(const WindowInitOptions& initOptions);
 
-        virtual ~Window() {};
+@implementation OSWindowDelegate
 
-        virtual std::string title() = 0;
-        virtual void setTitle(const std::string& title) = 0;
+- (instancetype)initWithWindow:(OSWindow*)window {
+    self = [super init];
+    osWindow = window;
+    return self;
+}
 
-        virtual float x() const = 0;
-        virtual void setX(float value) = 0;
+- (BOOL)windowShouldClose:(id)sender {
+    return osWindow->windowShouldClose();
+}
 
-        virtual float y() const = 0;
-        virtual void setY(float value) = 0;
+- (void)windowWillClose:(NSNotification*)notification {
+    osWindow->windowWillClose();
+}
 
-        virtual float width() const = 0;
+- (void)windowDidBecomeKey:(NSNotification*)notification {
+    osWindow->windowDidBecomeKey();
+}
 
-        virtual float height() const = 0;
+- (void)windowDidChangeBackingProperties:(NSNotification*)notification {
+    osWindow->windowDidChangeBackingProperties();
+}
 
-        virtual float contentWidth() const = 0;
-        virtual float contentHeight() const = 0;
-        virtual void setContentSize(float width, float height) = 0;
-        virtual float scaleFactor() const = 0;
-        virtual void setDelegate(WindowDelegate* delegate) = 0;
-        virtual DrawingBuffer* screenBuffer() = 0;
+- (void)windowDidResize:(NSNotification*)notification {
+    osWindow->windowDidResize();
+}
 
-        virtual void activate() = 0;
-        virtual void close() = 0;
-    };
-
-} // namespace cyder
-
-#endif //CYDER_WINDOW_H
+@end

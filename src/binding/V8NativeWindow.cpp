@@ -27,23 +27,9 @@
 #include "V8NativeWindow.h"
 #include "platform/Window.h"
 #include "utils/WeakWrapper.h"
-#include "canvas2d/OffScreenBuffer.h"
+#include "binding/internal/NativeWindowDelegate.h"
 
 namespace cyder {
-
-    static void onWindowResized(Window* window) {
-        auto buffer = new OffScreenBuffer(800, 600, true, true);
-        auto c = buffer->getCanvas();
-        SkPaint paint;
-        paint.setColor(SK_ColorGREEN);
-        paint.setAntiAlias(true);
-        c->clear(0XFFECECEC);
-        c->drawRoundRect(SkRect::MakeXYWH(200, 200, 400, 400), 20, 20, paint);
-        auto windowCanvas = window->screenBuffer()->getCanvas();
-        windowCanvas->clear(0XFFECECEC);
-        buffer->draw(windowCanvas, 100, 100, &paint);
-        delete buffer;
-    }
 
     static void activateMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto self = args.This();
@@ -54,17 +40,14 @@ namespace cyder {
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
-
+        auto self = args.This();
         WindowInitOptions options;
         Window* window = Window::New(options);
         window->setX(300);
         window->setY(150);
         window->setContentSize(800, 600);
         window->setTitle("CYDER");
-        window->setResizeCallback(onWindowResized);
-        onWindowResized(window);
 
-        auto self = args.This();
         auto eventEmitterClass = env->readGlobalFunction("cyder.EventEmitter");
         env->call(eventEmitterClass, self); // call the super class function.
         auto CanvasClass = env->readGlobalFunction("Canvas");
@@ -72,13 +55,17 @@ namespace cyder {
                                        env->makeExternal(window->screenBuffer())).ToLocalChecked();
         env->setObjectProperty(self, "canvas", canvas, true);
         self->SetAlignedPointerInInternalField(0, window);
-        WeakWrapper::BindPointer(env->isolate(), self, window);
+        auto weakHandle = WeakWrapper::BindPointer(env->isolate(), self, window);
+        self->SetAlignedPointerInInternalField(1, weakHandle);
+        NativeWindowDelegate* windowDelegate = new NativeWindowDelegate(env, self);
+        window->setDelegate(windowDelegate);
+        windowDelegate->onResized();
     }
 
     void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
         env->setTemplateProperty(prototypeTemplate, "activate", activateMethod);
-        env->attachClass(parent, "NativeWindow", classTemplate);
+        env->attachClass(parent, "NativeWindow", classTemplate, 2);
     }
 }

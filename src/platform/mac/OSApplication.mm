@@ -42,6 +42,9 @@ namespace cyder {
     }
 
     OSApplication::~OSApplication() {
+        for(auto& window : *_openedWindows){
+            window->close();
+        }
         delete _openedWindows;
         [appDelegate release];
         Application::application = nullptr;
@@ -69,7 +72,7 @@ namespace cyder {
             windows->erase(result);
         }
         windows->push_back(window);
-        OSAnimationFrame::ForceScreenUpdateNow();
+        OSAnimationFrame::RequestScreenUpdate();
     }
 
     void OSApplication::windowClosed(OSWindow* window) {

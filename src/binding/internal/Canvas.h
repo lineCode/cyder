@@ -24,47 +24,62 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_WINDOW_H
-#define CYDER_WINDOW_H
-
-#include <string>
-#include <functional>
-#include "WindowInitOptions.h"
-#include "base/DrawingBuffer.h"
-#include "WindowDelegate.h"
+#ifndef CYDER_CANVAS_H
+#define CYDER_CANVAS_H
 
 namespace cyder {
-    class Window {
+
+    class Canvas {
     public:
+        std::string contextType = "";
+        DrawingBuffer* buffer = nullptr;
+        RenderingContext* context = nullptr;
+        v8::Persistent<v8::Object> contextObject;
 
-        static Window* New(const WindowInitOptions& initOptions);
+        Canvas(int width = 200, int height = 200) : _width(width), _height(height) {
+        }
 
-        virtual ~Window() {};
+        Canvas(DrawingBuffer* buffer) : buffer(buffer), externalBuffer(true) {
+        }
 
-        virtual std::string title() = 0;
-        virtual void setTitle(const std::string& title) = 0;
+        ~Canvas() {
+            contextObject.Reset();
+            delete context;
+            if (!externalBuffer) {
+                delete buffer;
+            }
+        }
 
-        virtual float x() const = 0;
-        virtual void setX(float value) = 0;
+        int width() const {
+            return buffer ? buffer->width() : _width;
+        }
 
-        virtual float y() const = 0;
-        virtual void setY(float value) = 0;
+        virtual void setWidth(int value) {
+            if (buffer) {
+                buffer->setWidth(value);
+            } else {
+                _width = value;
+            }
+        }
 
-        virtual float width() const = 0;
+        int height() const {
+            return buffer ? buffer->height() : _height;
+        }
 
-        virtual float height() const = 0;
+        virtual void setHeight(int value) {
+            if (buffer) {
+                buffer->setHeight(value);
+            } else {
+                _height = value;
+            }
+        }
 
-        virtual float contentWidth() const = 0;
-        virtual float contentHeight() const = 0;
-        virtual void setContentSize(float width, float height) = 0;
-        virtual float scaleFactor() const = 0;
-        virtual void setDelegate(WindowDelegate* delegate) = 0;
-        virtual DrawingBuffer* screenBuffer() = 0;
-
-        virtual void activate() = 0;
-        virtual void close() = 0;
+    private:
+        int _width;
+        int _height;
+        bool externalBuffer = false;
     };
 
-} // namespace cyder
+}
 
-#endif //CYDER_WINDOW_H
+#endif //CYDER_CANVAS_H

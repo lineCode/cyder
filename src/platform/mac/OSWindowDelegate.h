@@ -24,47 +24,28 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_WINDOW_H
-#define CYDER_WINDOW_H
 
-#include <string>
-#include <functional>
-#include "WindowInitOptions.h"
-#include "base/DrawingBuffer.h"
-#include "WindowDelegate.h"
+
+#ifndef CYDER_OSVIEW_H
+#define CYDER_OSVIEW_H
+
+#import <Cocoa/Cocoa.h>
+#import <functional>
+#import "ScreenBuffer.h"
+
 
 namespace cyder {
-    class Window {
-    public:
+    class OSWindow;
+}
 
-        static Window* New(const WindowInitOptions& initOptions);
+using namespace cyder;
 
-        virtual ~Window() {};
+@interface OSWindowDelegate : NSView <NSWindowDelegate>{
+    OSWindow* osWindow;
+}
 
-        virtual std::string title() = 0;
-        virtual void setTitle(const std::string& title) = 0;
+-(instancetype)initWithWindow:(OSWindow*) window;
 
-        virtual float x() const = 0;
-        virtual void setX(float value) = 0;
+@end
 
-        virtual float y() const = 0;
-        virtual void setY(float value) = 0;
-
-        virtual float width() const = 0;
-
-        virtual float height() const = 0;
-
-        virtual float contentWidth() const = 0;
-        virtual float contentHeight() const = 0;
-        virtual void setContentSize(float width, float height) = 0;
-        virtual float scaleFactor() const = 0;
-        virtual void setDelegate(WindowDelegate* delegate) = 0;
-        virtual DrawingBuffer* screenBuffer() = 0;
-
-        virtual void activate() = 0;
-        virtual void close() = 0;
-    };
-
-} // namespace cyder
-
-#endif //CYDER_WINDOW_H
+#endif //CYDER_OSVIEW_H
