@@ -90,7 +90,7 @@ namespace cyder {
         WindowDelegate* delegate = nullptr;
         ScreenBuffer* _screenBuffer;
         NSWindow* nsWindow;
-        OSWindowDelegate* nsView;
+        NSView* nsView;
         OSWindowDelegate* osWindowDelegate;
 
         NSWindow* createNSWindow(const WindowInitOptions &options);

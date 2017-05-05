@@ -25,53 +25,75 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include <utils/WeakWrapper.h>
-#include "NativeWindowDelegate.h"
+#include "NativeWindow.h"
 
 namespace cyder {
-    NativeWindowDelegate::NativeWindowDelegate(Environment* env, v8::Local<v8::Object>& handle) :
-            env(env), persistent(env->isolate(), handle) {
+    NativeWindow::NativeWindow(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        env = Environment::GetCurrent(args);
+        persistent.Reset(env->isolate(),args.This());
         persistent.SetWeak();
         persistent.MarkIndependent();
-        window = static_cast<Window*>(handle->GetAlignedPointerFromInternalField(0));
+        WindowInitOptions options;
+        window = Window::New(options);
+        window->setX(300);
+        window->setY(150);
+        window->setContentSize(800, 600);
+        window->setTitle("CYDER");
+        window->setDelegate(this);
+
+        auto self = args.This();
+        auto eventEmitterClass = env->readGlobalFunction("cyder.EventEmitter");
+        env->call(eventEmitterClass, self); // call the super class function.
+        auto CanvasClass = env->readGlobalFunction("Canvas");
+        auto canvas = env->newInstance(CanvasClass,
+                                       env->makeExternal(window->screenBuffer())).ToLocalChecked();
+        env->setObjectProperty(self, "canvas", canvas, true);
+
+        onResized();
     }
 
-    NativeWindowDelegate::~NativeWindowDelegate() {
+    NativeWindow::~NativeWindow() {
         persistent.ClearWeak();
         persistent.Reset();
+        delete window;
     }
 
-    void NativeWindowDelegate::onResized() {
+    void NativeWindow::activate() {
+        if(window){
+            window->activate();
+        }
+        if(!opened){
+            opened = true;
+            // add to NativeApplication.openedWindows
+
+        }
+    }
+
+    void NativeWindow::onResized() {
         auto c = window->screenBuffer()->getCanvas();
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
         c->clear(0XFFECECEC);
         c->drawRoundRect(SkRect::MakeXYWH(200, 200, 400, 400), 20, 20, paint);
-        LOG("onWindowResized");
+//        LOG("onWindowResized");
     }
 
-    void NativeWindowDelegate::onScaleFactorChanged() {
+    void NativeWindow::onScaleFactorChanged() {
     }
 
-    void NativeWindowDelegate::onOpened() {
-        // add to NativeApplication.openedWindows
+    void NativeWindow::onActivated() {
 
-        // Once a window is opened, it can't be deleted until closed.
-        auto handle = env->toLocal(persistent);
-        auto weakHandle = static_cast<WeakWrapper*>(handle->GetAlignedPointerFromInternalField(1));
-        delete weakHandle;
-        handle->SetAlignedPointerInInternalField(1, nullptr);
     }
 
-    bool NativeWindowDelegate::onClosing() {
+    bool NativeWindow::onClosing() {
         return true;
     }
 
-    void NativeWindowDelegate::onClosed() {
+    void NativeWindow::onClosed() {
         // remove from NativeApplication.openedWindows
-        auto handle = env->toLocal(persistent);
-        handle->SetAlignedPointerInInternalField(0, nullptr);
+
         delete window;
-        delete this;
+        window = nullptr;
     }
 }

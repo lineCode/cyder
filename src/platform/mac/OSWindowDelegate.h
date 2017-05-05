@@ -40,7 +40,7 @@ namespace cyder {
 
 using namespace cyder;
 
-@interface OSWindowDelegate : NSView <NSWindowDelegate>{
+@interface OSWindowDelegate : NSObject <NSWindowDelegate>{
     OSWindow* osWindow;
 }
 

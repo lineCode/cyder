@@ -27,45 +27,29 @@
 #include "V8NativeWindow.h"
 #include "platform/Window.h"
 #include "utils/WeakWrapper.h"
-#include "binding/internal/NativeWindowDelegate.h"
+#include "binding/internal/NativeWindow.h"
 
 namespace cyder {
 
     static void activateMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto self = args.This();
-        auto window = static_cast<Window*>(self->GetAlignedPointerFromInternalField(0));
+        auto window = NativeWindow::GetCurrent(args);
         window->activate();
     }
 
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
+        NativeWindow* nativeWindow = new NativeWindow(args);
         auto self = args.This();
-        WindowInitOptions options;
-        Window* window = Window::New(options);
-        window->setX(300);
-        window->setY(150);
-        window->setContentSize(800, 600);
-        window->setTitle("CYDER");
+        self->SetAlignedPointerInInternalField(0, nativeWindow);
+        WeakWrapper::BindPointer(env->isolate(), self, nativeWindow);
 
-        auto eventEmitterClass = env->readGlobalFunction("cyder.EventEmitter");
-        env->call(eventEmitterClass, self); // call the super class function.
-        auto CanvasClass = env->readGlobalFunction("Canvas");
-        auto canvas = env->newInstance(CanvasClass,
-                                       env->makeExternal(window->screenBuffer())).ToLocalChecked();
-        env->setObjectProperty(self, "canvas", canvas, true);
-        self->SetAlignedPointerInInternalField(0, window);
-        auto weakHandle = WeakWrapper::BindPointer(env->isolate(), self, window);
-        self->SetAlignedPointerInInternalField(1, weakHandle);
-        NativeWindowDelegate* windowDelegate = new NativeWindowDelegate(env, self);
-        window->setDelegate(windowDelegate);
-        windowDelegate->onResized();
     }
 
     void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
         env->setTemplateProperty(prototypeTemplate, "activate", activateMethod);
-        env->attachClass(parent, "NativeWindow", classTemplate, 2);
+        env->attachClass(parent, "NativeWindow", classTemplate);
     }
 }

@@ -24,24 +24,28 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_NATIVEWINDOWDELEGATE_H
-#define CYDER_NATIVEWINDOWDELEGATE_H
+#ifndef CYDER_NATIVEWINDOW_H
+#define CYDER_NATIVEWINDOW_H
 
 #include "platform/WindowDelegate.h"
 #include "platform/Window.h"
-#include <v8.h>
 #include "base/Environment.h"
 
 namespace cyder {
 
-    class NativeWindowDelegate : public WindowDelegate {
+    class NativeWindow : public WindowDelegate {
     public:
-        NativeWindowDelegate(Environment* env, v8::Local<v8::Object>& handle);
+        static NativeWindow* GetCurrent(const v8::FunctionCallbackInfo<v8::Value>& args) {
+            return static_cast<NativeWindow*>(args.This()->GetAlignedPointerFromInternalField(0));
+        }
 
-        ~NativeWindowDelegate() override;
+        explicit NativeWindow(const v8::FunctionCallbackInfo<v8::Value>& args);
+        ~NativeWindow() override;
+
+        void activate();
 
         void onResized() override;
-        void onOpened() override ;
+        void onActivated() override;
         void onClosed() override;
         bool onClosing() override;
         void onScaleFactorChanged() override;
@@ -50,8 +54,9 @@ namespace cyder {
         Window* window;
         Environment* env;
         v8::Persistent<v8::Object> persistent;
+        bool opened = false;
     };
 
 }
 
-#endif //CYDER_NATIVEWINDOWDELEGATE_H
+#endif //CYDER_NATIVEWINDOW_H

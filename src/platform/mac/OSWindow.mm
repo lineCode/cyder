@@ -43,7 +43,7 @@ namespace cyder {
         NSRect windowRect = [nsWindow frame];
         NSWindowStyleMask windowStyle = [nsWindow styleMask];
         NSRect contentRect = [NSWindow contentRectForFrameRect:windowRect styleMask:windowStyle];
-        nsView = [[OSWindowDelegate alloc] initWithFrame:contentRect];
+        nsView = [[NSView alloc] initWithFrame:contentRect];
         [nsView setWantsBestResolutionOpenGLSurface:YES];
         [nsView setTranslatesAutoresizingMaskIntoConstraints:NO];
         NSView* contentView = nsWindow.contentView;
@@ -80,12 +80,7 @@ namespace cyder {
         [nsWindow makeKeyAndOrderFront:nil];
         auto app = static_cast<OSApplication*>(Application::application);
         app->windowActivated(this);
-        if (!opened) {
-            opened = true;
-            if (delegate) {
-                delegate->onOpened();
-            }
-        }
+        opened = true;
     }
 
 
@@ -174,6 +169,9 @@ namespace cyder {
     void OSWindow::windowDidBecomeKey() {
         auto app = static_cast<OSApplication*>(Application::application);
         app->windowActivated(this);
+        if (delegate) {
+            delegate->onActivated();
+        }
     }
 
     void OSWindow::windowDidResize() {
