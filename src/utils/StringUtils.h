@@ -24,11 +24,12 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_STRINGSPLIT_H
-#define CYDER_STRINGSPLIT_H
+#ifndef CYDER_STRINGUTILS_H
+#define CYDER_STRINGUTILS_H
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace cyder {
     inline std::vector<std::string> stringSplit(const std::string& text, const std::string& separator) {
@@ -48,6 +49,19 @@ namespace cyder {
         return result;
     }
 
+    inline std::string toLowerString(const std::string& text) {
+        std::string result;
+        result.resize(text.length());
+        std::transform(text.begin(), text.end(), result.begin(), ::tolower);
+        return result;
+    }
+
+    inline std::string toUpperString(const std::string& text) {
+        std::string result;
+        result.resize(text.length());
+        std::transform(text.begin(), text.end(), result.begin(), ::toupper);
+        return result;
+    }
 }
 
-#endif //CYDER_STRINGSPLIT_H
+#endif //CYDER_STRINGUTILS_H

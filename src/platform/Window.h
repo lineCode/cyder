@@ -30,7 +30,7 @@
 #include <string>
 #include <functional>
 #include "WindowInitOptions.h"
-#include "base/DrawingBuffer.h"
+#include "display/DrawingBuffer.h"
 #include "WindowDelegate.h"
 
 namespace cyder {

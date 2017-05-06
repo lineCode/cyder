@@ -27,7 +27,7 @@
 #ifndef CYDER_OFFSCREENBUFFER_H
 #define CYDER_OFFSCREENBUFFER_H
 
-#include "base/DrawingBuffer.h"
+#include "display/DrawingBuffer.h"
 #include <skia.h>
 
 namespace cyder {

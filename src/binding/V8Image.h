@@ -29,18 +29,18 @@
 #define CYDER_V8IMAGE_H
 
 #include <v8.h>
-#include <skia.h>
 #include "base/Environment.h"
+#include "display/Image.h"
 
 namespace cyder {
 
-    inline SkImage* getInternalImage(const v8::Local<v8::Object>& self, Environment* env) {
-        auto bitmapData = static_cast<SkImage*>(self->GetAlignedPointerFromInternalField(0));
-        if (!bitmapData) {
+    inline Image* getInternalImage(const v8::Local<v8::Object>& self, Environment* env) {
+        auto image = static_cast<Image*>(self->GetAlignedPointerFromInternalField(0));
+        if (!image) {
             env->throwError(ErrorType::ERROR, "Invalid Image.");
             return nullptr;
         }
-        return bitmapData;
+        return image;
     }
 
     class V8Image {

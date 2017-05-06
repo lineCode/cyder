@@ -24,56 +24,30 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYDER_SKUNREF_H
+#define CYDER_SKUNREF_H
 
-
-#include "OSApplication.h"
-#include "OSAnimationFrame.h"
+#include <functional>
+#include <skia.h>
 
 namespace cyder {
-
-    Application* Application::application = nullptr;
-
-    OSApplication::OSApplication():_openedWindows(new std::vector<OSWindow*>()) {
-        Application::application = this;
-        nsApp = [NSApplication sharedApplication];
-        appDelegate = [[AppDelegate alloc] init];
-        nsApp.delegate = appDelegate;
-        [nsApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-    }
-
-    OSApplication::~OSApplication() {
-        delete _openedWindows;
-        [appDelegate release];
-        Application::application = nullptr;
-    }
-
-    void OSApplication::exit(int errorCode) {
-        if (errorCode == 0) {
-            [nsApp terminate:nil];
-        } else {
-            ::exit(errorCode);
+    class SkUnref {
+    public:
+        /**
+         * This method wraps a skia object and returns a callback function. The callback function will unreference the
+         * skia object when it is called.
+         */
+        template<typename T>
+        static std::function<void()> Wrap(T* target) {
+            return std::bind<void>(SkUnref::UnrefTarget<T>, std::forward<T*>(target));
         }
-    }
 
-    void OSApplication::run() {
-        [nsApp run];
-    }
-
-    void OSApplication::windowOpened(OSWindow* window) {
-        auto windows = _openedWindows;
-        auto result = std::find(windows->begin(), windows->end(), window);
-        if (result == windows->end()) {
-            windows->push_back(window);
+    private:
+        template<typename T>
+        static void UnrefTarget(T* target) {
+            SkSafeUnref(target);
         }
-    }
+    };
+}
 
-    void OSApplication::windowClosed(OSWindow* window) {
-        auto windows = _openedWindows;
-        auto result = std::find(windows->begin(), windows->end(), window);
-        if (result != windows->end()) {
-            windows->erase(result);
-        }
-    }
-
-
-} // namespace cyder
+#endif //CYDER_SKUNREF_H

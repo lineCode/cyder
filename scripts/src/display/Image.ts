@@ -82,15 +82,18 @@ interface Image {
     getImageData(x:number, y:number, width:number, height:number):ImageData;
 
     /**
-     * Returns a new image that is a subset of this image.
+     * Returns a new image that is a subset of this image. The underlying implementation may share the pixels, or it
+     * may make a copy. It depends on the value passed in the sharePixels parameter.
      * @param x The x coordinate of the upper left corner of the subset rectangle.
      * @param y The y coordinate of the upper left corner of the subset rectangle.
      * @param width The width of the subset rectangle.
      * @param height The height of the subset rectangle.
+     * @param sharePixels Indicates whether the underlying implementation should share the pixels, otherwise make a copy.
+     * The default value is true.
      * @returns If subset does not intersect the bounds of this image, or the copy/share cannot be made, null will
      * be returned.
      */
-    makeSubset(x:number, y:number, width:number, height:number):Image;
+    makeSubset(x:number, y:number, width:number, height:number, sharePixels?:boolean):Image;
 
     /**
      * Returns a data URI containing a representation of the image in the format specified by the type parameter.

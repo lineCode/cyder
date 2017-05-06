@@ -26,7 +26,6 @@
 
 #include "V8NativeWindow.h"
 #include "platform/Window.h"
-#include "utils/WeakWrapper.h"
 #include "binding/wrapper/NativeWindow.h"
 
 namespace cyder {
@@ -42,8 +41,7 @@ namespace cyder {
         NativeWindow* nativeWindow = new NativeWindow(args);
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, nativeWindow);
-        WeakWrapper::BindPointer(env->isolate(), self, nativeWindow);
-
+        env->bind(self, nativeWindow);
     }
 
     void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {

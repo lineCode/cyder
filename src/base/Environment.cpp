@@ -30,6 +30,32 @@
 
 namespace cyder {
 
+    WeakHandle::WeakHandle(v8::Isolate* isolate, const v8::Local<v8::Object>& handle, std::function<void()> callback) :
+            persistent(isolate, handle),
+            callback(callback) {
+        persistent.SetWeak(this, Callback, v8::WeakCallbackType::kParameter);
+        persistent.MarkIndependent();
+    }
+
+    WeakHandle::~WeakHandle() {
+        if (persistent.IsEmpty()) {
+            return;
+        }
+        persistent.ClearWeak();
+        persistent.Reset();
+    }
+
+    void WeakHandle::Callback(const v8::WeakCallbackInfo<WeakHandle>& data) {
+        v8::Isolate* isolate = data.GetIsolate();
+        v8::HandleScope handle_scope(isolate);
+        WeakHandle* handle = data.GetParameter();
+        handle->persistent.Reset();
+        if (handle->callback) {
+            handle->callback();
+        }
+        delete handle;
+    }
+
     Environment::Environment(const v8::Local<v8::Context>& context) {
         _isolate = context->GetIsolate();
         _context.Reset(_isolate, context);
@@ -43,6 +69,10 @@ namespace cyder {
         context()->SetAlignedPointerInEmbedderData(CONTEXT_EMBEDDER_DATA_INDEX, nullptr);
         _context.Reset();
         _external.Reset();
+    }
+
+    WeakHandle* Environment::bind(const v8::Local<v8::Object>& handle, std::function<void()> callback) {
+        return new WeakHandle(_isolate, handle, callback);
     }
 
     v8::MaybeLocal<v8::Value> Environment::executeScript(const std::string& path) {

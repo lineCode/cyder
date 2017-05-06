@@ -83,6 +83,7 @@ namespace cyder {
             opened = true;
             app->windowOpened(this);
         }
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
 
@@ -171,8 +172,8 @@ namespace cyder {
     void OSWindow::windowDidBecomeKey() {
         if (delegate) {
             delegate->onFocusIn();
+            OSAnimationFrame::ForceScreenUpdateNow();
         }
-        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     void OSWindow::windowDidResize() {
@@ -181,9 +182,8 @@ namespace cyder {
         _screenBuffer->updateSize(SkScalarRoundToInt(size.width * scaleFactor), SkScalarRoundToInt(size.height * scaleFactor));
         if (delegate) {
             delegate->onResized();
+            OSAnimationFrame::ForceScreenUpdateNow();
         }
-        // the main thread is fully blocked while window resizing, we need to trigger animation callbacks manually.
-        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     void OSWindow::windowDidChangeBackingProperties() {
@@ -192,9 +192,9 @@ namespace cyder {
         _screenBuffer->reset(nsView);
         if (delegate) {
             delegate->onScaleFactorChanged();
+            // Update the screen immediately after the backend resetting to prevent flickering.
+            OSAnimationFrame::ForceScreenUpdateNow();
         }
-        // Update the screen immediately after the backend resetting to prevent flickering.
-        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     NSWindow* OSWindow::createNSWindow(const WindowInitOptions &options) {

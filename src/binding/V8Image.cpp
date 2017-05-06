@@ -26,10 +26,30 @@
 
 
 #include "V8Image.h"
-#include "utils/WeakWrapper.h"
 #include "utils/Base64.h"
+#include "utils/SkUnref.h"
 
 namespace cyder {
+
+    static std::string formatImageMimeType(const std::string& mimeType) {
+        auto type = toLowerString(mimeType);
+        if (type != "image/jpeg" && type != "image/webp") {
+            type = "image/png";
+        }
+        return type;
+    }
+
+    static ImageFormat toImageFormat(const std::string& type) {
+        ImageFormat format;
+        if (type == "image/jpeg") {
+            format = ImageFormat::JPEG;
+        } else if (type == "image/webp") {
+            format = ImageFormat::WEBP;
+        } else {
+            format = ImageFormat::PNG;
+        }
+        return format;
+    }
 
     void disposeMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
@@ -41,34 +61,10 @@ namespace cyder {
         env->setObjectProperty(self, "width", 0);
         env->setObjectProperty(self, "height", 0);
         self->SetAlignedPointerInInternalField(0, nullptr);
-        auto weakHandle = static_cast<WeakWrapper*>(self->GetAlignedPointerFromInternalField(1));
+        auto weakHandle = static_cast<WeakHandle*>(self->GetAlignedPointerFromInternalField(1));
         self->SetAlignedPointerInInternalField(1, nullptr);
         delete weakHandle;
         SkSafeUnref(image);
-    }
-
-
-    SkData* encodeBitmapData(SkImage* image, const std::string& type, double quality) {
-        SkEncodedImageFormat encodeType;
-        if (type == "image/jpeg") {
-            encodeType = SkEncodedImageFormat::kJPEG;
-            if (quality == -1) {
-                quality = 0.92;
-            }
-        } else if (type == "image/webp") {
-            encodeType = SkEncodedImageFormat::kWEBP;
-            if (quality == -1) {
-                quality = 0.8;
-            }
-        } else {
-            encodeType = SkEncodedImageFormat::kPNG;
-            quality = 1;
-        }
-        int compressionQuality = static_cast<int>(quality);
-        if (quality >= 0.0 && quality <= 1.0) {
-            compressionQuality = static_cast<int>(quality * 100 + 0.5);
-        }
-        return image->encode(encodeType, compressionQuality);
     }
 
     void encodeMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
@@ -77,16 +73,15 @@ namespace cyder {
         if (!image) {
             return;
         }
-        std::string type = env->toStdString(args[0]);
+        std::string type = formatImageMimeType(env->toStdString(args[0]));
         auto quality = args[1]->IsUndefined() ? -1 : env->toDouble(args[1]);
-        auto bytes = encodeBitmapData(image, type, quality);
+        auto bytes = image->encode(toImageFormat(type), quality);
         if (!bytes || bytes->size() == 0) {
             args.GetReturnValue().Set(env->makeNull());
             return;
         }
-        auto arrayBuffer = v8::ArrayBuffer::New(env->isolate(), bytes->writable_data(), bytes->size(),
-                                                v8::ArrayBufferCreationMode::kExternalized);
-        WeakWrapper::BindReference(env->isolate(), arrayBuffer, bytes);
+        auto arrayBuffer = env->makeArrayBuffer(bytes->writable_data(), bytes->size());
+        env->bind(arrayBuffer, SkUnref::Wrap(bytes));
         args.GetReturnValue().Set(arrayBuffer);
     }
 
@@ -105,10 +100,12 @@ namespace cyder {
             args.GetReturnValue().Set(env->makeNull());
             return;
         }
-        auto arrayBuffer = v8::ArrayBuffer::New(env->isolate(), byteSize);
+        auto arrayBuffer = env->makeArrayBuffer(byteSize);
         auto buffer = arrayBuffer->GetContents().Data();
-        SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
-        image->readPixels(info, buffer, static_cast<size_t>(4 * width), x, y);
+        if (!image->readPixels(buffer, x, y, width, height)) {
+            args.GetReturnValue().Set(env->makeNull());
+            return;
+        }
         auto data = v8::Uint8ClampedArray::New(arrayBuffer, 0, byteSize);
         auto ImageData = env->readGlobalFunction("ImageData");
         auto result = env->newInstance(ImageData, data, env->makeValue(width), env->makeValue(height)).ToLocalChecked();
@@ -125,7 +122,8 @@ namespace cyder {
         auto y = env->toInt(args[1]);
         auto width = env->toInt(args[2]);
         auto height = env->toInt(args[3]);
-        auto subsetImage = image->makeSubset(SkIRect::MakeXYWH(x, y, width, height)).release();
+        auto sharePixels = args[4]->IsUndefined() ? true : env->toBoolean(args[4]);
+        auto subsetImage = image->makeSubset(x, y, width, height, sharePixels);
         if (!subsetImage) {
             args.GetReturnValue().Set(env->makeNull());
             return;
@@ -142,12 +140,9 @@ namespace cyder {
         if (!image) {
             return;
         }
-        std::string type = env->toStdString(args[0]);
-        if (type != "image/jpeg" && type != "image/webp") {
-            type = "image/png";
-        }
+        std::string mimeType = formatImageMimeType(env->toStdString(args[0]));
         auto quality = args[1]->IsUndefined() ? -1 : env->toDouble(args[1]);
-        auto bytes = encodeBitmapData(image, type, quality);
+        auto bytes = image->encode(toImageFormat(mimeType), quality);
         if (!bytes || bytes->size() == 0) {
             args.GetReturnValue().Set(env->makeString("data:,").ToLocalChecked());
             return;
@@ -157,7 +152,7 @@ namespace cyder {
         auto base64Buffer = new char[textLength + 1];
         Base64::Encode(data, bytes->size(), base64Buffer);
         base64Buffer[textLength] = '\0';
-        std::string url = "data:" + type + ";base64," + base64Buffer;
+        std::string url = "data:" + mimeType + ";base64," + base64Buffer;
         auto maybeURLObject = env->makeString(url);
         SkSafeUnref(bytes);
         if (maybeURLObject.IsEmpty()) {
@@ -175,17 +170,14 @@ namespace cyder {
             return;
         }
         auto external = v8::Local<v8::External>::Cast(args[0]);
-        auto image = reinterpret_cast<SkImage*>(external->Value());
-        int width = image->width();
-        int height = image->height();
-        bool transparent = !image->isOpaque();
+        auto image = reinterpret_cast<Image*>(external->Value());
 
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, image);
-        env->setObjectProperty(self, "width", env->makeValue(width));
-        env->setObjectProperty(self, "height", env->makeValue(height));
-        env->setObjectProperty(self, "transparent", env->makeValue(transparent), true);
-        auto handle = WeakWrapper::BindReference(env->isolate(), self, image);
+        env->setObjectProperty(self, "width", env->makeValue(image->width()));
+        env->setObjectProperty(self, "height", env->makeValue(image->height()));
+        env->setObjectProperty(self, "transparent", env->makeValue(image->transparent()), true);
+        auto handle = env->bind(self, image);
         self->SetAlignedPointerInInternalField(1, handle);
     }
 

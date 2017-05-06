@@ -32,7 +32,7 @@
 #include <string>
 #include <unordered_map>
 #include "utils/USE.h"
-#include "utils/StringSplit.h"
+#include "utils/StringUtils.h"
 #include "platform/Log.h"
 
 namespace cyder {
@@ -51,6 +51,21 @@ namespace cyder {
         RANGE_ERROR = 3,
         REFERENCE_ERROR = 4,
         SYNTAX_ERROR = 5
+    };
+
+    class WeakHandle {
+    public:
+        ~WeakHandle();
+    private:
+        static void Callback(const v8::WeakCallbackInfo<WeakHandle>& data);
+        WeakHandle(v8::Isolate* isolate, const v8::Local<v8::Object>& handle, std::function<void()> callback);
+        v8::Persistent<v8::Object> persistent;
+        std::function<void()> callback;
+        template<class T>
+        static void DeleteTarget(T* target) {
+            delete target;
+        }
+        friend class Environment;
     };
 
     class Environment {
@@ -86,6 +101,23 @@ namespace cyder {
         ~Environment();
 
         /**
+         * This method wraps a v8::Object and a C++ pointer. It will automatically delete the C++ pointer when v8 garbage
+         * collects the v8::Object, and then delete the returned WeakHandle too. <br/>
+         * Notice: The C++ pointer will never be automatically deleted if you delete the returned WeakHandle manually.
+         */
+        template<class T>
+        WeakHandle* bind(const v8::Local<v8::Object>& handle, T* target) {
+            return this->bind(handle, std::bind<void>(WeakHandle::DeleteTarget<T>, std::forward<T*>(target)));
+        }
+
+        /**
+         * This method wraps a v8::Object and a callback function. It will trigger the callback function when v8 garbage
+         * collects the v8::Object, and then delete the returned WeakHandle too. <br/>
+         * Notice: The callback function will never trigger if you delete the returned WeakHandle manually.
+         */
+        WeakHandle* bind(const v8::Local<v8::Object>& handle, std::function<void()> callback);
+
+        /**
          * Execute a script file by file path.
          * @param path The path of the script file to be executed.
          * @return The result of executing script.
@@ -100,6 +132,7 @@ namespace cyder {
                                                  const std::string& className,
                                                  const v8::Local<v8::FunctionTemplate> classTemplate,
                                                  int internalFieldCount = 1) const;
+
 
 
         ///////////////////////////////////// Inline Methods /////////////////////////////////////
@@ -280,6 +313,16 @@ namespace cyder {
 
         v8::Local<v8::Array> makeArray(int length) const {
             return v8::Array::New(_isolate, length);
+        };
+
+        v8::Local<v8::ArrayBuffer> makeArrayBuffer(size_t byteSize) const {
+            return v8::ArrayBuffer::New(_isolate, byteSize);
+        };
+
+        v8::Local<v8::ArrayBuffer> makeArrayBuffer(void* data, size_t byteSize, bool external = true) const {
+            return v8::ArrayBuffer::New(_isolate, data, byteSize,
+                                        external ? v8::ArrayBufferCreationMode::kExternalized
+                                                 : v8::ArrayBufferCreationMode::kInternalized);
         };
 
         v8::Local<v8::ObjectTemplate> makeObjectTemplate() const {
@@ -538,7 +581,6 @@ namespace cyder {
         v8::Persistent<v8::Object> _global;
         v8::Persistent<v8::External> _external;
         std::unordered_map<std::string, v8::UniquePersistent<v8::Object>> persistentMap;
-
         v8::Local<v8::Object> findObjectInGlobal(const std::string& name, bool saveCache);
     };
 

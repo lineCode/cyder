@@ -25,7 +25,6 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8Canvas.h"
-#include "utils/WeakWrapper.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
 #include "canvas2d/OffScreenBuffer.h"
 #include "binding/wrapper/Canvas.h"
@@ -116,7 +115,7 @@ namespace cyder {
         }
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, canvas);
-        WeakWrapper::BindPointer(env->isolate(), self, canvas);
+        env->bind(self, canvas);
     }
 
     void V8Canvas::install(v8::Local<v8::Object> parent, Environment* env) {
