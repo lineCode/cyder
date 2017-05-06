@@ -28,13 +28,17 @@
 #define CYDER_NATIVEWINDOW_H
 
 #include "platform/WindowDelegate.h"
+#include <vector>
 #include "platform/Window.h"
 #include "base/Environment.h"
+
 
 namespace cyder {
 
     class NativeWindow : public WindowDelegate {
     public:
+        static std::vector<NativeWindow*>* openedWindows;
+        static NativeWindow* activeWindow;
         static NativeWindow* GetCurrent(const v8::FunctionCallbackInfo<v8::Value>& args) {
             return static_cast<NativeWindow*>(args.This()->GetAlignedPointerFromInternalField(0));
         }
@@ -45,16 +49,23 @@ namespace cyder {
         void activate();
 
         void onResized() override;
-        void onActivated() override;
+        void onFocusIn() override;
         void onClosed() override;
         bool onClosing() override;
         void onScaleFactorChanged() override;
 
+        v8::Local<v8::Object> getHandle() {
+            return env->toLocal(weakHandle);
+        }
+
     private:
         Window* window;
         Environment* env;
+        v8::Persistent<v8::Object> weakHandle;
         v8::Persistent<v8::Object> persistent;
         bool opened = false;
+
+        void updateAsActiveWindow();
     };
 
 }

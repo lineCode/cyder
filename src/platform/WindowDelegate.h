@@ -31,7 +31,7 @@ namespace cyder {
     class WindowDelegate {
     public:
         virtual ~WindowDelegate() {};
-        virtual void onActivated() = 0;
+        virtual void onFocusIn() = 0;
         virtual void onResized() = 0;
         virtual void onScaleFactorChanged() = 0;
         virtual void onClosed() = 0;

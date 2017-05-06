@@ -47,24 +47,17 @@ namespace cyder {
 
         void run() override;
         
-        OSWindow* activeWindow() const {
-            return _activeWindow;
-        }
-        
         const std::vector<OSWindow*>* openedWindows() const {
             return _openedWindows;
         }
 
-
     private:
         NSApplication* nsApp;
         AppDelegate* appDelegate;
-        OSWindow* _activeWindow;
         std::vector<OSWindow*>* _openedWindows;
-        
-        void windowActivated(OSWindow* window);
+        void windowOpened(OSWindow* window);
         void windowClosed(OSWindow* window);
-        
+
         friend class OSWindow;
 
     };

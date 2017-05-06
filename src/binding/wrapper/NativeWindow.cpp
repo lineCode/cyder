@@ -28,11 +28,15 @@
 #include "NativeWindow.h"
 
 namespace cyder {
+
+    std::vector<NativeWindow*>* NativeWindow::openedWindows = nullptr;
+    NativeWindow* NativeWindow::activeWindow = nullptr;
+
     NativeWindow::NativeWindow(const v8::FunctionCallbackInfo<v8::Value>& args) {
         env = Environment::GetCurrent(args);
-        persistent.Reset(env->isolate(),args.This());
-        persistent.SetWeak();
-        persistent.MarkIndependent();
+        weakHandle.Reset(env->isolate(), args.This());
+        weakHandle.SetWeak();
+        weakHandle.MarkIndependent();
         WindowInitOptions options;
         window = Window::New(options);
         window->setX(300);
@@ -53,21 +57,40 @@ namespace cyder {
     }
 
     NativeWindow::~NativeWindow() {
-        persistent.ClearWeak();
-        persistent.Reset();
+        weakHandle.ClearWeak();
+        weakHandle.Reset();
         delete window;
     }
 
     void NativeWindow::activate() {
-        if(window){
+        if (window) {
             window->activate();
         }
-        if(!opened){
+        if (!opened) {
             opened = true;
-            // add to NativeApplication.openedWindows
+            // Once the window is opened, it can't be garbage collected until it is closed.
+            auto handle = env->toLocal(weakHandle);
+            persistent.Reset(env->isolate(), handle);
+        }
+        updateAsActiveWindow();
+    }
 
+    void NativeWindow::updateAsActiveWindow() {
+        // Add to NativeWindow::openedWindows
+        auto windows = NativeWindow::openedWindows;
+        if (!windows) {
+            windows = NativeWindow::openedWindows = new std::vector<NativeWindow*>();
+        }
+        auto result = std::find(windows->begin(), windows->end(), this);
+        if (result != windows->end() - 1) {
+            if (result != windows->end()) {
+                windows->erase(result);
+            }
+            windows->push_back(this);
+            NativeWindow::activeWindow = this;
         }
     }
+
 
     void NativeWindow::onResized() {
         auto c = window->screenBuffer()->getCanvas();
@@ -76,14 +99,14 @@ namespace cyder {
         paint.setAntiAlias(true);
         c->clear(0XFFECECEC);
         c->drawRoundRect(SkRect::MakeXYWH(200, 200, 400, 400), 20, 20, paint);
-//        LOG("onWindowResized");
+        LOG("onWindowResized");
     }
 
     void NativeWindow::onScaleFactorChanged() {
     }
 
-    void NativeWindow::onActivated() {
-
+    void NativeWindow::onFocusIn() {
+        updateAsActiveWindow();
     }
 
     bool NativeWindow::onClosing() {
@@ -91,8 +114,24 @@ namespace cyder {
     }
 
     void NativeWindow::onClosed() {
-        // remove from NativeApplication.openedWindows
+        // Remove from NativeWindow::openedWindows
+        auto windows = NativeWindow::openedWindows;
+        auto result = std::find(windows->begin(), windows->end(), this);
+        if (result != windows->end()) {
+            if (result == windows->end() - 1) {
+                auto size = windows->size();
+                NativeWindow::activeWindow = size > 1 ? (*windows)[size - 2] : nullptr;
+            }
+            windows->erase(result);
+        }
 
+        if (windows->size() == 0) {
+            delete NativeWindow::openedWindows;
+            NativeWindow::openedWindows = nullptr;
+        }
+
+        // After window is closed, allow handle to be garbage collected again.
+        persistent.Reset();
         delete window;
         window = nullptr;
     }

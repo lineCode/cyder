@@ -42,9 +42,6 @@ namespace cyder {
     }
 
     OSApplication::~OSApplication() {
-        for(auto& window : *_openedWindows){
-            window->close();
-        }
         delete _openedWindows;
         [appDelegate release];
         Application::application = nullptr;
@@ -62,28 +59,18 @@ namespace cyder {
         [nsApp run];
     }
 
-    void OSApplication::windowActivated(OSWindow* window) {
+    void OSApplication::windowOpened(OSWindow* window) {
         auto windows = _openedWindows;
         auto result = std::find(windows->begin(), windows->end(), window);
-        if (result == windows->end() - 1) {
-            return;
-        }
         if (result != windows->end()) {
-            windows->erase(result);
+            windows->push_back(window);
         }
-        windows->push_back(window);
-        OSAnimationFrame::RequestScreenUpdate();
     }
 
     void OSApplication::windowClosed(OSWindow* window) {
         auto windows = _openedWindows;
         auto result = std::find(windows->begin(), windows->end(), window);
         if (result != windows->end()) {
-            if (result == windows->end() - 1) {
-                auto size = windows->size();
-                auto activeWindow = size > 1 ? (*windows)[size - 2] : nullptr;
-                windowActivated(activeWindow);
-            }
             windows->erase(result);
         }
     }

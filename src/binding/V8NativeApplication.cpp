@@ -28,6 +28,7 @@
 
 #include "V8NativeApplication.h"
 #include <iostream>
+#include "binding/wrapper/NativeWindow.h"
 
 namespace cyder {
 
@@ -43,6 +44,30 @@ namespace cyder {
         std::cerr << text;
     }
 
+    static void activeWindowGetter(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        v8::HandleScope scope(env->isolate());
+        auto window = NativeWindow::activeWindow;
+        if (window) {
+            args.GetReturnValue().Set(window->getHandle());
+        } else {
+            args.GetReturnValue().Set(env->makeNull());
+        }
+    }
+
+    static void openedWindowsGetter(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        v8::HandleScope scope(env->isolate());
+        auto windows = NativeWindow::openedWindows;
+        auto array = env->makeArray(static_cast<int>(windows->size()));
+        unsigned int index = 0;
+        for (auto& window : *NativeWindow::openedWindows) {
+            array->Set(index, window->getHandle());
+            index++;
+        }
+        args.GetReturnValue().Set(array);
+    }
+
     void V8NativeApplication::install(const v8::Local<v8::Object>& parent, Environment* env) {
         auto EventEmitter = env->readGlobalFunction("cyder.EventEmitter");
         auto application = env->newInstance(EventEmitter).ToLocalChecked();
@@ -53,6 +78,8 @@ namespace cyder {
         auto stderrObject = env->makeObject();
         env->setObjectProperty(stderrObject, "write", stderrWriteMethod);
         env->setObjectProperty(application, "standardError", stderrObject);
+        env->setObjectAccessor(application, "activeWindow", activeWindowGetter);
+        env->setObjectAccessor(application, "openedWindows", openedWindowsGetter);
     }
 
 }// namespace cyder

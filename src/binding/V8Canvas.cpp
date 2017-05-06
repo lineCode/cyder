@@ -28,7 +28,7 @@
 #include "utils/WeakWrapper.h"
 #include "canvas2d/CanvasRenderingContext2D.h"
 #include "canvas2d/OffScreenBuffer.h"
-#include "binding/internal/Canvas.h"
+#include "binding/wrapper/Canvas.h"
 
 namespace cyder {
 

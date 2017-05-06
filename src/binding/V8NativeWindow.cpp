@@ -27,7 +27,7 @@
 #include "V8NativeWindow.h"
 #include "platform/Window.h"
 #include "utils/WeakWrapper.h"
-#include "binding/internal/NativeWindow.h"
+#include "binding/wrapper/NativeWindow.h"
 
 namespace cyder {
 

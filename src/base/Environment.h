@@ -278,6 +278,10 @@ namespace cyder {
             return v8::Object::New(_isolate);
         };
 
+        v8::Local<v8::Array> makeArray(int length) const {
+            return v8::Array::New(_isolate, length);
+        };
+
         v8::Local<v8::ObjectTemplate> makeObjectTemplate() const {
             return v8::ObjectTemplate::New(_isolate);
         }

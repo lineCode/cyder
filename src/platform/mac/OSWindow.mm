@@ -56,13 +56,13 @@ namespace cyder {
 
         [contentView addConstraints:
                 [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[nsView]|"
-                                                        options:0
+                                                        options:NSLayoutFormatDirectionLeadingToTrailing
                                                         metrics:nil
                                                           views:views]];
 
         [contentView addConstraints:
                 [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[nsView]|"
-                                                        options:0
+                                                        options:NSLayoutFormatDirectionLeadingToTrailing
                                                         metrics:nil
                                                           views:views]];
     }
@@ -79,14 +79,14 @@ namespace cyder {
     void OSWindow::activate() {
         [nsWindow makeKeyAndOrderFront:nil];
         auto app = static_cast<OSApplication*>(Application::application);
-        app->windowActivated(this);
-        opened = true;
+        if (!opened) {
+            opened = true;
+            app->windowOpened(this);
+        }
     }
 
 
     void OSWindow::close() {
-        auto app = static_cast<OSApplication*>(Application::application);
-        app->windowClosed(this);
         [nsWindow close];
     }
 
@@ -160,6 +160,8 @@ namespace cyder {
     }
 
     void OSWindow::windowWillClose() {
+        auto app = static_cast<OSApplication*>(Application::application);
+        app->windowClosed(this);
         _screenBuffer->dispose();
         if (delegate) {
             delegate->onClosed();
@@ -167,11 +169,10 @@ namespace cyder {
     }
 
     void OSWindow::windowDidBecomeKey() {
-        auto app = static_cast<OSApplication*>(Application::application);
-        app->windowActivated(this);
         if (delegate) {
-            delegate->onActivated();
+            delegate->onFocusIn();
         }
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     void OSWindow::windowDidResize() {
@@ -198,7 +199,7 @@ namespace cyder {
 
     NSWindow* OSWindow::createNSWindow(const WindowInitOptions &options) {
         NSRect contentSize = NSMakeRect(0, 0, 500, 400);
-        NSUInteger windowStyleMask = NSClosableWindowMask;
+        NSWindowStyleMask windowStyleMask = NSClosableWindowMask;
         if (options.systemChrome == WindowSystemChrome::STANDARD) {
             windowStyleMask |= NSTitledWindowMask;
         }
