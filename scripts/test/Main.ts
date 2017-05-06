@@ -50,9 +50,9 @@ let loader = new ImageLoader();
 loader.on(Event.COMPLETE, function (event:Event):void {
     let image = loader.data;
     console.log("Image:", image.width, image.height);
-    let subset = image.makeSubset(50, 50, 10, 10);
-    let data = subset.getImageData(0, 0, 10, 10);
+    let data = image.getImageData(50, 50, 10, 10);
     console.log(data.data.length, data.width, data.height);
+    let subset = new Image(data);
     console.log(image.toDataURL());
     console.log(subset.toDataURL("image/png"));
     console.log("subset:", subset.width, subset.height);

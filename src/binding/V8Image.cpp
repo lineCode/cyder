@@ -51,7 +51,7 @@ namespace cyder {
         return format;
     }
 
-    void disposeMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void disposeMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         auto self = args.This();
         auto image = static_cast<SkImage*>(self->GetAlignedPointerFromInternalField(0));
@@ -67,7 +67,7 @@ namespace cyder {
         SkSafeUnref(image);
     }
 
-    void encodeMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void encodeMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         auto image = getInternalImage(args.This(), env);
         if (!image) {
@@ -85,7 +85,7 @@ namespace cyder {
         args.GetReturnValue().Set(arrayBuffer);
     }
 
-    void getImageDataMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void getImageDataMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         auto image = getInternalImage(args.This(), env);
         if (!image) {
@@ -112,7 +112,7 @@ namespace cyder {
         args.GetReturnValue().Set(result);
     }
 
-    void makeSubsetMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void makeSubsetMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         auto image = getInternalImage(args.This(), env);
         if (!image) {
@@ -134,7 +134,7 @@ namespace cyder {
     }
 
 
-    void toDataURLMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static void toDataURLMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         auto image = getInternalImage(args.This(), env);
         if (!image) {
@@ -162,16 +162,49 @@ namespace cyder {
         args.GetReturnValue().Set(maybeURLObject.ToLocalChecked());
     }
 
-    void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    static Image* createFromImageData(const v8::Local<v8::Object>& imageData, bool transparent, Environment* env) {
+        auto width = env->getInt(imageData, "width");
+        auto height = env->getInt(imageData, "height");
+        if (width == 0 || height == 0) {
+            return nullptr;
+        }
+        auto maybeData = env->getObject(imageData, "data");
+        if (maybeData.IsEmpty()) {
+            return nullptr;
+        }
+        auto maybeBuffer = env->getObject(maybeData.ToLocalChecked(), "buffer");
+        if (maybeBuffer.IsEmpty()) {
+            return nullptr;
+        }
+        auto buffer = maybeBuffer.ToLocalChecked();
+        if (!buffer->IsArrayBuffer()) {
+            return nullptr;
+        }
+        auto arrayBuffer = v8::Local<v8::ArrayBuffer>::Cast(buffer);
+        auto bytes = arrayBuffer->GetContents().Data();
+        auto length = arrayBuffer->ByteLength();
+        if (length < width * height * 4) {
+            return nullptr;
+        }
+        return Image::FromPixels(bytes, width, height, transparent);
+    }
+
+    static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
-        if (!args[0]->IsExternal()) {
-            env->throwError(ErrorType::TYPE_ERROR, "Illegal constructor");
-            return;
+        Image* image;
+        if (args[0]->IsExternal()) {
+            auto external = v8::Local<v8::External>::Cast(args[0]);
+            image = reinterpret_cast<Image*>(external->Value());
+        } else {
+            auto imageData = v8::Local<v8::Object>::Cast(args[0]);
+            auto transparent = args[1]->IsUndefined() ? true : env->toBoolean(args[1]);
+            image = createFromImageData(imageData, transparent, env);
+            if(!image){
+                env->throwError(ErrorType::TYPE_ERROR, "Failed to execute 'new Image()': parameter 1 is invalid ImageData.");
+                return;
+            }
         }
-        auto external = v8::Local<v8::External>::Cast(args[0]);
-        auto image = reinterpret_cast<Image*>(external->Value());
-
         auto self = args.This();
         self->SetAlignedPointerInInternalField(0, image);
         env->setObjectProperty(self, "width", env->makeValue(image->width()));

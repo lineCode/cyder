@@ -106,3 +106,14 @@ interface Image {
      */
     toDataURL(type?:string, quality?:number):string;
 }
+
+declare let Image:{
+    prototype:Image;
+    /**
+     * Creates a Image object with a specified ImageData.
+     * @param data The ImageData to set in the Image object.
+     * @param transparent Specifies whether the image supports per-pixel transparency. The default value is true.
+     * Setting the transparent property to false can result in minor improvements in rendering performance.
+     */
+    new(data:ImageData, transparent?:boolean):Image;
+}

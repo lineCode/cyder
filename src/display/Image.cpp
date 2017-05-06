@@ -50,6 +50,19 @@ namespace cyder {
         return new Image(image);
     }
 
+    Image* Image::FromPixels(const void* pixels, int width, int height, bool transparent) {
+        const size_t bytesPerRow = static_cast<size_t>(4 * width);
+        SkBitmap bitmap;
+        bitmap.allocN32Pixels(width, height, !transparent);
+        SkCanvas canvas(bitmap);
+        SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+        if (!canvas.writePixels(info, pixels, bytesPerRow, 0, 0)) {
+            return nullptr;
+        }
+        auto image = SkImage::MakeFromBitmap(bitmap).release();
+        return new Image(image);
+    }
+
     Image::Image(SkImage* pixels) :
             _pixels(pixels), _subset(nullptr) {
     }
