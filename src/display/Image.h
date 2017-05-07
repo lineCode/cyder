@@ -38,7 +38,7 @@ namespace cyder {
     class Image {
     public:
         static Image* Decode(const void* bytes, size_t length);
-        static Image* FromPixels(const void* pixels, int width, int height, bool transparent = true);
+        static Image* MakeFromPixels(const void* pixels, int width, int height, bool transparent = true);
         explicit Image(SkImage* pixels);
         ~Image();
 

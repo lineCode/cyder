@@ -52,9 +52,15 @@ namespace cyder {
         getSurface()->draw(canvas, x, y, paint);
     }
 
-    bool OffScreenBuffer::readPixels(const SkImageInfo& dstInfo, void* dstPixels,
-                                     size_t dstRowBytes, int srcX, int srcY) {
-        return getSurface()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+    Image* OffScreenBuffer::makeImageSnapshot() {
+        if (contentChanged) {
+            contentChanged = false;
+            if (useGPU) {
+                GPUSurface::flush();
+            }
+        }
+        auto image = getSurface()->makeImageSnapshot().release();
+        return new Image(image);
     }
 
     SkSurface* OffScreenBuffer::getSurface() {

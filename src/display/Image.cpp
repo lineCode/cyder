@@ -50,7 +50,7 @@ namespace cyder {
         return new Image(image);
     }
 
-    Image* Image::FromPixels(const void* pixels, int width, int height, bool transparent) {
+    Image* Image::MakeFromPixels(const void* pixels, int width, int height, bool transparent) {
         const size_t bytesPerRow = static_cast<size_t>(4 * width);
         SkBitmap bitmap;
         bitmap.allocN32Pixels(width, height, !transparent);
@@ -127,11 +127,15 @@ namespace cyder {
     }
 
     bool Image::readPixels(void* buffer, int x, int y, int width, int height) {
-        if (_subset) {
-            x += _subset->x();
-            y += _subset->y();
+        const SkIRect bounds = _subset ? *_subset : SkIRect::MakeWH(_pixels->width(), _pixels->height());
+        auto rect = SkIRect::MakeXYWH(x + bounds.x(), y + bounds.y(), width, height);
+        if (rect.isEmpty()) {
+            return false;
+        }
+        if (!bounds.contains(rect)) {
+            return false;
         }
         SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
-        return _pixels->readPixels(info, buffer, static_cast<size_t>(4 * width), x, y);
+        return _pixels->readPixels(info, buffer, static_cast<size_t>(4 * width), rect.x(), rect.y());
     }
 }

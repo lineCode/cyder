@@ -66,7 +66,7 @@ namespace cyder {
 
         void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
 
-        bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) override;
+        Image* makeImageSnapshot() override;
 
     private:
         int _width;

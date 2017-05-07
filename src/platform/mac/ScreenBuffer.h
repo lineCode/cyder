@@ -78,11 +78,7 @@ namespace cyder {
          */
         void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
 
-        /**
-         * Copy the pixels from the drawing buffer into the specified buffer (pixels + rowBytes), converting them into
-         * the requested format (dstInfo). The surface pixels are read starting at the specified (srcX,srcY) location.
-         */
-        bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) override;
+        Image* makeImageSnapshot() override;
 
         /**
          * Call to ensure all drawing to the surface has been applied to the ScreenBuffer. This method is usually called

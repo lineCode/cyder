@@ -100,6 +100,25 @@ namespace cyder {
         }
     }
 
+    static void makeImageSnapshotMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        v8::HandleScope scope(env->isolate());
+        auto self = args.This();
+        auto canvas = static_cast<Canvas*>(self->GetAlignedPointerFromInternalField(0));
+        Image* image;
+        if (canvas->buffer) {
+            image = canvas->buffer->makeImageSnapshot();
+        } else {
+            SkBitmap bitmap;
+            bitmap.allocN32Pixels(canvas->width(), canvas->height());
+            auto pixels = SkImage::MakeFromBitmap(bitmap).release();
+            image = new Image(pixels);
+        }
+        auto ImageClass = env->readGlobalFunction("Image");
+        auto imageObject = env->newInstance(ImageClass, env->makeExternal(image)).ToLocalChecked();
+        args.GetReturnValue().Set(imageObject);
+    }
+
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
         v8::HandleScope scope(env->isolate());
@@ -121,9 +140,10 @@ namespace cyder {
     void V8Canvas::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
-        env->setTemplateProperty(prototypeTemplate, "getContext", getContextMethod);
         env->setTemplateAccessor(prototypeTemplate, "width", widthGetter, widthSetter);
         env->setTemplateAccessor(prototypeTemplate, "height", heightGetter, heightSetter);
+        env->setTemplateProperty(prototypeTemplate, "getContext", getContextMethod);
+        env->setTemplateProperty(prototypeTemplate, "makeImageSnapshot", makeImageSnapshotMethod);
         env->attachClass(parent, "Canvas", classTemplate);
     }
 }

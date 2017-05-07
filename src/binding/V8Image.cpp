@@ -186,7 +186,7 @@ namespace cyder {
         if (length < width * height * 4) {
             return nullptr;
         }
-        return Image::FromPixels(bytes, width, height, transparent);
+        return Image::MakeFromPixels(bytes, width, height, transparent);
     }
 
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {

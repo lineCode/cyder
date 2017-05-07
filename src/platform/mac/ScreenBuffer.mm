@@ -144,9 +144,12 @@ namespace cyder {
         getSurface()->draw(canvas, x, y, paint);
     }
 
-    bool ScreenBuffer::readPixels(const SkImageInfo &dstInfo, void* dstPixels,
-            size_t dstRowBytes, int srcX, int srcY) {
-        return getSurface()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+    Image* ScreenBuffer::makeImageSnapshot() {
+        if (contentChanged) {
+            flush();
+        }
+        auto image = getSurface()->makeImageSnapshot().release();
+        return new Image(image);
     }
 
     SkSurface* ScreenBuffer::getSurface() {

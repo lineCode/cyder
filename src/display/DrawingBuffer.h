@@ -28,6 +28,7 @@
 #define CYDER_DRAWINGBUFFER_H
 
 #include <skia.h>
+#include "display/Image.h"
 
 namespace cyder {
 
@@ -42,6 +43,7 @@ namespace cyder {
         virtual int width() const = 0;
 
         virtual void setWidth(int value) = 0;
+
         /**
          * Indicates the height of the DrawingBuffer, in pixels.
          */
@@ -61,10 +63,10 @@ namespace cyder {
         virtual void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) = 0;
 
         /**
-         * Copy the pixels from the drawing buffer into the specified buffer (pixels + rowBytes), converting them into
-         * the requested format (dstInfo). The surface pixels are read starting at the specified (srcX,srcY) location.
+         * Returns an image of the current state of the buffer pixels up to this point. Subsequent changes to the buffer
+         * will not be reflected in this image.
          */
-        virtual bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) = 0;
+        virtual Image* makeImageSnapshot() = 0;
     };
 
 }

@@ -38,6 +38,9 @@ function onTick(timeStamp:number):void {
         window = nativeApplication.activeWindow;
         let canvas = window.canvas;
         let context = canvas.getContext("2d");
+        // let image = canvas.makeImageSnapshot();
+        // let subImage = image.makeSubset(190,190,40,40);
+        // console.log(subImage.toDataURL());
         console.log(context, canvas.width, canvas.height);
     }
 
