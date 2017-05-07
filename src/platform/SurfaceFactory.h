@@ -24,18 +24,22 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_GPUSURFACE_H
-#define CYDER_GPUSURFACE_H
+#ifndef CYDER_SURFACEFACTORY_H
+#define CYDER_SURFACEFACTORY_H
 
 #include <skia.h>
 
 namespace cyder {
-    class GPUSurface {
+    class SurfaceFactory {
     public:
-        static sk_sp<SkSurface> Make(const SkImageInfo& info);
+        static SkSurface* MakeGPU(int width, int height, bool transparent = true);
 
-        static void flush();
+        static SkSurface* MakeRaster(int width, int height, bool transparent = true) {
+            SkImageInfo info = SkImageInfo::MakeN32(width, height,
+                                                    transparent ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
+            return SkSurface::MakeRaster(info).release();
+        }
     };
 }
 
-#endif //CYDER_GPUSURFACE_H
+#endif //CYDER_SURFACEFACTORY_H

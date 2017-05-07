@@ -31,6 +31,7 @@
 #include <platform/Log.h>
 #include "OSWindow.h"
 #import "OSAnimationFrame.h"
+#include "platform/SurfaceFactory.h"
 
 namespace cyder {
 
@@ -43,6 +44,7 @@ namespace cyder {
         }
         SkSafeUnref(grContext);
         SkSafeUnref(_surface);
+        SkSafeUnref(_screen);
         [openGLContext release];
     }
 
@@ -105,7 +107,7 @@ namespace cyder {
         }
         _width = width;
         _height = height;
-        sizeChanged = true;
+        invalidateSize();
     }
 
     void ScreenBuffer::setWidth(int value) {
@@ -115,7 +117,7 @@ namespace cyder {
         if (value < 0) {
             return;
         }
-        sizeChanged = true;
+        invalidateSize();
         _width = value;
         window->setContentSize(_width, _height);
     }
@@ -124,7 +126,7 @@ namespace cyder {
         if (!isValid || value < 0) {
             return;
         }
-        sizeChanged = true;
+        invalidateSize();
         _height = value;
         window->setContentSize(_width, _height);
     }
@@ -138,53 +140,49 @@ namespace cyder {
     }
 
     void ScreenBuffer::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-        if (contentChanged) {
-            flush();
-        }
         getSurface()->draw(canvas, x, y, paint);
     }
 
     Image* ScreenBuffer::makeImageSnapshot() {
-        if (contentChanged) {
-            flush();
-        }
         auto image = getSurface()->makeImageSnapshot().release();
         return new Image(image);
     }
 
     SkSurface* ScreenBuffer::getSurface() {
-        if (!sizeChanged) {
+        if (_surface) {
             return _surface;
         }
-        sizeChanged = false;
-
-        [openGLContext makeCurrentContext];
-        SkSafeUnref(_surface);
-        GrBackendRenderTargetDesc desc;
-        desc.fWidth = _width;
-        desc.fHeight = _height;
-        desc.fConfig = kSkia8888_GrPixelConfig;
-        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-        desc.fSampleCnt = sampleCount;
-        desc.fStencilBits = stencilBits;
-        GrGLint buffer;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
-        desc.fRenderTargetHandle = buffer;
-        _surface = SkSurface::MakeFromBackendRenderTarget(grContext, desc, nullptr).release();
-
-        // the GL_COLOR_BUFFER_BIT has been cleared already.
-        glClear(GL_STENCIL_BUFFER_BIT);
-        [openGLContext update];
+        _surface = SurfaceFactory::MakeGPU(_width, _height);
         return _surface;
     }
 
-    void ScreenBuffer::flush() {
-        if (!isValid || !contentChanged) {
+    void ScreenBuffer::present() {
+        if (!isValid||!contentChanged) {
             return;
         }
         contentChanged = false;
         [openGLContext makeCurrentContext];
+        if(!_screen){
+            GrBackendRenderTargetDesc desc;
+            desc.fWidth = _width;
+            desc.fHeight = _height;
+            desc.fConfig = kSkia8888_GrPixelConfig;
+            desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+            desc.fSampleCnt = sampleCount;
+            desc.fStencilBits = stencilBits;
+            GrGLint buffer;
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
+            desc.fRenderTargetHandle = buffer;
+            // the GL_COLOR_BUFFER_BIT has been cleared already.
+            glClear(GL_STENCIL_BUFFER_BIT);
+            [openGLContext update];
+            _screen = SkSurface::MakeFromBackendRenderTarget(grContext, desc, nullptr).release();
+        }
+        auto canvas = _screen->getCanvas();
+        getSurface()->draw(canvas, 0, 0, nullptr);
         grContext->flush();
         [openGLContext flushBuffer];
     }
+
+
 }  // namespace cyder

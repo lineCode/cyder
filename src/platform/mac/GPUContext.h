@@ -51,6 +51,13 @@ namespace cyder {
             return context->_openGLContext;
         }
 
+        static void Flush() {
+            auto openGLContext = context->_openGLContext;
+            [openGLContext makeCurrentContext];
+            context->_grContext->flush();
+            [openGLContext flushBuffer];
+        }
+
     private:
         static GPUContext* context;
 

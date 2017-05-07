@@ -24,6 +24,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#include <platform/SurfaceFactory.h>
 #include "NativeWindow.h"
 
 namespace cyder {
@@ -92,12 +93,17 @@ namespace cyder {
 
 
     void NativeWindow::onResized() {
-        auto c = window->screenBuffer()->getCanvas();
+        auto surface = SurfaceFactory::MakeGPU(500, 500);
+        auto c = surface->getCanvas();
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
-        c->clear(0XFFECECEC);
-        c->drawRoundRect(SkRect::MakeXYWH(200, 200, 400, 400), 20, 20, paint);
+        c->drawRoundRect(SkRect::MakeXYWH(0, 0, 400, 400), 20, 20, paint);
+        auto surface2 = SurfaceFactory::MakeGPU(500, 500);
+        auto canvass = surface2->getCanvas();
+        surface->draw(canvass, 0, 0, nullptr);
+        auto screenCanvas = window->screenBuffer()->getCanvas();
+        surface2->draw(screenCanvas, 0, 0, nullptr);
         LOG("onWindowResized");
     }
 

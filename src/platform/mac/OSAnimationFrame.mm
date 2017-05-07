@@ -29,6 +29,7 @@
 #include "OSAnimationFrame.h"
 #include "OSApplication.h"
 #include "utils/GetTimer.h"
+#include "GPUContext.h"
 
 namespace cyder {
     unsigned long AnimationFrame::Request(FrameRequestCallback callback) {
@@ -86,9 +87,10 @@ namespace cyder {
         }
         if (needUpdateScreen) {
             needUpdateScreen = false;
+            GPUContext::Flush();
             auto app = static_cast<OSApplication*>(Application::application);
             for (const auto& window : *(app->openedWindows())) {
-                window->screenBuffer()->flush();
+                window->screenBuffer()->present();
             }
         }
     }

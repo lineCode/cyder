@@ -43,10 +43,10 @@ namespace cyder {
         }
 
         void setWidth(int value) override {
-            if(value < 0){
+            if (value < 0) {
                 return;
             }
-            sizeChanged = true;
+            invalidateSize();
             _width = value;
         }
 
@@ -55,16 +55,20 @@ namespace cyder {
         }
 
         void setHeight(int value) override {
-            if(value < 0){
+            if (value < 0) {
                 return;
             }
-            sizeChanged = true;
+            invalidateSize();
             _height = value;
         }
 
-        SkCanvas* getCanvas() override;
+        SkCanvas* getCanvas() override {
+            return getSurface()->getCanvas();
+        }
 
-        void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
+        void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override {
+            getSurface()->draw(canvas, x, y, paint);
+        }
 
         Image* makeImageSnapshot() override;
 
@@ -73,11 +77,17 @@ namespace cyder {
         int _height;
         bool useGPU;
         bool alpha;
-        bool sizeChanged = true;
         bool contentChanged = false;
         SkSurface* surface = nullptr;
 
         SkSurface* getSurface();
+
+        void invalidateSize() {
+            if (surface) {
+                SkSafeUnref(surface);
+                surface = nullptr;
+            }
+        }
     };
 
 }

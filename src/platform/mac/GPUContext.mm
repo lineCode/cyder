@@ -24,23 +24,17 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include <platform/GPUSurface.h>
+#include <platform/SurfaceFactory.h>
 #include "GPUContext.h"
 #include "platform/Log.h"
 
 namespace cyder {
 
-    sk_sp<SkSurface> GPUSurface::Make(const SkImageInfo &info) {
+    SkSurface* SurfaceFactory::MakeGPU(int width, int height, bool transparent) {
         auto openGLContext = GPUContext::OpenGLContext();
         [openGLContext makeCurrentContext];
-        return SkSurface::MakeRenderTarget(GPUContext::GRContext(), SkBudgeted::kNo, info);
-    }
-
-    void GPUSurface::flush() {
-        auto openGLContext = GPUContext::OpenGLContext();
-        [openGLContext makeCurrentContext];
-        GPUContext::GRContext()->flush();
-        [openGLContext flushBuffer];
+        SkImageInfo info = SkImageInfo::MakeN32(width, height, transparent ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
+        return SkSurface::MakeRenderTarget(GPUContext::GRContext(), SkBudgeted::kNo, info).release();
     }
 
     GPUContext* GPUContext::context = nullptr;

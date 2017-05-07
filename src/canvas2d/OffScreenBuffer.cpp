@@ -25,7 +25,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "OffScreenBuffer.h"
-#include "platform/GPUSurface.h"
+#include "platform/SurfaceFactory.h"
 
 namespace cyder {
     OffScreenBuffer::OffScreenBuffer(int width, int height, bool alpha, bool useGPU) :
@@ -37,41 +37,19 @@ namespace cyder {
         SkSafeUnref(surface);
     }
 
-    SkCanvas* OffScreenBuffer::getCanvas() {
-        contentChanged = true;
-        return getSurface()->getCanvas();
-    }
-
-    void OffScreenBuffer::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-        if (contentChanged) {
-            contentChanged = false;
-            if (useGPU) {
-                GPUSurface::flush();
-            }
-        }
-        getSurface()->draw(canvas, x, y, paint);
-    }
-
     Image* OffScreenBuffer::makeImageSnapshot() {
-        if (contentChanged) {
-            contentChanged = false;
-            if (useGPU) {
-                GPUSurface::flush();
-            }
-        }
         auto image = getSurface()->makeImageSnapshot().release();
         return new Image(image);
     }
 
     SkSurface* OffScreenBuffer::getSurface() {
-        if (sizeChanged) {
-            sizeChanged = false;
-            SkImageInfo info = SkImageInfo::MakeN32(_width, _height, alpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
-            if (useGPU) {
-                surface = GPUSurface::Make(info).release();
-            } else {
-                surface = SkSurface::MakeRaster(info).release();
-            }
+        if (surface) {
+            return surface;
+        }
+        if (useGPU) {
+            surface = SurfaceFactory::MakeGPU(_width, _height, alpha);
+        } else {
+            surface = SurfaceFactory::MakeRaster(_width, _height, alpha);
         }
         return surface;
     }

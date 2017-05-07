@@ -49,6 +49,7 @@ namespace cyder {
          * @param height The height of the ScreenBuffer, in pixels. It includes the scaleFactor property.
          */
         void updateSize(int width, int height);
+
         /**
         * Indicates the width of the ScreenBuffer, in pixels. It includes the scaleFactor property.
         */
@@ -81,16 +82,15 @@ namespace cyder {
         Image* makeImageSnapshot() override;
 
         /**
-         * Call to ensure all drawing to the surface has been applied to the ScreenBuffer. This method is usually called
-         * at the end of one drawing session
+         * Call to ensure all drawing to the surface has been applied to the Window.
          */
-        void flush();
+        void present();
 
-       /**
-        * Updates the size of the ScreenBuffer. Then destroys the backend context, and creates a new one.
-        * @param width The width of the ScreenBuffer, in pixels. It includes the scaleFactor property.
-        * @param height The height of the ScreenBuffer, in pixels. It includes the scaleFactor property.
-        */
+        /**
+         * Updates the size of the ScreenBuffer. Then destroys the backend context, and creates a new one.
+         * @param width The width of the ScreenBuffer, in pixels. It includes the scaleFactor property.
+         * @param height The height of the ScreenBuffer, in pixels. It includes the scaleFactor property.
+         */
         void reset(NSView* view);
 
         /**
@@ -102,12 +102,12 @@ namespace cyder {
         }
 
     private:
-        bool sizeChanged = true;
         bool contentChanged = false;
         OSWindow* window;
         NSOpenGLContext* openGLContext = nullptr;
         GrContext* grContext = nullptr;
         SkSurface* _surface = nullptr;
+        SkSurface* _screen = nullptr;
         int sampleCount = 0;
         int stencilBits = 0;
         bool isValid = true;
@@ -115,6 +115,17 @@ namespace cyder {
         int _height = 0;
 
         SkSurface* getSurface();
+
+        void invalidateSize() {
+            if (_surface) {
+                SkSafeUnref(_surface);
+                _surface = nullptr;
+            }
+            if (_screen) {
+                SkSafeUnref(_screen);
+                _screen = nullptr;
+            }
+        }
     };
 
 }  // namespace cyder
