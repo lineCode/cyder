@@ -25,7 +25,8 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * The NativeApplication interface provides application information, application-wide functions, and emits application-level events. The NativeApplication object is a singleton object, created automatically at startup.
+ * The NativeApplication interface provides application information, application-wide functions, and emits application-level
+ * events. The NativeApplication object is a singleton object, created automatically at startup.
  * Get the NativeApplication instance with the global 'nativeApplication' property.
  */
 interface NativeApplication extends EventEmitter {
