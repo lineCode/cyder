@@ -29,6 +29,29 @@
 #include <skia.h>
 
 namespace cyder {
+    static void drawImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        auto env = Environment::GetCurrent(args);
+        v8::HandleScope scope(env->isolate());
+        auto self = args.This();
+        auto context = static_cast<CanvasRenderingContext2D*>(self->GetAlignedPointerFromInternalField(0));
+        auto imageObject = v8::Local<v8::Object>::Cast(args[0]);
+        auto image = static_cast<CanvasImageSource*>(imageObject->GetAlignedPointerFromInternalField(0));
+        if (!image) {
+            return;
+        }
+        if (args.Length() == 3) {
+            context->drawImage(image, env->toFloat(args[1]), env->toFloat(args[2]));
+            return;
+        }
+        if (args.Length() == 5) {
+            context->drawImage(image, env->toFloat(args[1]), env->toFloat(args[2]), env->toFloat(args[3]),
+                               env->toFloat(args[4]));
+            return;
+        }
+        context->drawImage(image, env->toFloat(args[1]), env->toFloat(args[2]), env->toFloat(args[3]),
+                           env->toFloat(args[4]), env->toFloat(args[5]), env->toFloat(args[6]), env->toFloat(args[7]),
+                           env->toFloat(args[8]));
+    }
 
     static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
         auto env = Environment::GetCurrent(args);
@@ -46,6 +69,7 @@ namespace cyder {
     void V8CanvasRenderingContext2D::install(v8::Local<v8::Object> parent, Environment* env) {
         auto classTemplate = env->makeFunctionTemplate(constructor);
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
+        env->setTemplateProperty(prototypeTemplate, "drawImage", drawImageMethod);
         env->attachClass(parent, "CanvasRenderingContext2D", classTemplate);
     }
 }

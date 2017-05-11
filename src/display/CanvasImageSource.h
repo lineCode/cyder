@@ -24,38 +24,24 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-let window:NativeWindow;
+#ifndef CYDER_CANVASIMAGESOURCE_H
+#define CYDER_CANVASIMAGESOURCE_H
 
-requestAnimationFrame(onTick);
+#include <skia.h>
 
-function onTick(timeStamp:number):void {
-    nativeApplication.on("callback", onCallback, null);
+namespace cyder {
 
-    function onCallback() {
-        console.log("it works! " + performance.now() + "ms");
-        window = new NativeWindow();
-        window.activate();
-        window = nativeApplication.activeWindow;
-        let canvas = window.canvas;
-        let context = canvas.getContext("2d");
-        // let image = canvas.makeImageSnapshot();
-        // let subImage = image.makeSubset(190,190,40,40);
-        // console.log(subImage.toDataURL());
-        console.log(context, canvas.width, canvas.height);
-    }
+    class CanvasImageSource {
+    public:
+        virtual ~CanvasImageSource() {}
 
-    nativeApplication.emitWith("callback");
+        virtual void draw(SkCanvas* canvas, const SkRect& dstRect, const SkRect& srcRect) = 0;
 
-    // requestAnimationFrame(onTick);
+        virtual int width() const = 0;
+
+        virtual int height() const = 0;
+    };
+
 }
 
-let loader = new ImageLoader();
-loader.on(Event.COMPLETE, function (event:Event):void {
-    let image = loader.data;
-    let canvas = new Canvas(250, 250);
-    let context = canvas.getContext("2d");
-    context.drawImage(image, 5, 5);
-    let canvasImage = canvas.makeImageSnapshot();
-    console.log(canvasImage.toDataURL());
-}, null);
-loader.load("test.png");
+#endif //CYDER_CANVASIMAGESOURCE_H

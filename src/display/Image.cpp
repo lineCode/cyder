@@ -64,20 +64,20 @@ namespace cyder {
     }
 
     Image::Image(SkImage* pixels) :
-            _pixels(pixels), _subset(nullptr) {
+            pixels(pixels), subset(nullptr) {
     }
 
     Image::Image(SkImage* pixels, const SkIRect& subset) :
-            _pixels(pixels), _subset(new SkIRect()) {
-        *_subset = subset;
+            pixels(pixels), subset(new SkIRect()) {
+        *(this->subset) = subset;
     }
 
     Image::~Image() {
-        SkSafeUnref(_pixels);
+        SkSafeUnref(pixels);
     }
 
     Image* Image::makeSubset(int x, int y, int width, int height, bool sharePixels) {
-        const SkIRect bounds = _subset ? *_subset : SkIRect::MakeWH(_pixels->width(), _pixels->height());
+        const SkIRect bounds = subset ? *subset : SkIRect::MakeWH(pixels->width(), pixels->height());
         auto rect = SkIRect::MakeXYWH(x + bounds.x(), y + bounds.y(), width, height);
         if (rect.isEmpty()) {
             return nullptr;
@@ -86,13 +86,13 @@ namespace cyder {
             return nullptr;
         }
         if (sharePixels) {
-            _pixels->ref();
-            if (!_subset && bounds == rect) {
-                return new Image(_pixels);
+            pixels->ref();
+            if (!subset && bounds == rect) {
+                return new Image(pixels);
             }
-            return new Image(_pixels, rect);
+            return new Image(pixels, rect);
         } else {
-            auto subImage = _pixels->makeSubset(rect).release();
+            auto subImage = pixels->makeSubset(rect).release();
             if (!subImage) {
                 return nullptr;
             }
@@ -120,14 +120,14 @@ namespace cyder {
         if (quality >= 0.0 && quality <= 1.0) {
             compressionQuality = static_cast<int>(quality * 100 + 0.5);
         }
-        if (_subset) {
-            return _pixels->makeSubset(*_subset)->encode(encodeType, compressionQuality);
+        if (subset) {
+            return pixels->makeSubset(*subset)->encode(encodeType, compressionQuality);
         }
-        return _pixels->encode(encodeType, compressionQuality);
+        return pixels->encode(encodeType, compressionQuality);
     }
 
     bool Image::readPixels(void* buffer, int x, int y, int width, int height) {
-        const SkIRect bounds = _subset ? *_subset : SkIRect::MakeWH(_pixels->width(), _pixels->height());
+        const SkIRect bounds = subset ? *subset : SkIRect::MakeWH(pixels->width(), pixels->height());
         auto rect = SkIRect::MakeXYWH(x + bounds.x(), y + bounds.y(), width, height);
         if (rect.isEmpty()) {
             return false;
@@ -136,6 +136,20 @@ namespace cyder {
             return false;
         }
         SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
-        return _pixels->readPixels(info, buffer, static_cast<size_t>(4 * width), rect.x(), rect.y());
+        return pixels->readPixels(info, buffer, static_cast<size_t>(4 * width), rect.x(), rect.y());
+    }
+
+    void Image::draw(SkCanvas* canvas, const SkRect& dstRect, const SkRect& srcRect) {
+        SkRect adjustedSrcRect = srcRect;
+        if(subset){
+            adjustedSrcRect.offset(subset->fLeft,subset->fTop);
+        }
+        const SkIRect bounds = subset ? *subset : SkIRect::MakeWH(pixels->width(), pixels->height());
+        adjustedSrcRect.intersect(SkRect::Make(bounds));
+
+        if (adjustedSrcRect.isEmpty() || dstRect.isEmpty()){
+            return;  // Nothing to draw.
+        }
+        canvas->drawImageRect(pixels, adjustedSrcRect, dstRect, nullptr);
     }
 }

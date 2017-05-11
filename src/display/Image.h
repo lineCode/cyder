@@ -29,44 +29,39 @@
 
 #include <skia.h>
 #include "ImageFormat.h"
+#include "CanvasImageSource.h"
 
 namespace cyder {
 
     /**
      * A wrapper for SkImage.
      */
-    class Image {
+    class Image : public CanvasImageSource{
     public:
         static Image* Decode(const void* bytes, size_t length);
         static Image* MakeFromPixels(const void* pixels, int width, int height, bool transparent = true);
         explicit Image(SkImage* pixels);
         ~Image();
 
-        SkImage* pixels() const {
-            return _pixels;
-        }
-
-        SkIRect* subset() const {
-            return _subset;
-        }
-
-        int width() const {
-            if (_subset) {
-                return _subset->width();
+        int width() const override {
+            if (subset) {
+                return subset->width();
             }
-            return _pixels->width();
+            return pixels->width();
         }
 
-        int height() const {
-            if (_subset) {
-                return _subset->height();
+        int height() const override {
+            if (subset) {
+                return subset->height();
             }
-            return _pixels->height();
+            return pixels->height();
         }
 
         bool transparent() const {
-            return !_pixels->isOpaque();
+            return !pixels->isOpaque();
         }
+
+        void draw(SkCanvas* canvas, const SkRect& dstRect, const SkRect& srcRect) override;
 
         /**
          * Encode the image's pixels and return the result as a new SkData, which the caller must manage (i.e. call
@@ -98,8 +93,8 @@ namespace cyder {
         bool readPixels(void* buffer, int x, int y, int width, int height);
 
     private:
-        SkImage* _pixels;
-        SkIRect* _subset;
+        SkImage* pixels;
+        SkIRect* subset;
 
         Image(SkImage* image, const SkIRect& subset);
     };

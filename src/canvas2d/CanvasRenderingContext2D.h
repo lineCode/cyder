@@ -29,6 +29,7 @@
 
 #include "display/DrawingBuffer.h"
 #include "display/RenderingContext.h"
+#include "display/CanvasImageSource.h"
 
 namespace cyder {
 
@@ -37,6 +38,43 @@ namespace cyder {
         explicit CanvasRenderingContext2D(DrawingBuffer* buffer);
 
         ~CanvasRenderingContext2D() override;
+
+        /**
+         * Draws an image onto the canvas.
+         * @param image An image to draw into the context.
+         * @param targetX The X coordinate in the destination canvas at which to place the top-left corner of the source image.
+         * @param targetY The Y coordinate in the destination canvas at which to place the top-left corner of the source image.
+         */
+        void drawImage(CanvasImageSource* image, float targetX, float targetY);
+        /**
+         * Draws an image onto the canvas.
+         * @param image An image to draw into the context.
+         * @param targetX The X coordinate in the destination canvas at which to place the top-left corner of the source image.
+         * @param targetY The Y coordinate in the destination canvas at which to place the top-left corner of the source image.
+         * @param targetWidth The width to draw the image in the destination canvas. This allows scaling of the drawn image.
+         * If not specified, the image is not scaled in width when drawn.
+         * @param targetHeight The height to draw the image in the destination canvas. This allows scaling of the drawn image.
+         * If not specified, the image is not scaled in height when drawn.
+         */
+        void drawImage(CanvasImageSource* image, float targetX, float targetY, float targetWidth, float targetHeight);
+        /**
+         * Draws an image onto the canvas.
+         * @param image An image to draw into the context.
+         * @param sourceX The X coordinate of the top left corner of the sub-rectangle of the source image to draw into the
+         * destination context.
+         * @param sourceY The Y coordinate of the top left corner of the sub-rectangle of the source image to draw into the
+         * destination context.
+         * @param sourceWidth The width of the sub-rectangle of the source image to draw into the destination context.
+         * @param sourceHeight The height of the sub-rectangle of the source image to draw into the destination context.
+         * @param targetX The X coordinate in the destination canvas at which to place the top-left corner of the source image.
+         * @param targetY The Y coordinate in the destination canvas at which to place the top-left corner of the source image.
+         * @param targetWidth The width to draw the image in the destination canvas. This allows scaling of the drawn image.
+         * If not specified, the image is not scaled in width when drawn.
+         * @param targetHeight The height to draw the image in the destination canvas. This allows scaling of the drawn image.
+         * If not specified, the image is not scaled in height when drawn.
+         */
+        void drawImage(CanvasImageSource* image, float sourceX, float sourceY, float sourceWidth, float sourceHeight,
+                       float targetX, float targetY, float targetWidth, float targetHeight);
 
     private:
         DrawingBuffer* buffer;
