@@ -96,7 +96,7 @@ namespace cyder {
         }
 
 
-        Environment(const v8::Local<v8::Context>& context);
+        explicit Environment(const v8::Local<v8::Context>& context);
 
         ~Environment();
 
