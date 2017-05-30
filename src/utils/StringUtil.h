@@ -24,20 +24,50 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYDER_STRINGUTIL_H
+#define CYDER_STRINGUTIL_H
 
-#ifndef CYDER_V8IMAGELOADER_H
-#define CYDER_V8IMAGELOADER_H
-
-#include <v8.h>
-#include "base/Environment.h"
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 namespace cyder {
 
-    class V8ImageLoader {
+    class StringUtil {
     public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
-    };
+        static std::vector<std::string> Split(const std::string& text, const std::string& separator) {
+            std::vector<std::string> result;
+            std::string::size_type pos1, pos2;
+            pos2 = text.find(separator);
+            pos1 = 0;
+            while (std::string::npos != pos2) {
+                result.push_back(text.substr(pos1, pos2 - pos1));
 
+                pos1 = pos2 + separator.size();
+                pos2 = text.find(separator, pos1);
+            }
+            if (pos1 != text.length()) {
+                result.push_back(text.substr(pos1));
+            }
+            return result;
+        }
+
+        static std::string ToLowerCase(const std::string& text) {
+            std::string result;
+            result.resize(text.length());
+            std::transform(text.begin(), text.end(), result.begin(), ::tolower);
+            return result;
+        }
+
+        static std::string ToUpperCase(const std::string& text) {
+            std::string result;
+            result.resize(text.length());
+            std::transform(text.begin(), text.end(), result.begin(), ::toupper);
+            return result;
+        }
+    };
 }
 
-#endif //CYDER_V8IMAGELOADER_H
+#endif //CYDER_STRINGUTIL_H

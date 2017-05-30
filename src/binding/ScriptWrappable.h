@@ -28,15 +28,21 @@
 #define CYDER_SCRIPTWRAPPABLE_H
 
 #include <v8.h>
+#include "WrapperTypeInfo.h"
 
 namespace cyder {
 
     class ScriptWrappable {
     public:
+
+        static const int WRAPPER_OBJECT_INDEX = 0;
+
         ScriptWrappable() {
         }
 
         virtual ~ScriptWrappable();
+
+        virtual const WrapperTypeInfo* getWrapperTypeInfo() = 0;
 
         bool containsWrapper() const {
             return !persistent.IsEmpty();
@@ -46,17 +52,32 @@ namespace cyder {
             return v8::Local<v8::Object>::New(isolate, persistent);
         }
 
+        /**
+         * Creates and returns a new wrapper object. Automatically associates this instance with the new wrapper object
+         * if this instance is not yet associated with any wrapper.
+         */
+        v8::Local<v8::Object> wrap(v8::Isolate* isolate, v8::Local<v8::Object> creation_context);
+
+        /**
+         * Associates this instance with the given |wrapper| if this instance is not yet associated with any wrapper.
+         * Returns true if the given wrapper is associated with this instance, or false if this instance is already
+         * associated with a wrapper.
+         */
+        bool setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper);
+
     protected:
 
-        void setWeak() {
-            persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
-            persistent.MarkIndependent();
-        }
-
-        void setStrong() {
+        void ref() {
+            referenceCount++;
             persistent.ClearWeak();
         }
 
+        void unref() {
+            referenceCount--;
+            if (referenceCount == 0) {
+                markWeak();
+            }
+        }
 
     private:
         static void WeakCallback(const v8::WeakCallbackInfo<ScriptWrappable>& data) {
@@ -65,9 +86,13 @@ namespace cyder {
             delete nativeObject;
         }
 
-        v8::Local<v8::Object> createWrapper(v8::Isolate* isolate, v8::Local<v8::Object> creationContext);
+        void markWeak() {
+            persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
+            persistent.MarkIndependent();
+        }
 
         v8::Persistent<v8::Object> persistent;
+        int referenceCount = 0;
     };
 
 }

@@ -32,7 +32,7 @@
 #include <string>
 #include <unordered_map>
 #include "utils/USE.h"
-#include "utils/StringUtils.h"
+#include "utils/StringUtil.h"
 #include "platform/Log.h"
 
 namespace cyder {
@@ -61,10 +61,12 @@ namespace cyder {
         WeakHandle(v8::Isolate* isolate, const v8::Local<v8::Object>& handle, std::function<void()> callback);
         v8::Persistent<v8::Object> persistent;
         std::function<void()> callback;
+
         template<class T>
         static void DeleteTarget(T* target) {
             delete target;
         }
+
         friend class Environment;
     };
 
@@ -564,7 +566,7 @@ namespace cyder {
 
 
     private:
-        static const int CONTEXT_EMBEDDER_DATA_INDEX = 1;
+        static const int CONTEXT_EMBEDDER_DATA_INDEX = 2;
 
         template<class T>
         static v8::Local<T>& StrongPersistentToLocal(const v8::Persistent<T>& persistent) {

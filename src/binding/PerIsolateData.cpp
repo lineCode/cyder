@@ -24,44 +24,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_STRINGUTILS_H
-#define CYDER_STRINGUTILS_H
-
-#include <string>
-#include <vector>
-#include <algorithm>
+#include "PerIsolateData.h"
 
 namespace cyder {
-    inline std::vector<std::string> stringSplit(const std::string& text, const std::string& separator) {
-        std::vector<std::string> result;
-        std::string::size_type pos1, pos2;
-        pos2 = text.find(separator);
-        pos1 = 0;
-        while (std::string::npos != pos2) {
-            result.push_back(text.substr(pos1, pos2 - pos1));
-
-            pos1 = pos2 + separator.size();
-            pos2 = text.find(separator, pos1);
-        }
-        if (pos1 != text.length()) {
-            result.push_back(text.substr(pos1));
-        }
-        return result;
+    PerIsolateData::PerIsolateData(v8::Isolate* isolate) : _isolate(isolate) {
+        _isolate->Enter();
     }
 
-    inline std::string toLowerString(const std::string& text) {
-        std::string result;
-        result.resize(text.length());
-        std::transform(text.begin(), text.end(), result.begin(), ::tolower);
-        return result;
-    }
-
-    inline std::string toUpperString(const std::string& text) {
-        std::string result;
-        result.resize(text.length());
-        std::transform(text.begin(), text.end(), result.begin(), ::toupper);
-        return result;
+    PerIsolateData::~PerIsolateData() {
+        _isolate->Exit();
     }
 }
-
-#endif //CYDER_STRINGUTILS_H

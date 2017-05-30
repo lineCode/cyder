@@ -30,7 +30,7 @@
 
 #include <stdlib.h>
 #include <v8.h>
-#include "base/Environment.h"
+#include "binding/Environment.h"
 
 namespace cyder {
 

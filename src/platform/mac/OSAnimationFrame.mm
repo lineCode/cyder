@@ -80,7 +80,7 @@ namespace cyder {
         if (callbackList->size()) {
             std::vector<FrameRequestCallback> list;
             callbackList->swap(list);
-            double timestamp = getTimer();
+            double timestamp = GetTimer();
             for (const auto& callback : list) {
                 callback(timestamp);
             }

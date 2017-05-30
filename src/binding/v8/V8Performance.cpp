@@ -24,33 +24,20 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptWrappable.h"
-#include "PerContextData.h"
+
+#include "V8Performance.h"
+#include "utils/GetTimer.h"
 
 namespace cyder {
-    ScriptWrappable::~ScriptWrappable() {
-        if (persistent.IsEmpty()) {
-            return;
-        }
-        persistent.ClearWeak();
-        persistent.Reset();
+
+    static void nowMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        args.GetReturnValue().Set(GetTimer());
     }
 
-    v8::Local<v8::Object> ScriptWrappable::wrap(v8::Isolate* isolate, v8::Local<v8::Object> creationContext) {
-        auto wrapperTypeInfo = getWrapperTypeInfo();
-        auto contextData = PerContextData::From(creationContext);
-        auto wrapper = contextData->createWrapper(wrapperTypeInfo);
-        setWrapper(isolate, wrapper);
-        return wrapper;
+    void V8Performance::install(const v8::Local<v8::Object>& parent, Environment* env) {
+        auto performance = env->makeObject();
+        env->setObjectProperty(performance, "now", nowMethod);
+        env->setObjectProperty(parent, "performance", performance);
     }
 
-    bool ScriptWrappable::setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper) {
-        if (!persistent.IsEmpty()) {
-            return false;
-        }
-        wrapper->SetAlignedPointerInInternalField(WRAPPER_OBJECT_INDEX, this);
-        persistent.Reset(isolate, wrapper);
-        markWeak();
-        return true;
-    }
-}
+}  // namespace cyder

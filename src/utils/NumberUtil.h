@@ -24,33 +24,36 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_SCRIPTCONTEXT_H
-#define CYDER_SCRIPTCONTEXT_H
+#ifndef CYDER_NUMBERUTIL_H
+#define CYDER_NUMBERUTIL_H
 
-#include <v8.h>
+#include <string>
+#include <sstream>
+#include <cmath>
 
 namespace cyder {
 
-    class ScriptContext {
+    class NumberUtil {
     public:
-        static ScriptContext* From(const v8::Local<v8::Context>& context) {
-            auto scriptState = static_cast<ScriptContext*>(context->GetAlignedPointerFromEmbedderData(
-                    CONTEXT_EMBEDDER_DATA_INDEX));
-            return scriptState;
+        template<typename NumType>
+        static std::string FiniteToString(NumType number) {
+            std::ostringstream result;
+            result.precision(17);
+            result << number;
+            return result.str();
         }
 
-        explicit ScriptContext(const v8::Local<v8::Context>& context);
+        template<typename NumType>
+        static std::string ToString(NumType number) {
+            if (std::isnan(number))
+                return "NaN";
+            if (std::isinf(number))
+                return number > 0 ? "Infinity" : "-Infinity";
+            return FiniteToString(number);
+        }
 
-        v8::Local<v8::Object> createWrapper(const v8::Local<v8::FunctionTemplate>& classTemplate);
-
-    private:
-        static const int CONTEXT_EMBEDDER_DATA_INDEX = 2;
-
-        v8::Isolate* _isolate;
-        v8::Persistent<v8::Context> _context;
-        v8::Persistent<v8::Object> _global;
     };
 
 }
 
-#endif //CYDER_SCRIPTCONTEXT_H
+#endif //CYDER_NUMBERUTIL_H

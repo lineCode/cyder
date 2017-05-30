@@ -25,19 +25,19 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "V8Performance.h"
-#include "utils/GetTimer.h"
+
+#ifndef CYDER_V8NATIVEAPPLICATION_H
+#define CYDER_V8NATIVEAPPLICATION_H
+
+#include "binding/Environment.h"
 
 namespace cyder {
 
-    static void nowMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        args.GetReturnValue().Set(getTimer());
-    }
+    class V8NativeApplication {
+    public:
+        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+    };
 
-    void V8Performance::install(const v8::Local<v8::Object>& parent, Environment* env) {
-        auto performance = env->makeObject();
-        env->setObjectProperty(performance, "now", nowMethod);
-        env->setObjectProperty(parent, "performance", performance);
-    }
+}// namespace cyder
 
-}  // namespace cyder
+#endif //CYDER_V8NATIVEAPPLICATION_H

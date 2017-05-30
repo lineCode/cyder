@@ -24,50 +24,36 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_NATIVEWINDOW_H
-#define CYDER_NATIVEWINDOW_H
+#ifndef CYDER_PERISOLATEDATA_H
+#define CYDER_PERISOLATEDATA_H
 
-#include "platform/WindowDelegate.h"
-#include <vector>
-#include "platform/Window.h"
-#include "base/Environment.h"
-
+#include <v8.h>
 
 namespace cyder {
 
-    class NativeWindow : public WindowDelegate {
+    class PerIsolateData {
     public:
-        static std::vector<NativeWindow*>* openedWindows;
-        static NativeWindow* activeWindow;
-        static NativeWindow* GetCurrent(const v8::FunctionCallbackInfo<v8::Value>& args) {
-            return static_cast<NativeWindow*>(args.This()->GetAlignedPointerFromInternalField(0));
+        static PerIsolateData* From(v8::Isolate* isolate) {
+            return static_cast<PerIsolateData*>(isolate->GetData(ISOLATE_EMBEDDER_DATA_INDEX));
         }
 
-        explicit NativeWindow(const v8::FunctionCallbackInfo<v8::Value>& args);
-        ~NativeWindow() override;
+        explicit PerIsolateData(v8::Isolate* isolate);
 
-        void activate();
+        ~PerIsolateData();
 
-        void onResized() override;
-        void onFocusIn() override;
-        void onClosed() override;
-        bool onClosing() override;
-        void onScaleFactorChanged() override;
-
-        v8::Local<v8::Object> getHandle() {
-            return env->toLocal(weakHandle);
+        v8::Isolate* isolate() const {
+            return _isolate;
         }
 
     private:
-        Window* window;
-        Environment* env;
-        v8::Persistent<v8::Object> weakHandle;
-        v8::Persistent<v8::Object> persistent;
-        bool opened = false;
+        static const int ISOLATE_EMBEDDER_DATA_INDEX = 1;
 
-        void updateAsActiveWindow();
+        v8::Isolate* _isolate;
+        bool allowNewConstructor = false;
+
+        friend class ConstructorScope;
     };
 
 }
 
-#endif //CYDER_NATIVEWINDOW_H
+#endif //CYDER_PERISOLATEDATA_H

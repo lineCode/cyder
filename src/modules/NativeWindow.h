@@ -24,33 +24,50 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptWrappable.h"
-#include "PerContextData.h"
+#ifndef CYDER_NATIVEWINDOW_H
+#define CYDER_NATIVEWINDOW_H
+
+#include "platform/WindowDelegate.h"
+#include <vector>
+#include "platform/Window.h"
+#include "binding/Environment.h"
+
 
 namespace cyder {
-    ScriptWrappable::~ScriptWrappable() {
-        if (persistent.IsEmpty()) {
-            return;
-        }
-        persistent.ClearWeak();
-        persistent.Reset();
-    }
 
-    v8::Local<v8::Object> ScriptWrappable::wrap(v8::Isolate* isolate, v8::Local<v8::Object> creationContext) {
-        auto wrapperTypeInfo = getWrapperTypeInfo();
-        auto contextData = PerContextData::From(creationContext);
-        auto wrapper = contextData->createWrapper(wrapperTypeInfo);
-        setWrapper(isolate, wrapper);
-        return wrapper;
-    }
-
-    bool ScriptWrappable::setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper) {
-        if (!persistent.IsEmpty()) {
-            return false;
+    class NativeWindow : public WindowDelegate {
+    public:
+        static std::vector<NativeWindow*>* openedWindows;
+        static NativeWindow* activeWindow;
+        static NativeWindow* GetCurrent(const v8::FunctionCallbackInfo<v8::Value>& args) {
+            return static_cast<NativeWindow*>(args.This()->GetAlignedPointerFromInternalField(0));
         }
-        wrapper->SetAlignedPointerInInternalField(WRAPPER_OBJECT_INDEX, this);
-        persistent.Reset(isolate, wrapper);
-        markWeak();
-        return true;
-    }
+
+        explicit NativeWindow(const v8::FunctionCallbackInfo<v8::Value>& args);
+        ~NativeWindow() override;
+
+        void activate();
+
+        void onResized() override;
+        void onFocusIn() override;
+        void onClosed() override;
+        bool onClosing() override;
+        void onScaleFactorChanged() override;
+
+        v8::Local<v8::Object> getHandle() {
+            return env->toLocal(weakHandle);
+        }
+
+    private:
+        Window* window;
+        Environment* env;
+        v8::Persistent<v8::Object> weakHandle;
+        v8::Persistent<v8::Object> persistent;
+        bool opened = false;
+
+        void updateAsActiveWindow();
+    };
+
 }
+
+#endif //CYDER_NATIVEWINDOW_H

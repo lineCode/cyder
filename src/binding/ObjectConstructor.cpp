@@ -24,30 +24,30 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef CYDER_V8IMAGE_H
-#define CYDER_V8IMAGE_H
-
-#include <v8.h>
-#include "base/Environment.h"
-#include "display/Image.h"
+#include "ObjectConstructor.h"
+#include "ThrowException.h"
+#include <string>
 
 namespace cyder {
-
-    inline Image* getInternalImage(const v8::Local<v8::Object>& self, Environment* env) {
-        auto image = static_cast<Image*>(self->GetAlignedPointerFromInternalField(0));
-        if (!image) {
-            env->throwError(ErrorType::ERROR, "Invalid Image.");
-            return nullptr;
-        }
-        return image;
+    v8::MaybeLocal<v8::Object> ObjectConstructor::NewInstance(
+            v8::Isolate* isolate,
+            v8::Local<v8::Function> function,
+            int argc,
+            v8::Local<v8::Value> argv[]) {
+        ConstructorScope constructorScope(isolate);
+        v8::MicrotasksScope microtasksScope(
+                isolate, v8::MicrotasksScope::kDoNotRunMicrotasks);
+        v8::MaybeLocal<v8::Object> result =
+                function->NewInstance(isolate->GetCurrentContext(), argc, argv);
+        return result;
     }
 
-    class V8Image {
-    public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
-    };
-
+    void ObjectConstructor::IsValidConstructorMode(
+            const v8::FunctionCallbackInfo<v8::Value>& info) {
+        if (!ConstructorScope::IsValid(info.GetIsolate())) {
+            ThrowException::ThrowTypeError(info.GetIsolate(), "Illegal constructor");
+            return;
+        }
+        info.GetReturnValue().Set(info.Holder());
+    }
 }
-
-#endif //CYDER_V8IMAGE_H

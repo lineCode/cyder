@@ -24,19 +24,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_V8CANVASRENDERINGCONTEXT2D_H
-#define CYDER_V8CANVASRENDERINGCONTEXT2D_H
-
-#include <v8.h>
-#include "base/Environment.h"
+#include "ToV8.h"
 
 namespace cyder {
 
-    class V8CanvasRenderingContext2D {
-    public:
-        static void install(v8::Local <v8::Object> parent, Environment* env);
-    };
-
 }
-
-#endif //CYDER_V8CANVASRENDERINGCONTEXT2D_H

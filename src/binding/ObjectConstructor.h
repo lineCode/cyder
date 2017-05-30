@@ -24,20 +24,45 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef CYDER_V8PERFORMANCE_H
-#define CYDER_V8PERFORMANCE_H
+#ifndef CYDER_OBJECTCONSTRUCTOR_H
+#define CYDER_OBJECTCONSTRUCTOR_H
 
 #include <v8.h>
-#include "base/Environment.h"
+#include "PerIsolateData.h"
 
 namespace cyder {
 
-    class V8Performance {
+    class ConstructorScope {
     public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+
+        ConstructorScope(v8::Isolate* isolate) : isolate(isolate) {
+            PerIsolateData* data = PerIsolateData::From(isolate);
+            previous = data->allowNewConstructor;
+            data->allowNewConstructor = true;
+        }
+
+        ~ConstructorScope() {
+            PerIsolateData* data = PerIsolateData::From(isolate);
+            data->allowNewConstructor = previous;
+        }
+
+        static bool IsValid(v8::Isolate* isolate) {
+            return PerIsolateData::From(isolate)->allowNewConstructor;
+        }
+
+    private:
+        v8::Isolate* isolate;
+        bool previous;
     };
 
-}  // namespace cyder
+    class ObjectConstructor {
+    public:
+        static v8::MaybeLocal<v8::Object> NewInstance(v8::Isolate* isolate, v8::Local<v8::Function> classFunction,
+                                                      int argc = 0, v8::Local<v8::Value> argv[] = nullptr);
 
-#endif //CYDER_V8PERFORMANCE_H
+        static void IsValidConstructorMode(const v8::FunctionCallbackInfo<v8::Value>&);
+    };
+
+}
+
+#endif //CYDER_OBJECTCONSTRUCTOR_H

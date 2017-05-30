@@ -27,14 +27,14 @@
 
 #include <libplatform/libplatform.h>
 #include "JSMain.h"
-#include "V8Performance.h"
-#include "V8AnimationFrame.h"
-#include "V8NativeApplication.h"
-#include "V8NativeWindow.h"
-#include "V8Image.h"
-#include "V8ImageLoader.h"
-#include "V8CanvasRenderingContext2D.h"
-#include "V8Canvas.h"
+#include "binding/v8/V8Performance.h"
+#include "binding/v8/V8AnimationFrame.h"
+#include "binding/v8/V8NativeApplication.h"
+#include "binding/v8/V8NativeWindow.h"
+#include "binding/v8/V8Image.h"
+#include "binding/v8/V8ImageLoader.h"
+#include "binding/v8/V8CanvasRenderingContext2D.h"
+#include "binding/v8/V8Canvas.h"
 
 
 namespace cyder {

@@ -25,19 +25,19 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 
+#ifndef CYDER_V8IMAGELOADER_H
+#define CYDER_V8IMAGELOADER_H
 
-#ifndef CYDER_V8NATIVEAPPLICATION_H
-#define CYDER_V8NATIVEAPPLICATION_H
-
-#include "base/Environment.h"
+#include <v8.h>
+#include "binding/Environment.h"
 
 namespace cyder {
 
-    class V8NativeApplication {
+    class V8ImageLoader {
     public:
         static void install(const v8::Local<v8::Object>& parent, Environment* env);
     };
 
-}// namespace cyder
+}
 
-#endif //CYDER_V8NATIVEAPPLICATION_H
+#endif //CYDER_V8IMAGELOADER_H

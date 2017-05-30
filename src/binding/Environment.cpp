@@ -226,7 +226,7 @@ namespace cyder {
     }
 
     v8::Local<v8::Object> Environment::findObjectInGlobal(const std::string& name, bool saveCache) {
-        auto list = stringSplit(name, ".");
+        auto list = StringUtil::Split(name, ".");
         auto current = global();
         for (const auto& key : list) {
             auto maybeObject = getObject(current, key);

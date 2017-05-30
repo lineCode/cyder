@@ -32,7 +32,7 @@
 namespace cyder {
 
     static std::string formatImageMimeType(const std::string& mimeType) {
-        auto type = toLowerString(mimeType);
+        auto type = StringUtil::ToLowerCase(mimeType);
         if (type != "image/jpeg" && type != "image/webp") {
             type = "image/png";
         }
@@ -200,8 +200,9 @@ namespace cyder {
             auto imageData = v8::Local<v8::Object>::Cast(args[0]);
             auto transparent = args[1]->IsUndefined() ? true : env->toBoolean(args[1]);
             image = createFromImageData(imageData, transparent, env);
-            if(!image){
-                env->throwError(ErrorType::TYPE_ERROR, "Failed to execute 'new Image()': parameter 1 is invalid ImageData.");
+            if (!image) {
+                env->throwError(ErrorType::TYPE_ERROR,
+                                "Failed to execute 'new Image()': parameter 1 is invalid ImageData.");
                 return;
             }
         }

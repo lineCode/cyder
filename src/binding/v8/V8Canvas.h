@@ -24,18 +24,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_V8ANIMATIONFRAME_H
-#define CYDER_V8ANIMATIONFRAME_H
+#ifndef CYDER_V8CANVAS_H
+#define CYDER_V8CANVAS_H
 
-#include "base/Environment.h"
+#include <v8.h>
+#include "binding/Environment.h"
 
 namespace cyder {
 
-    class V8AnimationFrame {
+    class V8Canvas {
     public:
         static void install(v8::Local<v8::Object> parent, Environment* env);
     };
 
 }
 
-#endif //CYDER_V8ANIMATIONFRAME_H
+#endif //CYDER_V8CANVAS_H

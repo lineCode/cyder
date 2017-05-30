@@ -33,6 +33,7 @@ namespace cyder {
     NativeWindow* NativeWindow::activeWindow = nullptr;
 
     NativeWindow::NativeWindow(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        args.Holder()->CreationContext();
         env = Environment::GetCurrent(args);
         weakHandle.Reset(env->isolate(), args.This());
         weakHandle.SetWeak();

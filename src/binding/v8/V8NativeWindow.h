@@ -24,17 +24,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptContext.h"
+#ifndef CYDER_V8NATIVEWINDOW_H
+#define CYDER_V8NATIVEWINDOW_H
+
+#include <v8.h>
+#include "binding/Environment.h"
 
 namespace cyder {
-    ScriptContext::ScriptContext(const v8::Local<v8::Context>& context) {
-        _isolate = context->GetIsolate();
-        _context.Reset(_isolate, context);
-        context->SetAlignedPointerInEmbedderData(CONTEXT_EMBEDDER_DATA_INDEX, this);
-        _global.Reset(_isolate, context->Global());
-    }
 
-    v8::Local<v8::Object> ScriptContext::createWrapper(const v8::Local<v8::FunctionTemplate>& classTemplate) {
-        return v8::Local<v8::Object>();
-    }
+    class V8NativeWindow {
+    public:
+        static void install(v8::Local<v8::Object> parent, Environment* env);
+    };
+
 }
+
+#endif //CYDER_V8NATIVEWINDOW_H

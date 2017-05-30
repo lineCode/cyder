@@ -34,7 +34,7 @@ namespace cyder {
     /**
      * Returns the number of milliseconds since the runtime was initialized.
      */
-    inline double getTimer() {
+    inline double GetTimer() {
         static auto START_TIME = std::chrono::high_resolution_clock::now();
         auto now = std::chrono::high_resolution_clock::now();
         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now - START_TIME);

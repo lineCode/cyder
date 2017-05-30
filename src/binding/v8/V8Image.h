@@ -24,33 +24,30 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptWrappable.h"
-#include "PerContextData.h"
+
+#ifndef CYDER_V8IMAGE_H
+#define CYDER_V8IMAGE_H
+
+#include <v8.h>
+#include "binding/Environment.h"
+#include "display/Image.h"
 
 namespace cyder {
-    ScriptWrappable::~ScriptWrappable() {
-        if (persistent.IsEmpty()) {
-            return;
+
+    inline Image* getInternalImage(const v8::Local<v8::Object>& self, Environment* env) {
+        auto image = static_cast<Image*>(self->GetAlignedPointerFromInternalField(0));
+        if (!image) {
+            env->throwError(ErrorType::ERROR, "Invalid Image.");
+            return nullptr;
         }
-        persistent.ClearWeak();
-        persistent.Reset();
+        return image;
     }
 
-    v8::Local<v8::Object> ScriptWrappable::wrap(v8::Isolate* isolate, v8::Local<v8::Object> creationContext) {
-        auto wrapperTypeInfo = getWrapperTypeInfo();
-        auto contextData = PerContextData::From(creationContext);
-        auto wrapper = contextData->createWrapper(wrapperTypeInfo);
-        setWrapper(isolate, wrapper);
-        return wrapper;
-    }
+    class V8Image {
+    public:
+        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+    };
 
-    bool ScriptWrappable::setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper) {
-        if (!persistent.IsEmpty()) {
-            return false;
-        }
-        wrapper->SetAlignedPointerInInternalField(WRAPPER_OBJECT_INDEX, this);
-        persistent.Reset(isolate, wrapper);
-        markWeak();
-        return true;
-    }
 }
+
+#endif //CYDER_V8IMAGE_H

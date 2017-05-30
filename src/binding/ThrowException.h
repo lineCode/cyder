@@ -24,33 +24,34 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptWrappable.h"
-#include "PerContextData.h"
+#ifndef CYDER_THROWEXCEPTION_H
+#define CYDER_THROWEXCEPTION_H
+
+#include "ToV8.h"
 
 namespace cyder {
-    ScriptWrappable::~ScriptWrappable() {
-        if (persistent.IsEmpty()) {
-            return;
-        }
-        persistent.ClearWeak();
-        persistent.Reset();
-    }
 
-    v8::Local<v8::Object> ScriptWrappable::wrap(v8::Isolate* isolate, v8::Local<v8::Object> creationContext) {
-        auto wrapperTypeInfo = getWrapperTypeInfo();
-        auto contextData = PerContextData::From(creationContext);
-        auto wrapper = contextData->createWrapper(wrapperTypeInfo);
-        setWrapper(isolate, wrapper);
-        return wrapper;
-    }
-
-    bool ScriptWrappable::setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper) {
-        if (!persistent.IsEmpty()) {
-            return false;
+    class ThrowException {
+    public:
+        static void Throw(v8::Isolate* isolate, v8::Local<v8::Value> exception) {
+            if (!isolate->IsExecutionTerminating()) {
+                isolate->ThrowException(exception);
+            }
         }
-        wrapper->SetAlignedPointerInInternalField(WRAPPER_OBJECT_INDEX, this);
-        persistent.Reset(isolate, wrapper);
-        markWeak();
-        return true;
-    }
+
+        static v8::Local<v8::Value> CreateError(v8::Isolate* isolate, const std::string& message);
+        static v8::Local<v8::Value> CreateRangeError(v8::Isolate* isolate, const std::string& message);
+        static v8::Local<v8::Value> CreateReferenceError(v8::Isolate* isolate, const std::string& message);
+        static v8::Local<v8::Value> CreateSyntaxError(v8::Isolate* isolate, const std::string& message);
+        static v8::Local<v8::Value> CreateTypeError(v8::Isolate* isolate, const std::string& message);
+
+        static void ThrowError(v8::Isolate* isolate, const std::string& message);
+        static void ThrowRangeError(v8::Isolate* isolate, const std::string& message);
+        static void ThrowReferenceError(v8::Isolate* isolate, const std::string& message);
+        static void ThrowSyntaxError(v8::Isolate* isolate, const std::string& message);
+        static void ThrowTypeError(v8::Isolate* isolate, const std::string& message);
+    };
+
 }
+
+#endif //CYDER_THROWEXCEPTION_H
