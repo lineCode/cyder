@@ -24,33 +24,26 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptWrappable.h"
-#include "PerContextData.h"
+#ifndef CYDER_EVENTLISTENER_H
+#define CYDER_EVENTLISTENER_H
+
+#include "Event.h"
 
 namespace cyder {
-    ScriptWrappable::~ScriptWrappable() {
-        if (persistent.IsEmpty()) {
-            return;
-        }
-        persistent.ClearWeak();
-        persistent.Reset();
-    }
 
-    v8::Local<v8::Object> ScriptWrappable::wrap(v8::Isolate* isolate, v8::Local<v8::Object> creationContext) {
-        auto wrapperTypeInfo = getWrapperTypeInfo();
-        auto contextData = PerContextData::From(creationContext);
-        auto wrapper = contextData->createWrapper(wrapperTypeInfo);
-        setWrapper(isolate, wrapper);
-        return wrapper;
-    }
-
-    bool ScriptWrappable::setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper) {
-        if (!persistent.IsEmpty()) {
-            return false;
+    class EventListener {
+    public:
+        virtual ~EventListener() {
         }
-        wrapper->SetAlignedPointerInInternalField(WRAPPER_OBJECT_INDEX, this);
-        persistent.Reset(isolate, wrapper);
-        persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
-        return true;
-    }
+
+        virtual void operator()(Event* event) const = 0;
+        virtual bool operator==(const EventListener& target) const = 0;
+
+        bool operator!=(const EventListener& target) const {
+            return !operator==(target);
+        }
+    };
+
 }
+
+#endif //CYDER_EVENTLISTENER_H

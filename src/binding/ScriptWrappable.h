@@ -76,20 +76,6 @@ namespace cyder {
          */
         bool setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper);
 
-    protected:
-
-        void ref() {
-            referenceCount++;
-            persistent.ClearWeak();
-        }
-
-        void unref() {
-            referenceCount--;
-            if (referenceCount == 0) {
-                markWeak();
-            }
-        }
-
     private:
         static void WeakCallback(const v8::WeakCallbackInfo<ScriptWrappable>& data) {
             ScriptWrappable* nativeObject = data.GetParameter();
@@ -97,13 +83,7 @@ namespace cyder {
             delete nativeObject;
         }
 
-        void markWeak() {
-            persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
-            persistent.MarkIndependent();
-        }
-
         v8::Persistent<v8::Object> persistent;
-        int referenceCount = 0;
     };
 
 }

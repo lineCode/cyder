@@ -24,33 +24,28 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptWrappable.h"
-#include "PerContextData.h"
+#ifndef CYDER_V8EVENTLISTENER_H
+#define CYDER_V8EVENTLISTENER_H
+
+#include <v8.h>
+#include "modules/events/EventListener.h"
 
 namespace cyder {
-    ScriptWrappable::~ScriptWrappable() {
-        if (persistent.IsEmpty()) {
-            return;
-        }
-        persistent.ClearWeak();
-        persistent.Reset();
-    }
 
-    v8::Local<v8::Object> ScriptWrappable::wrap(v8::Isolate* isolate, v8::Local<v8::Object> creationContext) {
-        auto wrapperTypeInfo = getWrapperTypeInfo();
-        auto contextData = PerContextData::From(creationContext);
-        auto wrapper = contextData->createWrapper(wrapperTypeInfo);
-        setWrapper(isolate, wrapper);
-        return wrapper;
-    }
+    class V8EventListener : public EventListener {
+    public:
+        V8EventListener(const v8::Local<v8::Function> callback, const v8::Local<v8::Object>& thisArg,
+                        v8::Isolate* isolate);
+        ~V8EventListener() override;
 
-    bool ScriptWrappable::setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper) {
-        if (!persistent.IsEmpty()) {
-            return false;
-        }
-        wrapper->SetAlignedPointerInInternalField(WRAPPER_OBJECT_INDEX, this);
-        persistent.Reset(isolate, wrapper);
-        persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
-        return true;
-    }
+        void operator()(Event* event) const override;
+        bool operator==(const EventListener& target) const override;
+
+    private:
+        v8::Persistent<v8::Object> callback;
+        v8::Persistent<v8::Object> thisArg;
+    };
+
 }
+
+#endif //CYDER_V8EVENTLISTENER_H
