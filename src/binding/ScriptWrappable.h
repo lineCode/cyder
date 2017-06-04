@@ -30,6 +30,17 @@
 #include <v8.h>
 #include "WrapperTypeInfo.h"
 
+
+#define DEFINE_WRAPPERTYPEINFO()                               \
+ public:                                                       \
+  const WrapperTypeInfo* getWrapperTypeInfo() const override { \
+    return &wrapperTypeInfo;                                \
+  }                                                            \
+                                                               \
+ private:                                                      \
+  static const WrapperTypeInfo& wrapperTypeInfo
+
+
 namespace cyder {
 
     class ScriptWrappable {
@@ -42,7 +53,7 @@ namespace cyder {
 
         virtual ~ScriptWrappable();
 
-        virtual const WrapperTypeInfo* getWrapperTypeInfo() = 0;
+        virtual const WrapperTypeInfo* getWrapperTypeInfo() const = 0;
 
         bool containsWrapper() const {
             return !persistent.IsEmpty();

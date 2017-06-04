@@ -24,20 +24,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_EVENTEMITTER_H
-#define CYDER_EVENTEMITTER_H
-
-#include "binding/ScriptWrappable.h"
+#include "V8Event.h"
+#include "modules/events/Event.h"
 
 namespace cyder {
-
-    class EventEmitter : public ScriptWrappable {
-    DEFINE_WRAPPERTYPEINFO();
-
-    public:
-
-    };
-
+    const WrapperTypeInfo& Event::wrapperTypeInfo = {};
 }
-
-#endif //CYDER_EVENTEMITTER_H

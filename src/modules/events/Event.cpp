@@ -28,4 +28,21 @@
 
 namespace cyder {
 
+    const std::string Event::ACTIVATE = "activate";
+    const std::string Event::DEACTIVATE = "deactivate";
+    const std::string Event::RESIZE = "resize";
+    const std::string Event::RESIZING = "resizing";
+    const std::string Event::CHANGE = "change";
+    const std::string Event::CHANGING = "changing";
+    const std::string Event::COMPLETE = "complete";
+
+    Event::Event(const std::string& type, bool cancelable) : _type(type), _cancelable(cancelable) {
+
+    }
+
+    void Event::preventDefault() {
+        if (_cancelable) {
+            _isDefaultPrevented = true;
+        }
+    }
 }
