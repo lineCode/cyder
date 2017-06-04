@@ -32,7 +32,7 @@
 #include <Cocoa/Cocoa.h>
 #include <OpenGL/gl.h>
 #include <skia.h>
-#include "display/DrawingBuffer.h"
+#include "modules/canvas/DrawingBuffer.h"
 
 namespace cyder {
 

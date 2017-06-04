@@ -24,30 +24,15 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef CYDER_V8IMAGE_H
-#define CYDER_V8IMAGE_H
-
-#include <v8.h>
-#include "binding/Environment.h"
-#include "modules/image/Image.h"
+#ifndef CYDER_EVENT_H
+#define CYDER_EVENT_H
 
 namespace cyder {
 
-    inline Image* getInternalImage(const v8::Local<v8::Object>& self, Environment* env) {
-        auto image = static_cast<Image*>(self->GetAlignedPointerFromInternalField(0));
-        if (!image) {
-            env->throwError(ErrorType::ERROR, "Invalid Image.");
-            return nullptr;
-        }
-        return image;
-    }
+    class Event {
 
-    class V8Image {
-    public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
     };
 
 }
 
-#endif //CYDER_V8IMAGE_H
+#endif //CYDER_EVENT_H

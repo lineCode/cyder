@@ -24,30 +24,51 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYDER_DRAWINGBUFFER_H
+#define CYDER_DRAWINGBUFFER_H
 
-#ifndef CYDER_V8IMAGE_H
-#define CYDER_V8IMAGE_H
-
-#include <v8.h>
-#include "binding/Environment.h"
+#include <skia.h>
 #include "modules/image/Image.h"
 
 namespace cyder {
 
-    inline Image* getInternalImage(const v8::Local<v8::Object>& self, Environment* env) {
-        auto image = static_cast<Image*>(self->GetAlignedPointerFromInternalField(0));
-        if (!image) {
-            env->throwError(ErrorType::ERROR, "Invalid Image.");
-            return nullptr;
-        }
-        return image;
-    }
-
-    class V8Image {
+    class DrawingBuffer {
     public:
-        static void install(const v8::Local<v8::Object>& parent, Environment* env);
+
+        virtual ~DrawingBuffer() {}
+
+        /**
+         * Indicates the width of the DrawingBuffer, in pixels.
+         */
+        virtual int width() const = 0;
+
+        virtual void setWidth(int value) = 0;
+
+        /**
+         * Indicates the height of the DrawingBuffer, in pixels.
+         */
+        virtual int height() const = 0;
+
+        virtual void setHeight(int value) = 0;
+
+        /**
+         * Return a canvas that will draw into this drawing buffer.
+         * Note: Do not cache the return value of surface(), it may change when DrawingBuffer resizes.
+         */
+        virtual SkCanvas* getCanvas() = 0;
+
+        /**
+         * Draws this buffer directly into another canvas.
+         */
+        virtual void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) = 0;
+
+        /**
+         * Returns an image of the current state of the buffer pixels up to this point. Subsequent changes to the buffer
+         * will not be reflected in this image.
+         */
+        virtual Image* makeImageSnapshot() = 0;
     };
 
 }
 
-#endif //CYDER_V8IMAGE_H
+#endif //CYDER_DRAWINGBUFFER_H

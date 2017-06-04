@@ -26,8 +26,8 @@
 
 #include "V8Canvas.h"
 #include "modules/canvas2d/CanvasRenderingContext2D.h"
-#include "modules/canvas2d/OffScreenBuffer.h"
-#include "modules/Canvas.h"
+#include "modules/canvas/OffScreenBuffer.h"
+#include "modules/canvas/Canvas.h"
 
 namespace cyder {
 

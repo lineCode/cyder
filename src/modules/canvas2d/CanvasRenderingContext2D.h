@@ -27,9 +27,9 @@
 #ifndef CYDER_CANVASRENDERINGCONTEXT2D_H
 #define CYDER_CANVASRENDERINGCONTEXT2D_H
 
-#include "display/DrawingBuffer.h"
-#include "display/RenderingContext.h"
-#include "display/CanvasImageSource.h"
+#include "modules/canvas/DrawingBuffer.h"
+#include "modules/canvas/RenderingContext.h"
+#include "modules/canvas/CanvasImageSource.h"
 
 namespace cyder {
 

@@ -29,14 +29,14 @@
 
 #include <skia.h>
 #include "ImageFormat.h"
-#include "CanvasImageSource.h"
+#include "modules/canvas/CanvasImageSource.h"
 
 namespace cyder {
 
     /**
      * A wrapper for SkImage.
      */
-    class Image : public CanvasImageSource{
+    class Image : public CanvasImageSource {
     public:
         static Image* Decode(const void* bytes, size_t length);
         static Image* MakeFromPixels(const void* pixels, int width, int height, bool transparent = true);

@@ -29,7 +29,7 @@
 #include <fstream>
 #include "base/Globals.h"
 #include "utils/Base64.h"
-#include "display/Image.h"
+#include "modules/image/Image.h"
 
 namespace cyder {
 

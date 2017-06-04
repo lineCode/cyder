@@ -28,7 +28,7 @@
 
 #include "V8NativeApplication.h"
 #include <iostream>
-#include "modules/NativeWindow.h"
+#include "modules/desktop/NativeWindow.h"
 
 namespace cyder {
 

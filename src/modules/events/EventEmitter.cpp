@@ -24,51 +24,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_DRAWINGBUFFER_H
-#define CYDER_DRAWINGBUFFER_H
-
-#include <skia.h>
-#include "display/Image.h"
+#include "EventEmitter.h"
 
 namespace cyder {
 
-    class DrawingBuffer {
-    public:
-
-        virtual ~DrawingBuffer() {}
-
-        /**
-         * Indicates the width of the DrawingBuffer, in pixels.
-         */
-        virtual int width() const = 0;
-
-        virtual void setWidth(int value) = 0;
-
-        /**
-         * Indicates the height of the DrawingBuffer, in pixels.
-         */
-        virtual int height() const = 0;
-
-        virtual void setHeight(int value) = 0;
-
-        /**
-         * Return a canvas that will draw into this drawing buffer.
-         * Note: Do not cache the return value of surface(), it may change when DrawingBuffer resizes.
-         */
-        virtual SkCanvas* getCanvas() = 0;
-
-        /**
-         * Draws this buffer directly into another canvas.
-         */
-        virtual void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) = 0;
-
-        /**
-         * Returns an image of the current state of the buffer pixels up to this point. Subsequent changes to the buffer
-         * will not be reflected in this image.
-         */
-        virtual Image* makeImageSnapshot() = 0;
-    };
-
 }
-
-#endif //CYDER_DRAWINGBUFFER_H
