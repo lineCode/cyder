@@ -25,7 +25,121 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "EventEmitter.h"
+#include "utils/ObjectPool.h"
 
 namespace cyder {
+    EventEmitter::~EventEmitter() {
+        delete eventsMap;
+    }
 
+    void EventEmitter::doAddListener(const std::string& type, const EventListener& listener, bool emitOnce) {
+        EventListPtr list;
+        auto item = eventsMap->find(type);
+        if (item == eventsMap->end()) {
+            EventListPtr newList(new EventList());
+            eventsMap->insert(EventMapPair(type, newList));
+            list = newList;
+        } else {
+            list = item->second;
+            if (notifyLevel != 0) {
+                EventListPtr tempList(new EventList());
+                (*tempList) = (*list); // clone the list in case that we are in the middle of dispatching events.
+                eventsMap->erase(item);
+                eventsMap->insert(EventMapPair(type, tempList));
+                list = tempList;
+            }
+        }
+        insertEventNode(list, type, listener, emitOnce);
+    }
+
+    bool EventEmitter::insertEventNode(EventListPtr list, const std::string& type,
+                                       const EventListener& listener, bool emitOnce) {
+        for (const auto& item : *list) {
+            if (item->listener == listener && item->target == this) {
+                return false;
+            }
+        }
+
+        list->push_back(new EventNode(type, listener, this, emitOnce));
+        return true;
+    }
+
+    void EventEmitter::removeListener(const std::string& type, const EventListener& listener) {
+        auto item = eventsMap->find(type);
+        if (item == eventsMap->end()) {
+            return;
+        }
+        EventListPtr list = item->second;
+        if (notifyLevel != 0) {
+            EventListPtr tempList(new EventList());
+            (*tempList) = (*list); // clone the list in case that we are in the middle of dispatching events.
+            eventsMap->erase(item);
+            eventsMap->insert(EventMapPair(type, tempList));
+            list = tempList;
+        }
+        removeEventNode(list, listener);
+        if (list->size() == 0) {
+            eventsMap->erase(type);
+        }
+    }
+
+    bool EventEmitter::removeEventNode(EventListPtr list, const EventListener& listener) {
+        int index = 0;
+        for (const auto& item : *list) {
+            if (item->listener == listener && item->target == this) {
+                list->erase(list->begin() + index);
+                delete item;
+                return true;
+            }
+            index++;
+        }
+        return false;
+    }
+
+    bool EventEmitter::hasListener(const std::string& type) {
+        return eventsMap->count(type) > 0;
+    }
+
+    bool EventEmitter::emit(Event* event) {
+        event->_target = this;
+        auto item = eventsMap->find(event->_type);
+        if (item == eventsMap->end()) {
+            return true;
+        }
+        EventListPtr list = item->second;
+        if (list->size() == 0) {
+            return true;
+        }
+        EventList onceList;
+        notifyLevel++;
+        for (const auto& node : *list) {
+            node->listener(event);
+            if (node->emitOnce) {
+                onceList.push_back(node);
+            }
+        }
+        notifyLevel--;
+        for (const auto& eventNode : onceList) {
+            eventNode->target->removeListener(eventNode->type, eventNode->listener);
+        }
+        return event->_isDefaultPrevented;
+    }
+
+    bool EventEmitter::emitWith(const std::string& type, bool cancelable) {
+        if (hasListener(type)) {
+            static ObjectPool<Event> eventPool;
+            Event* event;
+            if (eventPool.size() > 0) {
+                event = eventPool.pop();
+                event->reset(type, cancelable);
+
+            } else {
+                event = new Event(type, cancelable);
+            }
+            auto result = emit(event);
+            event->_target = nullptr;
+            return result;
+        }
+        return true;
+    }
 }

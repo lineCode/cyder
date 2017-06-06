@@ -24,30 +24,50 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_EVENTLISTENER_H
-#define CYDER_EVENTLISTENER_H
+#ifndef CYDER_OBJECTPOOL_H
+#define CYDER_OBJECTPOOL_H
 
-#include "Event.h"
+#include <vector>
 
 namespace cyder {
 
-    class EventListener {
+    template<class T>
+    class ObjectPool {
     public:
-        virtual ~EventListener() {
+        explicit ObjectPool(int maxSize = 64) : maxSize(maxSize) {
         }
 
-        virtual void operator()(Event* event) const {
-        };
-
-        virtual bool operator==(const EventListener& target) const {
-            return false;
-        };
-
-        bool operator!=(const EventListener& target) const {
-            return !operator==(target);
+        ~ObjectPool() {
+            for (const auto& item:objectList) {
+                delete item;
+            }
         }
+
+        void push(T* object) {
+            if (objectList.size() >= maxSize) {
+                return;
+            }
+            objectList.push_back(object);
+        }
+
+        T* pop() {
+            if (objectList.size() > 0) {
+                auto result = objectList[objectList.size() - 1];
+                objectList.pop_back();
+                return result;
+            }
+            return nullptr;
+        }
+
+        int size() const {
+            return static_cast<int>(objectList.size());
+        }
+
+    private:
+        int maxSize;
+        std::vector<T*> objectList;
     };
 
 }
 
-#endif //CYDER_EVENTLISTENER_H
+#endif //CYDER_OBJECTPOOL_H

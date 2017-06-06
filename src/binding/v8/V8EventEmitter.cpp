@@ -24,30 +24,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_EVENTLISTENER_H
-#define CYDER_EVENTLISTENER_H
-
-#include "Event.h"
+#include "V8EventEmitter.h"
+#include "modules/events/EventEmitter.h"
 
 namespace cyder {
-
-    class EventListener {
-    public:
-        virtual ~EventListener() {
-        }
-
-        virtual void operator()(Event* event) const {
-        };
-
-        virtual bool operator==(const EventListener& target) const {
-            return false;
-        };
-
-        bool operator!=(const EventListener& target) const {
-            return !operator==(target);
-        }
-    };
-
+    const WrapperTypeInfo& EventEmitter::wrapperTypeInfo = {};
 }
-
-#endif //CYDER_EVENTLISTENER_H

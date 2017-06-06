@@ -29,9 +29,11 @@
 
 #include <string>
 #include "binding/ScriptWrappable.h"
-#include "EventEmitter.h"
 
 namespace cyder {
+
+    class EventEmitter;
+
     /**
      * The Event class is used as the base class for the creation of Event objects, which are passed as parameters to event
      * listeners when an event occurs. The properties of the Event class carry basic information about an event, such as
@@ -134,6 +136,12 @@ namespace cyder {
         bool _cancelable;
         EventEmitter* _target = nullptr;
         bool _isDefaultPrevented = false;
+
+        void reset(const std::string& type, bool cancelable) {
+            _type = type;
+            _cancelable = cancelable;
+            _isDefaultPrevented = false;
+        }
 
         friend class EventEmitter;
     };
