@@ -32,7 +32,7 @@ namespace cyder {
         delete eventsMap;
     }
 
-    void EventEmitter::doAddListener(const std::string& type, const EventListener& listener, bool emitOnce) {
+    void EventEmitter::doAddListener(const std::string& type, const EventListenerPtr listener, bool emitOnce) {
         EventListPtr list;
         auto item = eventsMap->find(type);
         if (item == eventsMap->end()) {
@@ -53,7 +53,7 @@ namespace cyder {
     }
 
     bool EventEmitter::insertEventNode(EventListPtr list, const std::string& type,
-                                       const EventListener& listener, bool emitOnce) {
+                                       const EventListenerPtr listener, bool emitOnce) {
         for (const auto& item : *list) {
             if (item->listener == listener && item->target == this) {
                 return false;
@@ -64,7 +64,7 @@ namespace cyder {
         return true;
     }
 
-    void EventEmitter::removeListener(const std::string& type, const EventListener& listener) {
+    void EventEmitter::removeListener(const std::string& type, const EventListenerPtr listener) {
         auto item = eventsMap->find(type);
         if (item == eventsMap->end()) {
             return;
@@ -83,7 +83,7 @@ namespace cyder {
         }
     }
 
-    bool EventEmitter::removeEventNode(EventListPtr list, const EventListener& listener) {
+    bool EventEmitter::removeEventNode(EventListPtr list, const EventListenerPtr listener) {
         int index = 0;
         for (const auto& item : *list) {
             if (item->listener == listener && item->target == this) {
@@ -113,7 +113,7 @@ namespace cyder {
         EventList onceList;
         notifyLevel++;
         for (const auto& node : *list) {
-            node->listener(event);
+            node->listener->handleEvent(event);
             if (node->emitOnce) {
                 onceList.push_back(node);
             }

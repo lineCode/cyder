@@ -27,7 +27,8 @@
 #include "V8EventListener.h"
 
 namespace cyder {
-    V8EventListener::V8EventListener(const v8::Local<v8::Function> callback, const v8::Local<v8::Object>& thisArg,
+    V8EventListener::V8EventListener(const v8::Local<v8::Function> callback,
+                                     const v8::Local<v8::Object>& thisArg,
                                      v8::Isolate* isolate) {
         this->callback.Reset(isolate, callback);
         this->thisArg.Reset(isolate, thisArg);
@@ -40,12 +41,12 @@ namespace cyder {
         thisArg.Reset();
     }
 
-    void V8EventListener::operator()(Event* event) const {
+    void V8EventListener::handleEvent(Event* event) const {
 
     }
 
-    bool V8EventListener::operator==(const EventListener& target) const {
-        auto listener = static_cast<const V8EventListener*>(&target);
+    bool V8EventListener::equals(const EventListener* target) const {
+        auto listener = static_cast<const V8EventListener*>(target);
         return callback == listener->callback && thisArg == listener->thisArg;
     }
 }

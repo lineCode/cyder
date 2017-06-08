@@ -27,6 +27,7 @@
 #ifndef CYDER_V8EVENTLISTENER_H
 #define CYDER_V8EVENTLISTENER_H
 
+#include <memory>
 #include <v8.h>
 #include "modules/events/EventListener.h"
 
@@ -34,16 +35,25 @@ namespace cyder {
 
     class V8EventListener : public EventListener {
     public:
-        V8EventListener(const v8::Local<v8::Function> callback, const v8::Local<v8::Object>& thisArg,
-                        v8::Isolate* isolate);
+        static std::shared_ptr<EventListener> Create(const v8::Local<v8::Function> callback,
+                                                     const v8::Local<v8::Object>& thisArg,
+                                                     v8::Isolate* isolate) {
+            std::shared_ptr<V8EventListener> listener(new V8EventListener(callback, thisArg, isolate));
+            return listener;
+        }
+
         ~V8EventListener() override;
 
-        void operator()(Event* event) const override;
-        bool operator==(const EventListener& target) const override;
+        void handleEvent(Event* event) const override;
+        bool equals(const EventListener* target) const override;
 
     private:
         v8::Persistent<v8::Object> callback;
         v8::Persistent<v8::Object> thisArg;
+
+        V8EventListener(const v8::Local<v8::Function> callback,
+                        const v8::Local<v8::Object>& thisArg,
+                        v8::Isolate* isolate);
     };
 
 }

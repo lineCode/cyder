@@ -36,17 +36,18 @@ namespace cyder {
         virtual ~EventListener() {
         }
 
-        virtual void operator()(Event* event) const {
-        };
 
-        virtual bool operator==(const EventListener& target) const {
-            return false;
-        };
+        virtual void handleEvent(Event* event) const = 0;
 
-        bool operator!=(const EventListener& target) const {
-            return !operator==(target);
-        }
+        virtual bool equals(const EventListener* target) const = 0;
     };
+
+    typedef std::shared_ptr<EventListener> EventListenerPtr;
+
+    inline bool operator==(const EventListenerPtr left, const EventListenerPtr right) {
+        return left->equals(right.get());
+    }
+
 
 }
 

@@ -44,15 +44,15 @@ namespace cyder {
         /**
          * Data with event information.
          */
-        class EventNode {
+        struct EventNode {
         public:
-            EventNode(const std::string& type, const EventListener& listener,
+            EventNode(const std::string& type, const EventListenerPtr listener,
                       EventEmitter* target, bool emitOnce) :
                     type(type), listener(listener), target(target), emitOnce(emitOnce) {
             }
 
             const std::string type;
-            const EventListener listener;
+            const EventListenerPtr listener;
             EventEmitter* target;
             const bool emitOnce;
         };
@@ -86,7 +86,7 @@ namespace cyder {
          * @param listener The listener function that processes the event.
          * @param thisArg The value of this provided for the call to a listener function.
          */
-        void on(const std::string& type, const EventListener& listener) {
+        void on(const std::string& type, const EventListenerPtr listener) {
             doAddListener(type, listener, false);
         }
 
@@ -98,7 +98,7 @@ namespace cyder {
          * @param listener The listener function that processes the event.
          * @param thisArg The value of this provided for the call to a listener function.
          */
-        void once(const std::string& type, const EventListener& listener) {
+        void once(const std::string& type, const EventListenerPtr listener) {
             doAddListener(type, listener, true);
         }
 
@@ -109,7 +109,7 @@ namespace cyder {
          * @param listener The listener function to be removed.
          * @param thisArg The value of this provided for the call to a listener function.
          */
-        void removeListener(const std::string& type, const EventListener& listener);
+        void removeListener(const std::string& type, const EventListenerPtr listener);
 
         /**
          * Checks whether the EventEmitter object has any listeners registered for a specific type of event. This allows
@@ -141,10 +141,10 @@ namespace cyder {
         EventMap* eventsMap = new EventMap();
         int notifyLevel = 0;
 
-        void doAddListener(const std::string& type, const EventListener& listener, bool emitOnce);
-        bool insertEventNode(EventListPtr list, const std::string& type, const EventListener& listener,
+        void doAddListener(const std::string& type, const EventListenerPtr listener, bool emitOnce);
+        bool insertEventNode(EventListPtr list, const std::string& type, const EventListenerPtr listener,
                              bool emitOnce = false);
-        bool removeEventNode(EventListPtr list, const EventListener& listener);
+        bool removeEventNode(EventListPtr list, const EventListenerPtr listener);
 
     };
 
