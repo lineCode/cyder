@@ -35,10 +35,10 @@ namespace cyder {
 
     class V8EventListener : public EventListener {
     public:
-        static std::shared_ptr<EventListener> Create(const v8::Local<v8::Function> callback,
-                                                     const v8::Local<v8::Object>& thisArg,
-                                                     v8::Isolate* isolate) {
-            std::shared_ptr<V8EventListener> listener(new V8EventListener(callback, thisArg, isolate));
+        static EventListenerPtr Create(const v8::Local<v8::Function> callback,
+                                       const v8::Local<v8::Object>& thisArg,
+                                       v8::Isolate* isolate) {
+            EventListenerPtr listener(new V8EventListener(callback, thisArg, isolate));
             return listener;
         }
 

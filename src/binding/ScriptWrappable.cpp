@@ -48,7 +48,7 @@ namespace cyder {
         if (!persistent.IsEmpty()) {
             return false;
         }
-        wrapper->SetAlignedPointerInInternalField(WRAPPER_OBJECT_INDEX, this);
+        wrapper->SetAlignedPointerInInternalField(InternalFields::WrapperObjectIndex, this);
         persistent.Reset(isolate, wrapper);
         persistent.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
         return true;

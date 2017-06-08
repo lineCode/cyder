@@ -25,8 +25,41 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8Event.h"
-#include "modules/events/Event.h"
+#include "binding/ToNative.h"
 
 namespace cyder {
+
+    void V8Event::typeAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
+
+    void V8Event::targetAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
+
+    void V8Event::cancelableAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
+
+    void V8Event::isDefaultPreventedAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
+
+    void V8Event::preventDefaultMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
+
     const WrapperTypeInfo& Event::wrapperTypeInfo = {};
+
+    v8::Local<v8::FunctionTemplate> V8Event::classTemplate(v8::Isolate* isolate) {
+        return v8::Local<v8::FunctionTemplate>();
+    }
+
+    bool V8Event::hasInstance(v8::Local<v8::Value> value, v8::Isolate* isolate) {
+        return true;
+    }
+
+    Event* V8Event::toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value) {
+        return hasInstance(value, isolate) ? ToImpl<Event>(v8::Local<v8::Object>::Cast(value)) : nullptr;
+    }
 }

@@ -34,7 +34,13 @@ namespace cyder {
 
     inline ScriptWrappable* ToScriptWrappable(const v8::Local<v8::Object>& wrapper) {
         return reinterpret_cast<ScriptWrappable*>(wrapper->GetAlignedPointerFromInternalField(
-                ScriptWrappable::WRAPPER_OBJECT_INDEX));
+                InternalFields::WrapperObjectIndex));
+    }
+
+    template<class T>
+    inline T* ToImpl(const v8::Local<v8::Object>& wrapper) {
+        return reinterpret_cast<T*>(wrapper->GetAlignedPointerFromInternalField(
+                InternalFields::WrapperObjectIndex));
     }
 
     /**

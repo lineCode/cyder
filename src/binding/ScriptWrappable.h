@@ -46,8 +46,6 @@ namespace cyder {
     class ScriptWrappable {
     public:
 
-        static const int WRAPPER_OBJECT_INDEX = 0;
-
         ScriptWrappable() {
         }
 

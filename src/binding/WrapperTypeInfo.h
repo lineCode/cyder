@@ -31,15 +31,13 @@
 
 namespace cyder {
 
-    enum InternalFields {
-        WrapperInfoIndex,
-        EncodedValueIndex,
-        NumberOfInternalFields,
+    class InternalFields {
+    public:
+        static const int WrapperObjectIndex = 0;
+        static const int HiddenValuesIndex = 1;
+        static const int DefaultInternalFieldCount = 1;
     };
 
-    static const int V8DOMWrapperTypeIndex = static_cast<int>(WrapperInfoIndex);
-    static const int V8DOMWrapperObjectIndex = static_cast<int>(EncodedValueIndex);
-    static const int V8DefaultWrapperInternalFieldCount = static_cast<int>(NumberOfInternalFields);
     static const int V8PrototypeTypeIndex = 0;
     static const int V8PrototypeInternalFieldCount = 1;
 
