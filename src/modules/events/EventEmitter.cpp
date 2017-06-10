@@ -37,7 +37,7 @@ namespace cyder {
         auto item = eventsMap->find(type);
         if (item == eventsMap->end()) {
             EventListPtr newList(new EventList());
-            eventsMap->insert(EventMapPair(type, newList));
+            eventsMap->insert(std::make_pair(type, newList));
             list = newList;
         } else {
             list = item->second;
@@ -45,7 +45,7 @@ namespace cyder {
                 EventListPtr tempList(new EventList());
                 (*tempList) = (*list); // clone the list in case that we are in the middle of dispatching events.
                 eventsMap->erase(item);
-                eventsMap->insert(EventMapPair(type, tempList));
+                eventsMap->insert(std::make_pair(type, tempList));
                 list = tempList;
             }
         }
@@ -74,7 +74,7 @@ namespace cyder {
             EventListPtr tempList(new EventList());
             (*tempList) = (*list); // clone the list in case that we are in the middle of dispatching events.
             eventsMap->erase(item);
-            eventsMap->insert(EventMapPair(type, tempList));
+            eventsMap->insert(std::make_pair(type, tempList));
             list = tempList;
         }
         removeEventNode(list, listener);

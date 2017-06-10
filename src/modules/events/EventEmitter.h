@@ -60,7 +60,6 @@ namespace cyder {
         typedef std::vector<EventNode*> EventList;
         typedef std::shared_ptr<EventList> EventListPtr;
         typedef std::unordered_map<std::string, EventListPtr> EventMap;
-        typedef EventMap::value_type EventMapPair;
 
     public:
         /**

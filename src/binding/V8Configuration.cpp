@@ -24,39 +24,23 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#include "V8Configuration.h"
 #include "PerIsolateData.h"
+#include "ObjectConstructor.h"
 
 namespace cyder {
-    PerIsolateData::PerIsolateData(v8::Isolate* isolate) : _isolate(isolate) {
-        _isolate->Enter();
-    }
-
-    PerIsolateData::~PerIsolateData() {
-        _isolate->Exit();
-    }
-
-    v8::MaybeLocal<v8::FunctionTemplate> PerIsolateData::findClassTemplate(const WrapperTypeInfo* typeInfo) {
-        auto result = classTemplateMap.find(typeInfo);
-        if (result == classTemplateMap.end()) {
-            return v8::MaybeLocal<v8::FunctionTemplate>();
+    v8::Local<v8::FunctionTemplate> V8Configuration::ClassTemplate(v8::Isolate* isolate,
+                                                                   const WrapperTypeInfo* typeInfo,
+                                                                   InstallTemplateFunction installTemplateFunction) {
+        auto data = PerIsolateData::From(isolate);
+        auto result = data->findClassTemplate(typeInfo);
+        if (!result.IsEmpty()) {
+            return result.ToLocalChecked();
         }
-
-        auto classTemplate = result->second.Get(_isolate);
-        return v8::MaybeLocal<v8::FunctionTemplate>(classTemplate);
+        auto classTemplate = v8::FunctionTemplate::New(isolate, ObjectConstructor::IsValidConstructorMode);
+        installTemplateFunction(isolate, classTemplate);
+        data->setInterfaceTemplate(typeInfo, classTemplate);
+        return classTemplate;
     }
 
-    void PerIsolateData::setInterfaceTemplate(const WrapperTypeInfo* typeInfo,
-                                              const v8::Local<v8::FunctionTemplate>& classTemplate) {
-        v8::Eternal<v8::FunctionTemplate> handle(_isolate, classTemplate);
-        classTemplateMap.insert(std::make_pair(typeInfo, std::move(handle)));
-    }
-
-    bool PerIsolateData::hasInstance(const WrapperTypeInfo* typeInfo, const v8::Local<v8::Value>& value) {
-        auto result = classTemplateMap.find(typeInfo);
-        if (result == classTemplateMap.end()) {
-            return false;
-        }
-        auto classTemplate = result->second.Get(_isolate);
-        return classTemplate->HasInstance(value);
-    }
 }

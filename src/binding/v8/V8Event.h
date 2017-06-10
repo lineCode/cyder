@@ -37,7 +37,7 @@ namespace cyder {
         static bool hasInstance(v8::Local<v8::Value> value, v8::Isolate* isolate);
         static v8::Local<v8::FunctionTemplate> classTemplate(v8::Isolate* isolate);
         static Event* toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value);
-
+        static const WrapperTypeInfo wrapperTypeInfo;
         static void constructorCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static const int internalFieldCount = InternalFields::DefaultInternalFieldCount;
 

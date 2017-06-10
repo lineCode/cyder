@@ -25,9 +25,19 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8Event.h"
+#include "binding/V8Configuration.h"
 #include "binding/ToNative.h"
+#include "binding/PerIsolateData.h"
 
 namespace cyder {
+
+    const WrapperTypeInfo V8Event::wrapperTypeInfo = {};
+
+    const WrapperTypeInfo& Event::wrapperTypeInfo = V8Event::wrapperTypeInfo;
+
+    void V8Event::constructorCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
 
     void V8Event::typeAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
@@ -49,14 +59,16 @@ namespace cyder {
 
     }
 
-    const WrapperTypeInfo& Event::wrapperTypeInfo = {};
+    static void installV8EventTemplate(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> classTemplate) {
+
+    }
 
     v8::Local<v8::FunctionTemplate> V8Event::classTemplate(v8::Isolate* isolate) {
-        return v8::Local<v8::FunctionTemplate>();
+        return V8Configuration::ClassTemplate(isolate, &wrapperTypeInfo, installV8EventTemplate);
     }
 
     bool V8Event::hasInstance(v8::Local<v8::Value> value, v8::Isolate* isolate) {
-        return true;
+        return PerIsolateData::From(isolate)->hasInstance(&wrapperTypeInfo, value);
     }
 
     Event* V8Event::toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value) {

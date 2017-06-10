@@ -60,7 +60,7 @@ namespace cyder {
         static v8::MaybeLocal<v8::Object> NewInstance(v8::Isolate* isolate, v8::Local<v8::Function> classFunction,
                                                       int argc = 0, v8::Local<v8::Value> argv[] = nullptr);
 
-        static void IsValidConstructorMode(const v8::FunctionCallbackInfo<v8::Value>&);
+        static void IsValidConstructorMode(const v8::FunctionCallbackInfo<v8::Value>& info);
     };
 
 }

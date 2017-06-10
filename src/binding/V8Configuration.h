@@ -24,39 +24,25 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "PerIsolateData.h"
+#ifndef CYDER_V8CONFIGURATION_H
+#define CYDER_V8CONFIGURATION_H
+
+#include <functional>
+#include <v8.h>
+#include "binding/WrapperTypeInfo.h"
 
 namespace cyder {
-    PerIsolateData::PerIsolateData(v8::Isolate* isolate) : _isolate(isolate) {
-        _isolate->Enter();
-    }
 
-    PerIsolateData::~PerIsolateData() {
-        _isolate->Exit();
-    }
+    typedef std::function<void(v8::Isolate* isolate,
+                               v8::Local<v8::FunctionTemplate> classTemplate)> InstallTemplateFunction;
 
-    v8::MaybeLocal<v8::FunctionTemplate> PerIsolateData::findClassTemplate(const WrapperTypeInfo* typeInfo) {
-        auto result = classTemplateMap.find(typeInfo);
-        if (result == classTemplateMap.end()) {
-            return v8::MaybeLocal<v8::FunctionTemplate>();
-        }
+    class V8Configuration {
+    public:
+        static v8::Local<v8::FunctionTemplate> ClassTemplate(v8::Isolate* isolate,
+                                                             const WrapperTypeInfo* typeInfo,
+                                                             InstallTemplateFunction installTemplateFunction);
+    };
 
-        auto classTemplate = result->second.Get(_isolate);
-        return v8::MaybeLocal<v8::FunctionTemplate>(classTemplate);
-    }
-
-    void PerIsolateData::setInterfaceTemplate(const WrapperTypeInfo* typeInfo,
-                                              const v8::Local<v8::FunctionTemplate>& classTemplate) {
-        v8::Eternal<v8::FunctionTemplate> handle(_isolate, classTemplate);
-        classTemplateMap.insert(std::make_pair(typeInfo, std::move(handle)));
-    }
-
-    bool PerIsolateData::hasInstance(const WrapperTypeInfo* typeInfo, const v8::Local<v8::Value>& value) {
-        auto result = classTemplateMap.find(typeInfo);
-        if (result == classTemplateMap.end()) {
-            return false;
-        }
-        auto classTemplate = result->second.Get(_isolate);
-        return classTemplate->HasInstance(value);
-    }
 }
+
+#endif //CYDER_V8CONFIGURATION_H
