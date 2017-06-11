@@ -30,14 +30,14 @@
 namespace cyder {
 
     DelayedScriptValue ConstantValue(double value) {
-        return std::bind((v8::Local<v8::Number>(*)(double, v8::Isolate*)) ToV8, value, std::placeholders::_1);
+        return std::bind((v8::Local<v8::Number>(*)(v8::Isolate*, double)) ToV8, std::placeholders::_1, value);
     }
 
     DelayedScriptValue ConstantValue(int value) {
-        return std::bind((v8::Local<v8::Value>(*)(int, v8::Isolate*)) ToV8, value, std::placeholders::_1);
+        return std::bind((v8::Local<v8::Value>(*)(v8::Isolate*, int)) ToV8, std::placeholders::_1, value);
     }
 
     DelayedScriptValue ConstantValue(const char* value) {
-        return std::bind((v8::Local<v8::String>(*)(const char*, v8::Isolate*)) ToV8, value, std::placeholders::_1);
+        return std::bind((v8::Local<v8::String>(*)(v8::Isolate*, const char*)) ToV8, std::placeholders::_1, value);
     }
 }

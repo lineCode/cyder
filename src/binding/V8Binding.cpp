@@ -27,6 +27,7 @@
 #include "V8Binding.h"
 #include "PerIsolateData.h"
 #include "ObjectConstructor.h"
+#include "ToV8.h"
 
 namespace cyder {
     v8::Local<v8::FunctionTemplate> V8Binding::ClassTemplate(v8::Isolate* isolate,
@@ -36,7 +37,8 @@ namespace cyder {
         if (!result.IsEmpty()) {
             return result.ToLocalChecked();
         }
-        auto classTemplate = CreateClassTemplate(isolate, typeInfo);
+        auto classTemplate = v8::FunctionTemplate::New(isolate, ObjectConstructor::IsValidConstructorMode);
+        InstallClassTemplate(isolate, typeInfo, classTemplate);
         data->setInterfaceTemplate(typeInfo, classTemplate);
         return classTemplate;
     }
@@ -52,12 +54,56 @@ namespace cyder {
         return result.ToLocalChecked()->HasInstance(value);
     }
 
-    v8::Local<v8::FunctionTemplate> V8Binding::CreateClassTemplate(v8::Isolate* isolate,
-                                                                   const WrapperTypeInfo* typeInfo) {
-        auto classTemplate = v8::FunctionTemplate::New(isolate, ObjectConstructor::IsValidConstructorMode);
-
-        return classTemplate;
+    void V8Binding::InstallClassTemplate(v8::Isolate* isolate,
+                                         const WrapperTypeInfo* typeInfo,
+                                         v8::Local<v8::FunctionTemplate> classTemplate) {
+        classTemplate->SetClassName(ToV8(isolate, typeInfo->className));
+        classTemplate->ReadOnlyPrototype();
+        auto instanceTemplate = classTemplate->InstanceTemplate();
+        auto prototypeTemplate = classTemplate->PrototypeTemplate();
+        instanceTemplate->SetInternalFieldCount(InternalFields::DefaultInternalFieldCount);
+        prototypeTemplate->Set(v8::Symbol::GetToStringTag(isolate), ToV8(isolate, typeInfo->className),
+                               static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontEnum));
+        if (typeInfo->parentClass) {
+            auto parentClassTemplate = ClassTemplate(isolate, typeInfo->parentClass);
+            classTemplate->Inherit(parentClassTemplate);
+        }
+        if (typeInfo->constructor) {
+            classTemplate->SetCallHandler(typeInfo->constructor);
+            classTemplate->SetLength(typeInfo->constructorLength);
+        }
+        if (typeInfo->accessorCount) {
+            InstallAccessors(isolate, prototypeTemplate, typeInfo->accessors, typeInfo->accessorCount);
+        }
+        if (typeInfo->methodCount) {
+            InstallMethods(isolate, prototypeTemplate, typeInfo->methods, typeInfo->methodCount);
+        }
+        if (typeInfo->constantCount) {
+            InstallConstants(isolate, classTemplate, typeInfo->constants, typeInfo->constantCount);
+        }
+        if (typeInfo->lazyAttributeCount) {
+            InstallLazyAttributes(isolate, instanceTemplate, typeInfo->lazyAttributes, typeInfo->lazyAttributeCount);
+        }
     }
 
+    void V8Binding::InstallAccessors(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                     const AccessorConfiguration* accessors, int accessorCount) {
+
+    }
+
+    void V8Binding::InstallMethods(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                   const MethodConfiguration* methods, int methodCount) {
+
+    }
+
+    void V8Binding::InstallConstants(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> classTemplate,
+                                     const ConstantConfiguration* constants, int constantCount) {
+
+    }
+
+    void V8Binding::InstallLazyAttributes(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> instanceTemplate,
+                                          const LazyAttributeConfiguration* lazyAttributes, int lazyAttributeCount) {
+
+    }
 
 }

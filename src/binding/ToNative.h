@@ -40,34 +40,34 @@ namespace cyder {
     /**
      * Convert a value to a boolean.
      */
-    bool ToBooleanSlow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    bool ToBooleanSlow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
-    inline bool ToBoolean(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    inline bool ToBoolean(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         if (value->IsBoolean()) {
             return value.As<v8::Boolean>()->Value();
         }
-        return ToBooleanSlow(value, isolate, exceptionState);
+        return ToBooleanSlow(isolate, value, exceptionState);
     }
 
     /**
      * Convert a value to a 32-bit signed integer. The conversion fails if the value cannot be converted to a number.
      */
-    int32_t ToInt32Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    int32_t ToInt32Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
-    inline int32_t ToInt32(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    inline int32_t ToInt32(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         // Fast case. The value is already a 32-bit integer.
         if (value->IsInt32()) {
             return value.As<v8::Int32>()->Value();
         }
-        return ToInt32Slow(value, isolate, exceptionState);
+        return ToInt32Slow(isolate, value, exceptionState);
     }
 
     /**
      * Convert a value to a 32-bit unsigned integer. The conversion fails if the value cannot be converted to a number.
      */
-    uint32_t ToUInt32Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    uint32_t ToUInt32Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
-    inline uint32_t ToUInt32(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    inline uint32_t ToUInt32(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         // Fast case. The value is already a 32-bit unsigned integer.
         if (value->IsUint32()) {
             return value.As<v8::Uint32>()->Value();
@@ -77,29 +77,29 @@ namespace cyder {
         if (value->IsInt32()) {
             return static_cast<uint32_t>(value.As<v8::Int32>()->Value());
         }
-        return ToUInt32Slow(value, isolate, exceptionState);
+        return ToUInt32Slow(isolate, value, exceptionState);
     }
 
     /*
      * Convert a value to a 64-bit signed integer. The conversion fails if the value cannot be converted to a number.
      */
-    int64_t ToInt64Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    int64_t ToInt64Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
-    inline int64_t ToInt64(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    inline int64_t ToInt64(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         // Fast case. The value is a 32-bit integer.
         if (value->IsInt32()) {
             return value.As<v8::Int32>()->Value();
         }
-        return ToInt64Slow(value, isolate, exceptionState);
+        return ToInt64Slow(isolate, value, exceptionState);
     }
 
     /*
      * Convert a value to a 64-bit unsigned integer. The conversion fails if the value cannot be converted to a number
      * or the range violated per WebIDL: http://www.w3.org/TR/WebIDL/#es-unsigned-long-long
      */
-    uint64_t ToUInt64Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    uint64_t ToUInt64Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
-    inline uint64_t ToUInt64(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    inline uint64_t ToUInt64(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         // Fast case. The value is a 32-bit unsigned integer.
         if (value->IsUint32()) {
             return value.As<v8::Uint32>()->Value();
@@ -107,27 +107,27 @@ namespace cyder {
         if (value->IsInt32()) {
             return static_cast<uint32_t>(value.As<v8::Int32>()->Value());
         }
-        return ToUInt64Slow(value, isolate, exceptionState);
+        return ToUInt64Slow(isolate, value, exceptionState);
     }
 
-    inline int ToInt(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
-        return ToInt32(value, isolate, exceptionState);
+    inline int ToInt(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
+        return ToInt32(isolate, value, exceptionState);
     }
 
-    inline unsigned int ToUInt(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
-        return ToUInt32(value, isolate, exceptionState);
+    inline unsigned int ToUInt(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
+        return ToUInt32(isolate, value, exceptionState);
     }
 
     /**
      * Convert a value to a double precision float, which might fail.
      */
-    double ToDoubleSlow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    double ToDoubleSlow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
-    inline double ToDouble(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    inline double ToDouble(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         if (value->IsNumber()) {
             return value.As<v8::Number>()->Value();
         }
-        return ToDoubleSlow(value, isolate, exceptionState);
+        return ToDoubleSlow(isolate, value, exceptionState);
     }
 
     /**
@@ -139,7 +139,7 @@ namespace cyder {
      * Convert a value to a single precision float, which might fail.
      */
     inline float ToFloat(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
-        return static_cast<float>(ToDouble(value, isolate, exceptionState));
+        return static_cast<float>(ToDouble(isolate, value, exceptionState));
     }
 
     /**

@@ -33,8 +33,9 @@
 namespace cyder {
 
 
-    inline v8::Local<v8::Value> ToV8(ScriptWrappable* impl, v8::Isolate* isolate,
-                                     const v8::Local<v8::Object>& creationContext) {
+    inline v8::Local<v8::Value> ToV8(v8::Isolate* isolate,
+                                     const v8::Local<v8::Object>& creationContext,
+                                     ScriptWrappable* impl) {
         if (!impl) {
             return v8::Null(isolate);
         }
@@ -45,15 +46,15 @@ namespace cyder {
     }
 
     template<size_t sizeOfValue>
-    inline v8::Local<v8::Value> ToV8SignedIntegerInternal(int64_t value, v8::Isolate*);
+    inline v8::Local<v8::Value> ToV8SignedIntegerInternal(v8::Isolate*, int64_t value);
 
     template<>
-    inline v8::Local<v8::Value> ToV8SignedIntegerInternal<4>(int64_t value, v8::Isolate* isolate) {
+    inline v8::Local<v8::Value> ToV8SignedIntegerInternal<4>(v8::Isolate* isolate, int64_t value) {
         return v8::Integer::New(isolate, static_cast<int32_t>(value));
     }
 
     template<>
-    inline v8::Local<v8::Value> ToV8SignedIntegerInternal<8>(int64_t value, v8::Isolate* isolate) {
+    inline v8::Local<v8::Value> ToV8SignedIntegerInternal<8>(v8::Isolate* isolate, int64_t value) {
         int32_t value_in32_bit = static_cast<int32_t>(value);
         if (value_in32_bit == value) {
             return v8::Integer::New(isolate, value);
@@ -63,15 +64,15 @@ namespace cyder {
     }
 
     template<size_t sizeOfValue>
-    inline v8::Local<v8::Value> ToV8UnsignedIntegerInternal(uint64_t value, v8::Isolate*);
+    inline v8::Local<v8::Value> ToV8UnsignedIntegerInternal(v8::Isolate*, uint64_t value);
 
     template<>
-    inline v8::Local<v8::Value> ToV8UnsignedIntegerInternal<4>(uint64_t value, v8::Isolate* isolate) {
+    inline v8::Local<v8::Value> ToV8UnsignedIntegerInternal<4>(v8::Isolate* isolate, uint64_t value) {
         return v8::Integer::NewFromUnsigned(isolate, static_cast<uint32_t>(value));
     }
 
     template<>
-    inline v8::Local<v8::Value> ToV8UnsignedIntegerInternal<8>(uint64_t value, v8::Isolate* isolate) {
+    inline v8::Local<v8::Value> ToV8UnsignedIntegerInternal<8>(v8::Isolate* isolate, uint64_t value) {
         uint32_t value_in32_bit = static_cast<uint32_t>(value);
         if (value_in32_bit == value)
             return v8::Integer::NewFromUnsigned(isolate, value);
@@ -79,45 +80,45 @@ namespace cyder {
         return v8::Number::New(isolate, value);
     }
 
-    inline v8::Local<v8::Value> ToV8(int value, v8::Isolate* isolate) {
-        return ToV8SignedIntegerInternal<sizeof value>(value, isolate);
+    inline v8::Local<v8::Value> ToV8(v8::Isolate* isolate, int value) {
+        return ToV8SignedIntegerInternal<sizeof value>(isolate, value);
     }
 
-    inline v8::Local<v8::Value> ToV8(long value, v8::Isolate* isolate) {
-        return ToV8SignedIntegerInternal<sizeof value>(value, isolate);
+    inline v8::Local<v8::Value> ToV8(v8::Isolate* isolate, long value) {
+        return ToV8SignedIntegerInternal<sizeof value>(isolate, value);
     }
 
-    inline v8::Local<v8::Value> ToV8(long long value, v8::Isolate* isolate) {
-        return ToV8SignedIntegerInternal<sizeof value>(value, isolate);
+    inline v8::Local<v8::Value> ToV8(v8::Isolate* isolate, long long value) {
+        return ToV8SignedIntegerInternal<sizeof value>(isolate, value);
     }
 
-    inline v8::Local<v8::Value> ToV8(unsigned value, v8::Isolate* isolate) {
-        return ToV8UnsignedIntegerInternal<sizeof value>(value, isolate);
+    inline v8::Local<v8::Value> ToV8(v8::Isolate* isolate, unsigned value) {
+        return ToV8UnsignedIntegerInternal<sizeof value>(isolate, value);
     }
 
-    inline v8::Local<v8::Value> ToV8(unsigned long value, v8::Isolate* isolate) {
-        return ToV8UnsignedIntegerInternal<sizeof value>(value, isolate);
+    inline v8::Local<v8::Value> ToV8(v8::Isolate* isolate, unsigned long value) {
+        return ToV8UnsignedIntegerInternal<sizeof value>(isolate, value);
     }
 
-    inline v8::Local<v8::Value> ToV8(unsigned long long value, v8::Isolate* isolate) {
-        return ToV8UnsignedIntegerInternal<sizeof value>(value, isolate);
+    inline v8::Local<v8::Value> ToV8(v8::Isolate* isolate, unsigned long long value) {
+        return ToV8UnsignedIntegerInternal<sizeof value>(isolate, value);
     }
 
-    inline v8::Local<v8::Number> ToV8(double value, v8::Isolate* isolate) {
+    inline v8::Local<v8::Number> ToV8(v8::Isolate* isolate, double value) {
         return v8::Number::New(isolate, value);
     }
 
-    inline v8::Local<v8::Boolean> ToV8(bool value, v8::Isolate* isolate) {
+    inline v8::Local<v8::Boolean> ToV8(v8::Isolate* isolate, bool value) {
         return v8::Boolean::New(isolate, value);
     }
 
-    inline v8::Local<v8::String> ToV8(const char* text, v8::Isolate* isolate) {
+    inline v8::Local<v8::String> ToV8(v8::Isolate* isolate, const char* text) {
         static auto type = v8::NewStringType::kNormal;
         return v8::String::NewFromUtf8(isolate, text, type).ToLocalChecked();
     }
 
-    inline v8::Local<v8::String> ToV8(const std::string& text, v8::Isolate* isolate) {
-        return ToV8(text.c_str(), isolate);
+    inline v8::Local<v8::String> ToV8(v8::Isolate* isolate, const std::string& text) {
+        return ToV8(isolate, text.c_str());
     }
 }
 

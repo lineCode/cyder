@@ -40,8 +40,27 @@ namespace cyder {
                                 const WrapperTypeInfo* typeInfo,
                                 const v8::Local<v8::Value>& value);
     private:
-        static v8::Local<v8::FunctionTemplate> CreateClassTemplate(v8::Isolate* isolate,
-                                                                   const WrapperTypeInfo* typeInfo);
+        static void InstallClassTemplate(v8::Isolate* isolate,
+                                         const WrapperTypeInfo* typeInfo,
+                                         v8::Local<v8::FunctionTemplate> classTemplate);
+        static void InstallAccessors(v8::Isolate* isolate,
+                                     v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                     const AccessorConfiguration* accessors,
+                                     int accessorCount);
+        static void InstallMethods(v8::Isolate* isolate,
+                                   v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                   const MethodConfiguration* methods,
+                                   int methodCount);
+
+        static void InstallConstants(v8::Isolate* isolate,
+                                     v8::Local<v8::FunctionTemplate> classTemplate,
+                                     const ConstantConfiguration* constants,
+                                     int constantCount);
+
+        static void InstallLazyAttributes(v8::Isolate* isolate,
+                                          v8::Local<v8::ObjectTemplate> instanceTemplate,
+                                          const LazyAttributeConfiguration* lazyAttributes,
+                                          int lazyAttributeCount);
     };
 
 }

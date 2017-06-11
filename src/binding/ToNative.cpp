@@ -28,7 +28,7 @@
 #include <cmath>
 
 namespace cyder {
-    bool ToBooleanSlow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    bool ToBooleanSlow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         v8::TryCatch block(isolate);
         bool result = false;
         if (!value->BooleanValue(isolate->GetCurrentContext()).To(&result)) {
@@ -38,7 +38,7 @@ namespace cyder {
     }
 
 
-    int32_t ToInt32Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    int32_t ToInt32Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         // Can the value be converted to a number?
         v8::TryCatch block(isolate);
         v8::Local<v8::Number> numberObject;
@@ -59,7 +59,7 @@ namespace cyder {
         return result;
     }
 
-    uint32_t ToUInt32Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    uint32_t ToUInt32Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         if (value->IsInt32()) {
             int32_t result = value.As<v8::Int32>()->Value();
             if (result >= 0) {
@@ -116,7 +116,7 @@ namespace cyder {
     }
 
 
-    int64_t ToInt64Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    int64_t ToInt64Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         v8::Local<v8::Number> numberObject;
         // Can the value be converted to a number?
         v8::TryCatch block(isolate);
@@ -136,7 +136,7 @@ namespace cyder {
         return integer;
     }
 
-    uint64_t ToUInt64Slow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    uint64_t ToUInt64Slow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         if (value->IsInt32()) {
             int32_t result = value.As<v8::Int32>()->Value();
             if (result >= 0) {
@@ -163,7 +163,7 @@ namespace cyder {
         return integer;
     }
 
-    float ToRestrictedFloat(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    float ToRestrictedFloat(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         float number_value = ToFloat(value, isolate, exceptionState);
         if (exceptionState.hadException())
             return 0;
@@ -174,7 +174,7 @@ namespace cyder {
         return number_value;
     }
 
-    double ToDoubleSlow(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    double ToDoubleSlow(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         v8::TryCatch block(isolate);
         v8::Local<v8::Number> number_value;
         if (!value->ToNumber(isolate->GetCurrentContext()).ToLocal(&number_value)) {
@@ -184,8 +184,8 @@ namespace cyder {
         return number_value->Value();
     }
 
-    double ToRestrictedDouble(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
-        double numberValue = ToDouble(value, isolate, exceptionState);
+    double ToRestrictedDouble(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
+        double numberValue = ToDouble(isolate, value, exceptionState);
         if (exceptionState.hadException())
             return 0;
         if (!std::isfinite(numberValue)) {
@@ -196,7 +196,7 @@ namespace cyder {
     }
 
 
-    std::string ToStdString(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    std::string ToStdString(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         if (value.IsEmpty()) {
             return "";
         }

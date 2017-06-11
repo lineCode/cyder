@@ -28,23 +28,23 @@
 
 namespace cyder {
     v8::Local<v8::Value> ThrowException::CreateError(v8::Isolate* isolate, const std::string& message) {
-        return v8::Exception::Error(ToV8(message, isolate));
+        return v8::Exception::Error(ToV8(isolate, message));
     }
 
     v8::Local<v8::Value> ThrowException::CreateRangeError(v8::Isolate* isolate, const std::string& message) {
-        return v8::Exception::RangeError(ToV8(message, isolate));
+        return v8::Exception::RangeError(ToV8(isolate, message));
     }
 
     v8::Local<v8::Value> ThrowException::CreateReferenceError(v8::Isolate* isolate, const std::string& message) {
-        return v8::Exception::ReferenceError(ToV8(message, isolate));
+        return v8::Exception::ReferenceError(ToV8(isolate, message));
     }
 
     v8::Local<v8::Value> ThrowException::CreateSyntaxError(v8::Isolate* isolate, const std::string& message) {
-        return v8::Exception::SyntaxError(ToV8(message, isolate));
+        return v8::Exception::SyntaxError(ToV8(isolate, message));
     }
 
     v8::Local<v8::Value> ThrowException::CreateTypeError(v8::Isolate* isolate, const std::string& message) {
-        return v8::Exception::TypeError(ToV8(message, isolate));
+        return v8::Exception::TypeError(ToV8(isolate, message));
     }
 
     void ThrowException::ThrowError(v8::Isolate* isolate, const std::string& message) {

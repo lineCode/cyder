@@ -81,11 +81,11 @@ namespace cyder {
     };
 
     const WrapperTypeInfo V8Event::wrapperTypeInfo = {nullptr, "Event",
-                                                      V8Event::constructorCallback,
-                                                      4, V8EventAccessors,
-                                                      1, V8EventMethods,
-                                                      7, V8EventConstants,
-                                                      0, nullptr};
+                                                      V8Event::constructorCallback, 1,
+                                                      V8EventAccessors, 4,
+                                                      V8EventMethods, 1,
+                                                      V8EventConstants, 7,
+                                                      nullptr, 0};
 
     const WrapperTypeInfo& Event::wrapperTypeInfo = V8Event::wrapperTypeInfo;
 }

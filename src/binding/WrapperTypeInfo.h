@@ -51,7 +51,7 @@ namespace cyder {
         MethodConfiguration& operator=(const MethodConfiguration&) = delete;
         const char* name;
         v8::FunctionCallback callback;
-        int length; // the number of callback function's arguments
+        int length; // the minimum number of callback function's parameters
         unsigned attribute; // v8::PropertyAttribute
     };
 
@@ -85,14 +85,15 @@ namespace cyder {
         const WrapperTypeInfo* parentClass;
         const char* className;
         const v8::FunctionCallback constructor;
-        const int accessorCount;
+        const int constructorLength; // the minimum number of constructor's parameters
         const AccessorConfiguration* accessors;
-        const int methodCount;
+        const int accessorCount;
         const MethodConfiguration* methods;
-        const int constantCount;
+        const int methodCount;
         const ConstantConfiguration* constants;
-        const int lazyAttributeCount;
+        const int constantCount;
         const LazyAttributeConfiguration* lazyAttributes;
+        const int lazyAttributeCount;
     };
 }
 
