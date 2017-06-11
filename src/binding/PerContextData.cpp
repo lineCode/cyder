@@ -26,6 +26,7 @@
 
 #include "PerContextData.h"
 #include "platform/Log.h"
+#include "V8Binding.h"
 #include "ObjectConstructor.h"
 #include "ToV8.h"
 #include "utils/USE.h"
@@ -36,9 +37,6 @@ namespace cyder {
         _context.Reset(_isolate, context);
         context->Enter();
         context->SetAlignedPointerInEmbedderData(CONTEXT_EMBEDDER_DATA_INDEX, this);
-        auto objectValue = context->Global()->Get(context, ToV8("Error", _isolate)).ToLocalChecked();
-        auto prototypeValue = objectValue.As<v8::Object>()->Get(context, ToV8("prototype", _isolate)).ToLocalChecked();
-        errorPrototype.Reset(_isolate, prototypeValue);
     }
 
     PerContextData::~PerContextData() {
@@ -56,8 +54,7 @@ namespace cyder {
     v8::Local<v8::Function> PerContextData::constructorForTypeSlow(const WrapperTypeInfo* type) {
         auto currentContext = context();
         v8::Context::Scope scope(currentContext);
-        ASSERT(type->classTemplateFunction);
-        auto classTemplate = type->classTemplate(_isolate);
+        auto classTemplate = V8Binding::ClassTemplate(_isolate, type);
         auto classFunction = classTemplate->GetFunction(currentContext).ToLocalChecked();
 
         if (type->parentClass) {
@@ -66,21 +63,6 @@ namespace cyder {
             USE(result);
             ASSERT(result.FromMaybe(false))
         }
-
-        auto prototypeValue = classFunction->Get(currentContext, ToV8("prototype", _isolate)).ToLocalChecked();
-        ASSERT(prototypeValue->IsObject());
-        auto prototypeObject = prototypeValue.As<v8::Object>();
-        if (prototypeObject->InternalFieldCount() == V8PrototypeInternalFieldCount &&
-            type->wrapperTypePrototype == WrapperTypeInfo::WrapperTypeObjectPrototype) {
-            prototypeObject->SetAlignedPointerInInternalField(V8PrototypeTypeIndex, const_cast<WrapperTypeInfo*>(type));
-        }
-        if (type->wrapperTypePrototype == WrapperTypeInfo::WrapperTypeExceptionPrototype) {
-            auto errorProto = v8::Local<v8::Value>::New(_isolate, errorPrototype);
-            auto result = prototypeObject->SetPrototype(currentContext, errorProto);
-            USE(result);
-            ASSERT(result.FromMaybe(false))
-        }
-
         v8::UniquePersistent<v8::Function> persistent(_isolate, classFunction);
         constructorMap.insert(std::make_pair(type, std::move(persistent)));
         return classFunction;

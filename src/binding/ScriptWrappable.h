@@ -43,6 +43,12 @@
 
 namespace cyder {
 
+    struct InternalFields {
+        static const int WrapperObjectIndex = 0;
+        static const int HiddenValuesIndex = 1;
+        static const int DefaultInternalFieldCount = 2;
+    };
+
     class ScriptWrappable {
     public:
 
@@ -73,6 +79,11 @@ namespace cyder {
          * associated with a wrapper.
          */
         bool setWrapper(v8::Isolate* isolate, v8::Local<v8::Object> wrapper);
+
+        template<class T>
+        T* toImpl() {
+            return static_cast<T*>(this);
+        }
 
     private:
         static void WeakCallback(const v8::WeakCallbackInfo<ScriptWrappable>& data) {

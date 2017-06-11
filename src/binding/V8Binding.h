@@ -24,23 +24,26 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "V8Configuration.h"
-#include "PerIsolateData.h"
-#include "ObjectConstructor.h"
+#ifndef CYDER_V8BINDING_H
+#define CYDER_V8BINDING_H
+
+#include <v8.h>
+#include "WrapperTypeInfo.h"
 
 namespace cyder {
-    v8::Local<v8::FunctionTemplate> V8Configuration::ClassTemplate(v8::Isolate* isolate,
-                                                                   const WrapperTypeInfo* typeInfo,
-                                                                   InstallTemplateFunction installTemplateFunction) {
-        auto data = PerIsolateData::From(isolate);
-        auto result = data->findClassTemplate(typeInfo);
-        if (!result.IsEmpty()) {
-            return result.ToLocalChecked();
-        }
-        auto classTemplate = v8::FunctionTemplate::New(isolate, ObjectConstructor::IsValidConstructorMode);
-        installTemplateFunction(isolate, classTemplate);
-        data->setInterfaceTemplate(typeInfo, classTemplate);
-        return classTemplate;
-    }
+
+    class V8Binding {
+    public:
+        static v8::Local<v8::FunctionTemplate> ClassTemplate(v8::Isolate* isolate,
+                                                             const WrapperTypeInfo* typeInfo);
+        static bool HasInstance(v8::Isolate* isolate,
+                                const WrapperTypeInfo* typeInfo,
+                                const v8::Local<v8::Value>& value);
+    private:
+        static v8::Local<v8::FunctionTemplate> CreateClassTemplate(v8::Isolate* isolate,
+                                                                   const WrapperTypeInfo* typeInfo);
+    };
 
 }
+
+#endif //CYDER_V8BINDING_H

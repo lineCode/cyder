@@ -24,25 +24,40 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYDER_V8CONFIGURATION_H
-#define CYDER_V8CONFIGURATION_H
-
-#include <functional>
-#include <v8.h>
-#include "binding/WrapperTypeInfo.h"
+#include "V8Binding.h"
+#include "PerIsolateData.h"
+#include "ObjectConstructor.h"
 
 namespace cyder {
+    v8::Local<v8::FunctionTemplate> V8Binding::ClassTemplate(v8::Isolate* isolate,
+                                                             const WrapperTypeInfo* typeInfo) {
+        auto data = PerIsolateData::From(isolate);
+        auto result = data->findClassTemplate(typeInfo);
+        if (!result.IsEmpty()) {
+            return result.ToLocalChecked();
+        }
+        auto classTemplate = CreateClassTemplate(isolate, typeInfo);
+        data->setInterfaceTemplate(typeInfo, classTemplate);
+        return classTemplate;
+    }
 
-    typedef std::function<void(v8::Isolate* isolate,
-                               v8::Local<v8::FunctionTemplate> classTemplate)> InstallTemplateFunction;
+    bool V8Binding::HasInstance(v8::Isolate* isolate,
+                                const WrapperTypeInfo* typeInfo,
+                                const v8::Local<v8::Value>& value) {
+        auto data = PerIsolateData::From(isolate);
+        auto result = data->findClassTemplate(typeInfo);
+        if (result.IsEmpty()) {
+            return false;
+        }
+        return result.ToLocalChecked()->HasInstance(value);
+    }
 
-    class V8Configuration {
-    public:
-        static v8::Local<v8::FunctionTemplate> ClassTemplate(v8::Isolate* isolate,
-                                                             const WrapperTypeInfo* typeInfo,
-                                                             InstallTemplateFunction installTemplateFunction);
-    };
+    v8::Local<v8::FunctionTemplate> V8Binding::CreateClassTemplate(v8::Isolate* isolate,
+                                                                   const WrapperTypeInfo* typeInfo) {
+        auto classTemplate = v8::FunctionTemplate::New(isolate, ObjectConstructor::IsValidConstructorMode);
+
+        return classTemplate;
+    }
+
 
 }
-
-#endif //CYDER_V8CONFIGURATION_H

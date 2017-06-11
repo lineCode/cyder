@@ -50,13 +50,4 @@ namespace cyder {
         v8::Eternal<v8::FunctionTemplate> handle(_isolate, classTemplate);
         classTemplateMap.insert(std::make_pair(typeInfo, std::move(handle)));
     }
-
-    bool PerIsolateData::hasInstance(const WrapperTypeInfo* typeInfo, const v8::Local<v8::Value>& value) {
-        auto result = classTemplateMap.find(typeInfo);
-        if (result == classTemplateMap.end()) {
-            return false;
-        }
-        auto classTemplate = result->second.Get(_isolate);
-        return classTemplate->HasInstance(value);
-    }
 }

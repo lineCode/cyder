@@ -25,6 +25,19 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "WrapperTypeInfo.h"
+#include "ToV8.h"
 
 namespace cyder {
+
+    DelayedScriptValue ConstantValue(double value) {
+        return std::bind((v8::Local<v8::Number>(*)(double, v8::Isolate*)) ToV8, value, std::placeholders::_1);
+    }
+
+    DelayedScriptValue ConstantValue(int value) {
+        return std::bind((v8::Local<v8::Value>(*)(int, v8::Isolate*)) ToV8, value, std::placeholders::_1);
+    }
+
+    DelayedScriptValue ConstantValue(const char* value) {
+        return std::bind((v8::Local<v8::String>(*)(const char*, v8::Isolate*)) ToV8, value, std::placeholders::_1);
+    }
 }

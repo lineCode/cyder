@@ -28,26 +28,20 @@
 #define CYDER_V8EVENT_H
 
 #include <v8.h>
+#include "binding/WrapperTypeInfo.h"
 #include "modules/events/Event.h"
 
 namespace cyder {
 
     class V8Event {
     public:
-        static bool hasInstance(v8::Local<v8::Value> value, v8::Isolate* isolate);
-        static v8::Local<v8::FunctionTemplate> classTemplate(v8::Isolate* isolate);
-        static Event* toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value);
         static const WrapperTypeInfo wrapperTypeInfo;
+        static Event* toImpl(v8::Isolate* isolate, v8::Local<v8::Value> value);
         static void constructorCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
-        static const int internalFieldCount = InternalFields::DefaultInternalFieldCount;
-
-        // Callback functions
-
         static void typeAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void targetAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void cancelableAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void isDefaultPreventedAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
-
         static void preventDefaultMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
     };
 

@@ -24,16 +24,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+#include <binding/V8Binding.h>
 #include "V8Event.h"
-#include "binding/V8Configuration.h"
 #include "binding/ToNative.h"
-#include "binding/PerIsolateData.h"
 
 namespace cyder {
-
-    const WrapperTypeInfo V8Event::wrapperTypeInfo = {};
-
-    const WrapperTypeInfo& Event::wrapperTypeInfo = V8Event::wrapperTypeInfo;
 
     void V8Event::constructorCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
@@ -59,19 +54,38 @@ namespace cyder {
 
     }
 
-    static void installV8EventTemplate(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> classTemplate) {
-
+    Event* V8Event::toImpl(v8::Isolate* isolate, v8::Local<v8::Value> value) {
+        return V8Binding::HasInstance(isolate, &wrapperTypeInfo, value) ?
+               ToScriptWrappable(v8::Local<v8::Object>::Cast(value))->toImpl<Event>() : nullptr;
     }
 
-    v8::Local<v8::FunctionTemplate> V8Event::classTemplate(v8::Isolate* isolate) {
-        return V8Configuration::ClassTemplate(isolate, &wrapperTypeInfo, installV8EventTemplate);
-    }
+    static const AccessorConfiguration V8EventAccessors[] = {
+            {"type",               V8Event::typeAttributeGetterCallback,               nullptr, v8::ReadOnly},
+            {"target",             V8Event::targetAttributeGetterCallback,             nullptr, v8::ReadOnly},
+            {"cancelable",         V8Event::cancelableAttributeGetterCallback,         nullptr, v8::ReadOnly},
+            {"isDefaultPrevented", V8Event::isDefaultPreventedAttributeGetterCallback, nullptr, v8::ReadOnly}
+    };
 
-    bool V8Event::hasInstance(v8::Local<v8::Value> value, v8::Isolate* isolate) {
-        return PerIsolateData::From(isolate)->hasInstance(&wrapperTypeInfo, value);
-    }
+    static const MethodConfiguration V8EventMethods[] = {
+            {"preventDefault", V8Event::preventDefaultMethodCallback, 0, v8::None},
+    };
 
-    Event* V8Event::toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value) {
-        return hasInstance(value, isolate) ? ToImpl<Event>(v8::Local<v8::Object>::Cast(value)) : nullptr;
-    }
+    static const ConstantConfiguration V8EventConstants[]{
+            {"ACTIVATE",   ConstantValue("activate")},
+            {"DEACTIVATE", ConstantValue("deactivate")},
+            {"RESIZE",     ConstantValue("resize")},
+            {"RESIZING",   ConstantValue("resizing")},
+            {"CHANGE",     ConstantValue("change")},
+            {"CHANGING",   ConstantValue("changing")},
+            {"COMPLETE",   ConstantValue("complete")},
+    };
+
+    const WrapperTypeInfo V8Event::wrapperTypeInfo = {nullptr, "Event",
+                                                      V8Event::constructorCallback,
+                                                      4, V8EventAccessors,
+                                                      1, V8EventMethods,
+                                                      7, V8EventConstants,
+                                                      0, nullptr};
+
+    const WrapperTypeInfo& Event::wrapperTypeInfo = V8Event::wrapperTypeInfo;
 }

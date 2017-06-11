@@ -59,3 +59,5 @@ loader.on(Event.COMPLETE, function (event:Event):void {
     console.log(canvasImage.toDataURL());
 }, null);
 loader.load("test.png");
+
+HTMLCanvasElement

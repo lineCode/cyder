@@ -27,57 +27,73 @@
 #ifndef CYDER_WRAPPERTYPEINFO_H
 #define CYDER_WRAPPERTYPEINFO_H
 
+#include <functional>
 #include <v8.h>
 
 namespace cyder {
 
-    class InternalFields {
-    public:
-        static const int WrapperObjectIndex = 0;
-        static const int HiddenValuesIndex = 1;
-        static const int DefaultInternalFieldCount = 1;
+    /**
+     * AccessorConfiguration translates into calls to SetAccessorProperty() on prototype ObjectTemplate.
+     */
+    struct AccessorConfiguration {
+        AccessorConfiguration& operator=(const AccessorConfiguration&) = delete;
+        const char* name;
+        v8::FunctionCallback getter;
+        v8::FunctionCallback setter;
+        unsigned attribute; // v8::PropertyAttribute
     };
 
-    static const int V8PrototypeTypeIndex = 0;
-    static const int V8PrototypeInternalFieldCount = 1;
+    /**
+     * MethodConfiguration translates into calls to Set() for setting up an object's callbacks. It sets the method
+     * on both the FunctionTemplate or the ObjectTemplate.
+     */
+    struct MethodConfiguration {
+        MethodConfiguration& operator=(const MethodConfiguration&) = delete;
+        const char* name;
+        v8::FunctionCallback callback;
+        int length; // the number of callback function's arguments
+        unsigned attribute; // v8::PropertyAttribute
+    };
 
-    typedef v8::Local<v8::FunctionTemplate> (* ClassTemplateFunction)(v8::Isolate* isolate);
+    typedef std::function<v8::Local<v8::Value>(v8::Isolate*)> DelayedScriptValue;
+    DelayedScriptValue ConstantValue(double value);
+    DelayedScriptValue ConstantValue(int value);
+    DelayedScriptValue ConstantValue(const char* value);
+
+    /**
+     * ConstantConfiguration translates into calls to Set() for setting up an object's constants. It sets the
+     * constant on both the FunctionTemplate and the ObjectTemplate. PropertyAttributes is always ReadOnly.
+     */
+    struct ConstantConfiguration {
+        ConstantConfiguration& operator=(const ConstantConfiguration&) = delete;
+        const char* name;
+        DelayedScriptValue value;
+    };
+
+    /**
+     * AttributeConfiguration translates into calls to SetLazyDataProperty() on the prototype ObjectTemplate
+     */
+    struct LazyAttributeConfiguration {
+        LazyAttributeConfiguration& operator=(const LazyAttributeConfiguration&) = delete;
+        const char* name;
+        v8::AccessorNameGetterCallback getter;
+        v8::AccessorNameSetterCallback setter;
+        unsigned attribute; // v8::PropertyAttribute
+    };
 
     struct WrapperTypeInfo {
-
-        enum WrapperTypePrototype {
-            WrapperTypeObjectPrototype,
-            WrapperTypeExceptionPrototype,
-        };
-
-        enum WrapperClassId {
-            NodeClassId = 1,  // NodeClassId must be smaller than ObjectClassId.
-            ObjectClassId,
-        };
-
-        enum ActiveScriptWrappableInheritance {
-            NotInheritFromActiveScriptWrappable,
-            InheritFromActiveScriptWrappable,
-        };
-
-        enum Lifetime {
-            Dependent,
-            Independent,
-        };
-
-        v8::Local<v8::FunctionTemplate> classTemplate(v8::Isolate* isolate) const {
-            return classTemplateFunction(isolate);
-        }
-
-        const ClassTemplateFunction classTemplateFunction;
-        const char* const className;
         const WrapperTypeInfo* parentClass;
-        const unsigned wrapperTypePrototype : 2;  // WrapperTypePrototype
-        const unsigned wrapperClassID : 2;        // WrapperClassId
-        const unsigned activeScriptWrappableInheritance : 1; // ActiveScriptWrappableInheritance
-        const unsigned lifeTime : 1;  // Lifetime
+        const char* className;
+        const v8::FunctionCallback constructor;
+        const int accessorCount;
+        const AccessorConfiguration* accessors;
+        const int methodCount;
+        const MethodConfiguration* methods;
+        const int constantCount;
+        const ConstantConfiguration* constants;
+        const int lazyAttributeCount;
+        const LazyAttributeConfiguration* lazyAttributes;
     };
-
 }
 
 #endif //CYDER_WRAPPERTYPEINFO_H

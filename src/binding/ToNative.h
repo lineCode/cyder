@@ -37,12 +37,6 @@ namespace cyder {
                 InternalFields::WrapperObjectIndex));
     }
 
-    template<class T>
-    inline T* ToImpl(const v8::Local<v8::Object>& wrapper) {
-        return reinterpret_cast<T*>(wrapper->GetAlignedPointerFromInternalField(
-                InternalFields::WrapperObjectIndex));
-    }
-
     /**
      * Convert a value to a boolean.
      */

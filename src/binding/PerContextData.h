@@ -74,7 +74,6 @@ namespace cyder {
 
         v8::Isolate* _isolate;
         v8::Persistent<v8::Context> _context;
-        v8::Persistent<v8::Value> errorPrototype;
 
         typedef std::unordered_map<const WrapperTypeInfo*, v8::UniquePersistent<v8::Object>> WrapperBoilerplateMap;
         WrapperBoilerplateMap wrapperBoilerplateMap;
