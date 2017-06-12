@@ -43,24 +43,30 @@ namespace cyder {
         static void InstallClassTemplate(v8::Isolate* isolate,
                                          const WrapperTypeInfo* typeInfo,
                                          v8::Local<v8::FunctionTemplate> classTemplate);
-        static void InstallAccessors(v8::Isolate* isolate,
-                                     v8::Local<v8::ObjectTemplate> prototypeTemplate,
-                                     const AccessorConfiguration* accessors,
-                                     int accessorCount);
-        static void InstallMethods(v8::Isolate* isolate,
-                                   v8::Local<v8::ObjectTemplate> prototypeTemplate,
-                                   const MethodConfiguration* methods,
-                                   int methodCount);
 
-        static void InstallConstants(v8::Isolate* isolate,
-                                     v8::Local<v8::FunctionTemplate> classTemplate,
-                                     const ConstantConfiguration* constants,
-                                     int constantCount);
+        static void InstallAccessor(v8::Isolate* isolate,
+                                    v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                    v8::Local<v8::Signature> signature,
+                                    const AccessorConfiguration& accessor);
 
-        static void InstallLazyAttributes(v8::Isolate* isolate,
-                                          v8::Local<v8::ObjectTemplate> instanceTemplate,
-                                          const LazyAttributeConfiguration* lazyAttributes,
-                                          int lazyAttributeCount);
+        static void InstallMethod(v8::Isolate* isolate,
+                                  v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                  v8::Local<v8::Signature> signature,
+                                  const MethodConfiguration& method);
+
+        static void InstallConstant(v8::Isolate* isolate,
+                                    v8::Local<v8::FunctionTemplate> classTemplate,
+                                    v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                    const ConstantConfiguration& constant);
+
+        static void InstallLazyAttribute(v8::Isolate* isolate,
+                                         v8::Local<v8::ObjectTemplate> instanceTemplate,
+                                         const LazyAttributeConfiguration& lazyAttribute);
+
+        static v8::Local<v8::FunctionTemplate> CreateAccessorTemplate(v8::Isolate* isolate,
+                                                                      v8::FunctionCallback callback,
+                                                                      v8::Local<v8::Signature> signature,
+                                                                      int length);
     };
 
 }

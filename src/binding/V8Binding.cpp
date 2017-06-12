@@ -59,6 +59,7 @@ namespace cyder {
                                          v8::Local<v8::FunctionTemplate> classTemplate) {
         classTemplate->SetClassName(ToV8(isolate, typeInfo->className));
         classTemplate->ReadOnlyPrototype();
+        auto signature = v8::Signature::New(isolate, classTemplate);
         auto instanceTemplate = classTemplate->InstanceTemplate();
         auto prototypeTemplate = classTemplate->PrototypeTemplate();
         instanceTemplate->SetInternalFieldCount(InternalFields::DefaultInternalFieldCount);
@@ -73,37 +74,78 @@ namespace cyder {
             classTemplate->SetLength(typeInfo->constructorLength);
         }
         if (typeInfo->accessorCount) {
-            InstallAccessors(isolate, prototypeTemplate, typeInfo->accessors, typeInfo->accessorCount);
+            for (int i = 0; i < typeInfo->accessorCount; i++) {
+                InstallAccessor(isolate, prototypeTemplate, signature, typeInfo->accessors[i]);
+            }
         }
         if (typeInfo->methodCount) {
-            InstallMethods(isolate, prototypeTemplate, typeInfo->methods, typeInfo->methodCount);
+            for (int i = 0; i < typeInfo->methodCount; i++) {
+                InstallMethod(isolate, prototypeTemplate, signature, typeInfo->methods[i]);
+            }
         }
         if (typeInfo->constantCount) {
-            InstallConstants(isolate, classTemplate, typeInfo->constants, typeInfo->constantCount);
+            for (int i = 0; i < typeInfo->constantCount; i++) {
+                InstallConstant(isolate, classTemplate, signature, typeInfo->constants[i]);
+            }
         }
         if (typeInfo->lazyAttributeCount) {
-            InstallLazyAttributes(isolate, instanceTemplate, typeInfo->lazyAttributes, typeInfo->lazyAttributeCount);
+            for (int i = 0; i < typeInfo->lazyAttributeCount; i++) {
+                InstallLazyAttribute(isolate, instanceTemplate, typeInfo->lazyAttributes[i]);
+            }
         }
     }
 
-    void V8Binding::InstallAccessors(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> prototypeTemplate,
-                                     const AccessorConfiguration* accessors, int accessorCount) {
-
+    v8::Local<v8::FunctionTemplate> V8Binding::CreateAccessorTemplate(v8::Isolate* isolate,
+                                                                      v8::FunctionCallback callback,
+                                                                      v8::Local<v8::Signature> signature,
+                                                                      int length) {
+        v8::Local<v8::FunctionTemplate> functionTemplate;
+        if (callback) {
+            functionTemplate = v8::FunctionTemplate::New(isolate, callback, v8::Local<v8::Value>(), signature, length);
+            functionTemplate->RemovePrototype();
+            functionTemplate->SetAcceptAnyReceiver(false);
+        }
+        return functionTemplate;
     }
 
-    void V8Binding::InstallMethods(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> prototypeTemplate,
-                                   const MethodConfiguration* methods, int methodCount) {
-
+    void V8Binding::InstallAccessor(v8::Isolate* isolate,
+                                    v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                    v8::Local<v8::Signature> signature,
+                                    const AccessorConfiguration& accessor) {
+        auto name = ToV8(isolate, accessor.name);
+        auto getter = CreateAccessorTemplate(isolate, accessor.getter, signature, 0);
+        auto setter = CreateAccessorTemplate(isolate, accessor.setter, signature, 1);
+        prototypeTemplate->SetAccessorProperty(name, getter, setter,
+                                               static_cast<v8::PropertyAttribute>(accessor.attribute));
     }
 
-    void V8Binding::InstallConstants(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> classTemplate,
-                                     const ConstantConfiguration* constants, int constantCount) {
-
+    void V8Binding::InstallMethod(v8::Isolate* isolate,
+                                  v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                  v8::Local<v8::Signature> signature,
+                                  const MethodConfiguration& method) {
+        auto name = ToV8(isolate, method.name);
+        auto functionTemplate = v8::FunctionTemplate::New(isolate, method.callback, v8::Local<v8::Value>(),
+                                                          signature, method.length);
+        functionTemplate->RemovePrototype();
+        prototypeTemplate->Set(name, functionTemplate, static_cast<v8::PropertyAttribute>(method.attribute));
     }
 
-    void V8Binding::InstallLazyAttributes(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> instanceTemplate,
-                                          const LazyAttributeConfiguration* lazyAttributes, int lazyAttributeCount) {
-
+    void V8Binding::InstallConstant(v8::Isolate* isolate,
+                                    v8::Local<v8::FunctionTemplate> classTemplate,
+                                    v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                    const ConstantConfiguration& constant) {
+        auto name = ToV8(isolate, constant.name);
+        auto attributes = static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete);
+        auto value = constant.value(isolate);
+        classTemplate->Set(name, value, attributes);
+        prototypeTemplate->Set(name, value, attributes);
     }
 
+    void V8Binding::InstallLazyAttribute(v8::Isolate* isolate,
+                                         v8::Local<v8::ObjectTemplate> instanceTemplate,
+                                         const LazyAttributeConfiguration& lazyAttribute) {
+        auto name = ToV8(isolate, lazyAttribute.name);
+        instanceTemplate->SetLazyDataProperty(name, lazyAttribute.getter, v8::Local<v8::Value>(),
+                                              static_cast<v8::PropertyAttribute>(lazyAttribute.attribute));
+    }
 }
