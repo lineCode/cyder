@@ -30,13 +30,19 @@
 #include <v8.h>
 #include "binding/WrapperTypeInfo.h"
 #include "modules/events/Event.h"
+#include "binding/ToNative.h"
 
 namespace cyder {
 
     class V8Event {
     public:
+
+        static Event* toImpl(v8::Local<v8::Object> object) {
+            return ToScriptWrappable(object)->toImpl<Event>();
+        }
+
+        static Event* toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value);
         static const WrapperTypeInfo wrapperTypeInfo;
-        static Event* toImpl(v8::Isolate* isolate, v8::Local<v8::Value> value);
         static void constructorCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void typeAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void targetAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);

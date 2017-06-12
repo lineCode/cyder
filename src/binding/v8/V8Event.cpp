@@ -26,7 +26,6 @@
 
 #include <binding/V8Binding.h>
 #include "V8Event.h"
-#include "binding/ToNative.h"
 
 namespace cyder {
 
@@ -35,7 +34,9 @@ namespace cyder {
     }
 
     void V8Event::typeAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
-
+        auto impl = V8Event::toImpl(info.Holder());
+        auto type = ToV8(info.GetIsolate(), impl->type());
+        info.GetReturnValue().Set(type);
     }
 
     void V8Event::targetAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -54,9 +55,9 @@ namespace cyder {
 
     }
 
-    Event* V8Event::toImpl(v8::Isolate* isolate, v8::Local<v8::Value> value) {
+    Event* V8Event::toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value) {
         return V8Binding::HasInstance(isolate, &wrapperTypeInfo, value) ?
-               ToScriptWrappable(v8::Local<v8::Object>::Cast(value))->toImpl<Event>() : nullptr;
+               toImpl(v8::Local<v8::Object>::Cast(value)) : nullptr;
     }
 
     static const AccessorConfiguration V8EventAccessors[] = {
