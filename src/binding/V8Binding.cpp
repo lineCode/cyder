@@ -85,7 +85,7 @@ namespace cyder {
         }
         if (typeInfo->constantCount) {
             for (int i = 0; i < typeInfo->constantCount; i++) {
-                InstallConstant(isolate, classTemplate, signature, typeInfo->constants[i]);
+                InstallConstant(isolate, classTemplate, prototypeTemplate, typeInfo->constants[i]);
             }
         }
         if (typeInfo->lazyAttributeCount) {
