@@ -99,7 +99,7 @@ namespace cyder {
     }
 
     std::string ExceptionMessages::InvalidArity(const std::string& expected,
-                                                unsigned provided) {
+                                                int provided) {
         return "Valid arities are: " + expected + ", but " +
                NumberUtil::FiniteToString(provided) + " arguments provided.";
     }
@@ -118,8 +118,8 @@ namespace cyder {
                "' property is neither an array, nor does it have indexed properties.";
     }
 
-    std::string ExceptionMessages::NotEnoughArguments(unsigned expected,
-                                                      unsigned provided) {
+    std::string ExceptionMessages::NotEnoughArguments(int expected,
+                                                      int provided) {
         return NumberUtil::FiniteToString(expected) + " argument" + (expected > 1 ? "s" : "") +
                " required, but only " + NumberUtil::FiniteToString(provided) + " present.";
     }

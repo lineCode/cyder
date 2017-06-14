@@ -27,7 +27,8 @@
 #ifndef CYDER_THROWEXCEPTION_H
 #define CYDER_THROWEXCEPTION_H
 
-#include "ToV8.h"
+#include <v8.h>
+#include "ExceptionMessages.h"
 
 namespace cyder {
 

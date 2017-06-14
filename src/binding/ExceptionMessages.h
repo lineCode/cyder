@@ -87,11 +87,11 @@ namespace cyder {
                    NumberUtil::FiniteToString(upperBound) + (upperType == ExclusiveBound ? ')' : ']') + '.';
         }
 
-        static std::string InvalidArity(const std::string& expected, unsigned provided);
+        static std::string InvalidArity(const std::string& expected, int provided);
         static std::string NotASequenceTypeProperty(const std::string& property_name);
         static std::string NotAFiniteNumber(double value,
                                             const std::string& name = "value provided");
-        static std::string NotEnoughArguments(unsigned expected, unsigned provided);
+        static std::string NotEnoughArguments(int expected, int provided);
         static std::string ReadOnly(const std::string& detail = 0);
 
     private:

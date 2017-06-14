@@ -25,6 +25,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "ThrowException.h"
+#include "ToV8.h"
 
 namespace cyder {
     v8::Local<v8::Value> ThrowException::CreateError(v8::Isolate* isolate, const std::string& message) {

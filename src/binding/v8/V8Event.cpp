@@ -30,7 +30,26 @@
 namespace cyder {
 
     void V8Event::constructorCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
-
+        auto isolate = info.GetIsolate();
+        ExceptionState exceptionState(isolate, ExceptionState::ConstructionContext, "Event");
+        if (info.Length() < 1) {
+            exceptionState.throwTypeError(ExceptionMessages::NotEnoughArguments(1, info.Length()));
+            return;
+        }
+        auto type = ToStdString(isolate, info[0], exceptionState);
+        if (exceptionState.hadException()) {
+            return;
+        }
+        Event* impl;
+        if (info.Length() == 1) {
+            impl = new Event(type);
+        } else {
+            auto cancelable = ToBoolean(isolate, info[1], exceptionState);
+            impl = new Event(type, cancelable);
+        }
+        auto wrapper = info.Holder();
+        impl->setWrapper(isolate, wrapper);
+        SetReturnValue(info, wrapper);
     }
 
     void V8Event::typeAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {

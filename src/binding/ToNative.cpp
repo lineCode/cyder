@@ -164,7 +164,7 @@ namespace cyder {
     }
 
     float ToRestrictedFloat(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
-        float number_value = ToFloat(value, isolate, exceptionState);
+        float number_value = ToFloat(isolate, value, exceptionState);
         if (exceptionState.hadException())
             return 0;
         if (!std::isfinite(number_value)) {

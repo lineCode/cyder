@@ -133,25 +133,25 @@ namespace cyder {
     /**
      * Convert a value to a double precision float, throwing on non-finite values.
      */
-    double ToRestrictedDouble(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    double ToRestrictedDouble(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
     /**
      * Convert a value to a single precision float, which might fail.
      */
-    inline float ToFloat(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState) {
+    inline float ToFloat(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState) {
         return static_cast<float>(ToDouble(isolate, value, exceptionState));
     }
 
     /**
      * Convert a value to a single precision float, throwing on non-finite values.
      */
-    float ToRestrictedFloat(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    float ToRestrictedFloat(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 
 
     /**
      * Converts a value to a std::string
      */
-    std::string ToStdString(v8::Local<v8::Value> value, v8::Isolate* isolate, ExceptionState& exceptionState);
+    std::string ToStdString(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
 }
 
 #endif //CYDER_TONATIVE_H
