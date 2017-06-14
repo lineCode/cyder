@@ -29,6 +29,9 @@
 
 #include <v8.h>
 #include "WrapperTypeInfo.h"
+#include "ToV8.h"
+#include "ToNative.h"
+#include "SetReturnValue.h"
 
 namespace cyder {
 

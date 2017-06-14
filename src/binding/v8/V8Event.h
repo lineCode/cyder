@@ -28,9 +28,8 @@
 #define CYDER_V8EVENT_H
 
 #include <v8.h>
-#include "binding/WrapperTypeInfo.h"
+#include "binding/V8Binding.h"
 #include "modules/events/Event.h"
-#include "binding/ToNative.h"
 
 namespace cyder {
 

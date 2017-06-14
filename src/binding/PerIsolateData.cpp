@@ -50,4 +50,12 @@ namespace cyder {
         v8::Eternal<v8::FunctionTemplate> handle(_isolate, classTemplate);
         classTemplateMap.insert(std::make_pair(typeInfo, std::move(handle)));
     }
+
+    v8::Local<v8::String> PerIsolateData::getStringFromCacheSlow(const std::string& text) {
+        static auto type = v8::NewStringType::kNormal;
+        auto value = v8::String::NewFromUtf8(_isolate, text.c_str(), type).ToLocalChecked();
+        v8::UniquePersistent<v8::String> persistent(_isolate, value);
+        stringCacheMap.insert(std::make_pair(text, std::move(persistent)));
+        return value;
+    }
 }

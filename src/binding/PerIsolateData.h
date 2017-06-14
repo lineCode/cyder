@@ -28,6 +28,7 @@
 #define CYDER_PERISOLATEDATA_H
 
 #include <unordered_map>
+#include <string>
 #include <v8.h>
 #include "WrapperTypeInfo.h"
 
@@ -48,7 +49,18 @@ namespace cyder {
         }
 
         v8::MaybeLocal<v8::FunctionTemplate> findClassTemplate(const WrapperTypeInfo* typeInfo);
-        void setInterfaceTemplate(const WrapperTypeInfo* typeInfo, const v8::Local<v8::FunctionTemplate>& classTemplate);
+        void setInterfaceTemplate(const WrapperTypeInfo* typeInfo,
+                                  const v8::Local<v8::FunctionTemplate>& classTemplate);
+
+        v8::Local<v8::String> getStringFromCache(const std::string& text) {
+            auto item = stringCacheMap.find(text);
+            if (item != stringCacheMap.end()) {
+                auto& persistent = item->second;
+                return *reinterpret_cast<v8::Local<v8::String>*>(&persistent);
+            }
+            return getStringFromCacheSlow(text);
+        }
+
 
     private:
         static const int ISOLATE_EMBEDDER_DATA_INDEX = 1;
@@ -59,6 +71,10 @@ namespace cyder {
         typedef std::unordered_map<const WrapperTypeInfo*,
                 v8::Eternal<v8::FunctionTemplate>> ClassTemplateMap;
         ClassTemplateMap classTemplateMap;
+        typedef std::unordered_map<std::string, v8::UniquePersistent<v8::String>> StringCacheMap;
+        StringCacheMap stringCacheMap;
+
+        v8::Local<v8::String> getStringFromCacheSlow(const std::string& text);
 
         friend class ConstructorScope;
     };

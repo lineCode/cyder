@@ -25,9 +25,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8Binding.h"
-#include "PerIsolateData.h"
 #include "ObjectConstructor.h"
-#include "ToV8.h"
 
 namespace cyder {
     v8::Local<v8::FunctionTemplate> V8Binding::ClassTemplate(v8::Isolate* isolate,
