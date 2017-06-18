@@ -29,6 +29,7 @@
 
 #include "ScriptWrappable.h"
 #include "ExceptionState.h"
+#include "V8EventListener.h"
 
 namespace cyder {
 
@@ -152,6 +153,9 @@ namespace cyder {
      * Converts a value to a std::string
      */
     std::string ToStdString(v8::Isolate* isolate, v8::Local<v8::Value> value, ExceptionState& exceptionState);
+
+    EventListenerPtr ToEventListener(v8::Isolate* isolate, const v8::Local<v8::Value> callback,
+                                     const v8::Local<v8::Value>& thisArg, ExceptionState& exceptionState);
 }
 
 #endif //CYDER_TONATIVE_H

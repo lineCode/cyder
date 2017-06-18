@@ -172,7 +172,7 @@ namespace cyder {
             }
             if (item->StrictEquals(value)) {
                 array->Delete(context, static_cast<uint32_t>(i)).ToChecked();
-                // don't return, in case that there are multiple items with the same value in this array.
+                return;
             }
         }
     }

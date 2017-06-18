@@ -29,31 +29,18 @@
 
 #include <memory>
 #include <v8.h>
-#include "binding/ScriptState.h"
-#include "binding/ExceptionState.h"
+#include "ScriptState.h"
+#include "ExceptionState.h"
 #include "modules/events/EventListener.h"
 
 namespace cyder {
 
     class V8EventListener : public EventListener {
     public:
-        static EventListenerPtr Create(const ScriptState* scriptState,
-                                       const v8::Local<v8::Value> callback,
-                                       const v8::Local<v8::Value>& thisArg,
-                                       ExceptionState& exceptionState) {
-            if (!callback->IsFunction()) {
-                exceptionState.throwTypeError("The provided callback parameter is not a function.");
-                return EventListenerPtr();
-            }
-            auto function = v8::Local<v8::Function>::Cast(callback);
-            auto receiver = thisArg;
-            if (thisArg->IsNullOrUndefined()) {
-                // in case that null !== undefined
-                receiver = v8::Null(scriptState->isolate());
-            }
-
-            EventListenerPtr listener(new V8EventListener(scriptState, function, receiver));
-            return listener;
+        static V8EventListener* Create(const ScriptState* scriptState,
+                                       const v8::Local<v8::Function> callback,
+                                       const v8::Local<v8::Value>& thisArg) {
+            return new V8EventListener(scriptState, callback, thisArg);
         }
 
         ~V8EventListener() override;

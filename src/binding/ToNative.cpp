@@ -215,4 +215,21 @@ namespace cyder {
         return std::string(*v);
     }
 
+    EventListenerPtr ToEventListener(v8::Isolate* isolate, const v8::Local<v8::Value> callback,
+                                     const v8::Local<v8::Value>& thisArg, ExceptionState& exceptionState) {
+        auto scriptState = ScriptState::From(isolate->GetCurrentContext());
+        if (!callback->IsFunction()) {
+            exceptionState.throwTypeError("The provided callback parameter for event listener is not a function.");
+            return EventListenerPtr();
+        }
+        auto function = v8::Local<v8::Function>::Cast(callback);
+        auto receiver = thisArg;
+        if (thisArg->IsNullOrUndefined()) {
+            // in case that null !== undefined
+            receiver = v8::Null(scriptState->isolate());
+        }
+
+        return EventListenerPtr(V8EventListener::Create(scriptState, function, receiver));
+    }
+
 }

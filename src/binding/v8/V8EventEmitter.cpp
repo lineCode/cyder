@@ -25,69 +25,74 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8EventEmitter.h"
-#include "V8EventListener.h"
 #include "V8Event.h"
 
 namespace cyder {
     void V8EventEmitter::onMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
         ExceptionState exceptionState(info.GetIsolate(), ExceptionState::ExecutionContext, "EventEmitter", "on");
-        auto impl = V8EventEmitter::toImpl(info.Holder());
+        auto holder = info.Holder();
+        auto impl = V8EventEmitter::toImpl(holder);
         if (info.Length() < 3) {
             exceptionState.throwTypeError(ExceptionMessages::NotEnoughArguments(3, info.Length()));
             return;
         }
-        auto type = ToStdString(info.GetIsolate(), info[0], exceptionState);
+        auto isolate = info.GetIsolate();
+        auto type = ToStdString(isolate, info[0], exceptionState);
         if (exceptionState.hadException()) {
             return;
         }
-        auto listener = V8EventListener::Create(ScriptState::From(info), info[1], info[2], exceptionState);
+        auto listener = ToEventListener(isolate, info[1], info[2], exceptionState);
         if (exceptionState.hadException()) {
             return;
         }
         impl->on(type, listener);
-        AddHiddenValueToTarget(info.GetIsolate(), info.Holder(), info[1]);
-        AddHiddenValueToTarget(info.GetIsolate(), info.Holder(), info[2]);
+        AddHiddenValueToTarget(isolate, holder, info[1]);
+        AddHiddenValueToTarget(isolate, holder, info[2]);
     }
 
     void V8EventEmitter::onceMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
         ExceptionState exceptionState(info.GetIsolate(), ExceptionState::ExecutionContext, "EventEmitter", "once");
-        auto impl = V8EventEmitter::toImpl(info.Holder());
+        auto holder = info.Holder();
+        auto impl = V8EventEmitter::toImpl(holder);
         if (info.Length() < 3) {
             exceptionState.throwTypeError(ExceptionMessages::NotEnoughArguments(3, info.Length()));
             return;
         }
-        auto type = ToStdString(info.GetIsolate(), info[0], exceptionState);
+        auto isolate = info.GetIsolate();
+        auto type = ToStdString(isolate, info[0], exceptionState);
         if (exceptionState.hadException()) {
             return;
         }
-        auto listener = V8EventListener::Create(ScriptState::From(info), info[1], info[2], exceptionState);
+        auto listener = ToEventListener(isolate, info[1], info[2], exceptionState);
         if (exceptionState.hadException()) {
             return;
         }
         impl->once(type, listener);
-        AddHiddenValueToTarget(info.GetIsolate(), info.Holder(), info[1]);
-        AddHiddenValueToTarget(info.GetIsolate(), info.Holder(), info[2]);
+        AddHiddenValueToTarget(isolate, holder, info[1]);
+        AddHiddenValueToTarget(isolate, holder, info[2]);
     }
 
     void V8EventEmitter::removeListenerMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
         ExceptionState exceptionState(info.GetIsolate(), ExceptionState::ExecutionContext,
                                       "EventEmitter", "removeListener");
-        auto impl = V8EventEmitter::toImpl(info.Holder());
+        auto holder = info.Holder();
+        auto impl = V8EventEmitter::toImpl(holder);
         if (info.Length() < 3) {
             exceptionState.throwTypeError(ExceptionMessages::NotEnoughArguments(3, info.Length()));
             return;
         }
-        auto type = ToStdString(info.GetIsolate(), info[0], exceptionState);
+        auto isolate = info.GetIsolate();
+        auto type = ToStdString(isolate, info[0], exceptionState);
         if (exceptionState.hadException()) {
             return;
         }
-        auto listener = V8EventListener::Create(ScriptState::From(info), info[1], info[2], exceptionState);
+        auto listener = ToEventListener(isolate, info[1], info[2], exceptionState);
         if (exceptionState.hadException()) {
             return;
         }
         impl->removeListener(type, listener);
-        RemoveHiddenValueFromTarget(info.GetIsolate(), info.Holder(), info[1]);
-        RemoveHiddenValueFromTarget(info.GetIsolate(), info.Holder(), info[2]);
+        RemoveHiddenValueFromTarget(isolate, holder, info[1]);
+        RemoveHiddenValueFromTarget(isolate, holder, info[2]);
     }
 
     void V8EventEmitter::hasListenerMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {

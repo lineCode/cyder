@@ -25,7 +25,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8EventListener.h"
-#include "binding/ToV8.h"
+#include "ToV8.h"
 #include "utils/USE.h"
 
 namespace cyder {
