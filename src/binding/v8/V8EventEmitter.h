@@ -27,10 +27,26 @@
 #ifndef CYDER_V8EVENTEMITTER_H
 #define CYDER_V8EVENTEMITTER_H
 
+#include "binding/V8Binding.h"
+#include "modules/events/EventEmitter.h"
+
 namespace cyder {
 
     class V8EventEmitter {
+    public:
+        static EventEmitter* toImpl(v8::Local<v8::Object> object) {
+            return ToScriptWrappable(object)->toImpl<EventEmitter>();
+        }
 
+        static EventEmitter* toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value);
+        static const WrapperTypeInfo wrapperTypeInfo;
+
+        static void onMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        static void onceMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        static void removeListenerMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        static void hasListenerMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        static void emitMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        static void emitWithMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
     };
 
 }

@@ -35,12 +35,11 @@ namespace cyder {
     PerContextData::PerContextData(const v8::Local<v8::Context>& context) {
         _isolate = context->GetIsolate();
         _context.Reset(_isolate, context);
-        context->Enter();
         context->SetAlignedPointerInEmbedderData(CONTEXT_EMBEDDER_DATA_INDEX, this);
     }
 
     PerContextData::~PerContextData() {
-        context()->Exit();
+        _context.Reset();
     }
 
     v8::Local<v8::Object> PerContextData::createWrapperSlow(const WrapperTypeInfo* type) {

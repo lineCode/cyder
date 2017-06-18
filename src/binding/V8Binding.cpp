@@ -101,7 +101,6 @@ namespace cyder {
         if (callback) {
             functionTemplate = v8::FunctionTemplate::New(isolate, callback, v8::Local<v8::Value>(), signature, length);
             functionTemplate->RemovePrototype();
-            functionTemplate->SetAcceptAnyReceiver(false);
         }
         return functionTemplate;
     }
@@ -145,5 +144,36 @@ namespace cyder {
         auto name = ToV8(isolate, lazyAttribute.name);
         instanceTemplate->SetLazyDataProperty(name, lazyAttribute.getter, v8::Local<v8::Value>(),
                                               static_cast<v8::PropertyAttribute>(lazyAttribute.attribute));
+    }
+
+    bool AddHiddenValueToTarget(v8::Isolate* isolate, v8::Local<v8::Object> target, v8::Local<v8::Value> value) {
+        auto arrayValue = target->GetInternalField(InternalFields::HiddenValuesIndex);
+        if (!arrayValue->IsArray()) {
+            arrayValue = v8::Array::New(isolate);
+            target->SetInternalField(InternalFields::HiddenValuesIndex, arrayValue);
+        }
+        auto array = v8::Local<v8::Array>::Cast(arrayValue);
+        auto maybe = array->CreateDataProperty(isolate->GetCurrentContext(), array->Length(), value);
+        bool result;
+        return maybe.To(&result) && result;
+    }
+
+    void RemoveHiddenValueFromTarget(v8::Isolate* isolate, v8::Local<v8::Object> target, v8::Local<v8::Value> value) {
+        auto arrayValue = target->GetInternalField(InternalFields::HiddenValuesIndex);
+        if (!arrayValue->IsArray()) {
+            return;
+        }
+        auto array = v8::Local<v8::Array>::Cast(arrayValue);
+        auto context = isolate->GetCurrentContext();
+        for (int i = array->Length() - 1; i >= 0; i--) {
+            v8::Local<v8::Value> item;
+            if (!array->Get(context, static_cast<uint32_t>(i)).ToLocal(&item)) {
+                return;
+            }
+            if (item->StrictEquals(value)) {
+                array->Delete(context, static_cast<uint32_t>(i)).ToChecked();
+                // don't return, in case that there are multiple items with the same value in this array.
+            }
+        }
     }
 }

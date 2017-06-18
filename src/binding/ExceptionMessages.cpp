@@ -89,7 +89,7 @@ namespace cyder {
 
     std::string ExceptionMessages::ConstructorNotCallableAsFunction(const std::string& type) {
         return FailedToConstruct(type,
-                                 "Please use the 'new' operator, this DOM object "
+                                 "Please use the 'new' operator, this object "
                                          "constructor cannot be called as a function.");
     }
 

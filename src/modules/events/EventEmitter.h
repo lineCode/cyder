@@ -65,8 +65,7 @@ namespace cyder {
         /**
          * create an instance of the EventEmitter class.
          */
-        EventEmitter() {
-        }
+        EventEmitter() {}
 
         virtual ~EventEmitter();
 

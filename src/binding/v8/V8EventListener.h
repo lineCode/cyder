@@ -29,16 +29,30 @@
 
 #include <memory>
 #include <v8.h>
+#include "binding/ScriptState.h"
+#include "binding/ExceptionState.h"
 #include "modules/events/EventListener.h"
 
 namespace cyder {
 
     class V8EventListener : public EventListener {
     public:
-        static EventListenerPtr Create(const v8::Local<v8::Function> callback,
-                                       const v8::Local<v8::Object>& thisArg,
-                                       v8::Isolate* isolate) {
-            EventListenerPtr listener(new V8EventListener(callback, thisArg, isolate));
+        static EventListenerPtr Create(const ScriptState* scriptState,
+                                       const v8::Local<v8::Value> callback,
+                                       const v8::Local<v8::Value>& thisArg,
+                                       ExceptionState& exceptionState) {
+            if (!callback->IsFunction()) {
+                exceptionState.throwTypeError("The provided callback parameter is not a function.");
+                return EventListenerPtr();
+            }
+            auto function = v8::Local<v8::Function>::Cast(callback);
+            auto receiver = thisArg;
+            if (thisArg->IsNullOrUndefined()) {
+                // in case that null !== undefined
+                receiver = v8::Null(scriptState->isolate());
+            }
+
+            EventListenerPtr listener(new V8EventListener(scriptState, function, receiver));
             return listener;
         }
 
@@ -48,12 +62,13 @@ namespace cyder {
         bool equals(const EventListener* target) const override;
 
     private:
-        v8::Persistent<v8::Object> callback;
-        v8::Persistent<v8::Object> thisArg;
+        v8::Persistent<v8::Function> callback;
+        v8::Persistent<v8::Value> thisArg;
+        const ScriptState* scriptState;
 
-        V8EventListener(const v8::Local<v8::Function> callback,
-                        const v8::Local<v8::Object>& thisArg,
-                        v8::Isolate* isolate);
+        V8EventListener(const ScriptState* scriptState,
+                        const v8::Local<v8::Function> callback,
+                        const v8::Local<v8::Value>& thisArg);
     };
 
 }

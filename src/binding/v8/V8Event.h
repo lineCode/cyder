@@ -27,7 +27,6 @@
 #ifndef CYDER_V8EVENT_H
 #define CYDER_V8EVENT_H
 
-#include <v8.h>
 #include "binding/V8Binding.h"
 #include "modules/events/Event.h"
 
@@ -42,11 +41,14 @@ namespace cyder {
 
         static Event* toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value);
         static const WrapperTypeInfo wrapperTypeInfo;
+
         static void constructorCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        
         static void typeAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void targetAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void cancelableAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void isDefaultPreventedAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+
         static void preventDefaultMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
     };
 

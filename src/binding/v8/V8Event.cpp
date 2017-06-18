@@ -25,7 +25,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8Event.h"
-#include "modules/events/EventEmitter.h"
+#include "V8EventEmitter.h"
 
 namespace cyder {
 

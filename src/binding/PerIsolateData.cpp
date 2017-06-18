@@ -27,14 +27,6 @@
 #include "PerIsolateData.h"
 
 namespace cyder {
-    PerIsolateData::PerIsolateData(v8::Isolate* isolate) : _isolate(isolate) {
-        _isolate->Enter();
-    }
-
-    PerIsolateData::~PerIsolateData() {
-        _isolate->Exit();
-    }
-
     v8::MaybeLocal<v8::FunctionTemplate> PerIsolateData::findClassTemplate(const WrapperTypeInfo* typeInfo) {
         auto result = classTemplateMap.find(typeInfo);
         if (result == classTemplateMap.end()) {

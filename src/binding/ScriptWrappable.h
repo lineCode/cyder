@@ -30,17 +30,6 @@
 #include <v8.h>
 #include "WrapperTypeInfo.h"
 
-
-#define DEFINE_WRAPPERTYPEINFO()                               \
- public:                                                       \
-  const WrapperTypeInfo* getWrapperTypeInfo() const override { \
-    return &wrapperTypeInfo;                                \
-  }                                                            \
-                                                               \
- private:                                                      \
-  static const WrapperTypeInfo& wrapperTypeInfo
-
-
 namespace cyder {
 
     struct InternalFields {
@@ -94,6 +83,15 @@ namespace cyder {
 
         v8::Persistent<v8::Object> persistent;
     };
+
+#define DEFINE_WRAPPERTYPEINFO()                               \
+ public:                                                       \
+  const WrapperTypeInfo* getWrapperTypeInfo() const override { \
+    return &wrapperTypeInfo;                                \
+  }                                                            \
+                                                               \
+ private:                                                      \
+  static const WrapperTypeInfo& wrapperTypeInfo
 
 }
 

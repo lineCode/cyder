@@ -40,9 +40,9 @@ namespace cyder {
             return static_cast<PerIsolateData*>(isolate->GetData(ISOLATE_EMBEDDER_DATA_INDEX));
         }
 
-        explicit PerIsolateData(v8::Isolate* isolate);
+        explicit PerIsolateData(v8::Isolate* isolate) : _isolate(isolate) {}
 
-        ~PerIsolateData();
+        ~PerIsolateData() {};
 
         v8::Isolate* isolate() const {
             return _isolate;

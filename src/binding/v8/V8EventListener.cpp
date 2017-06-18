@@ -25,13 +25,17 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8EventListener.h"
+#include "binding/ToV8.h"
+#include "utils/USE.h"
 
 namespace cyder {
-    V8EventListener::V8EventListener(const v8::Local<v8::Function> callback,
-                                     const v8::Local<v8::Object>& thisArg,
-                                     v8::Isolate* isolate) {
-        this->callback.Reset(isolate, callback);
-        this->thisArg.Reset(isolate, thisArg);
+    V8EventListener::V8EventListener(const ScriptState* scriptState,
+                                     const v8::Local<v8::Function> callback,
+                                     const v8::Local<v8::Value>& thisArg) : scriptState(scriptState) {
+        this->callback.Reset(scriptState->isolate(), callback);
+        this->callback.SetWeak();
+        this->thisArg.Reset(scriptState->isolate(), thisArg);
+        this->thisArg.SetWeak();
     }
 
     V8EventListener::~V8EventListener() {
@@ -42,11 +46,20 @@ namespace cyder {
     }
 
     void V8EventListener::handleEvent(Event* event) const {
-
+        auto isolate = scriptState->isolate();
+        auto context = scriptState->context();
+        auto eventObject = ToV8(isolate, context->Global(), event);
+        v8::Local<v8::Value> argv[] = {eventObject};
+        auto function = callback.Get(isolate);
+        auto receiver = thisArg.Get(isolate);
+        auto result = function->Call(context, receiver, 1, argv);
+        USE(result);
     }
 
     bool V8EventListener::equals(const EventListener* target) const {
         auto listener = static_cast<const V8EventListener*>(target);
-        return callback == listener->callback && thisArg == listener->thisArg;
+        auto isolate = scriptState->isolate();
+        return callback.Get(isolate)->StrictEquals(listener->callback.Get(isolate)) &&
+               thisArg.Get(isolate)->StrictEquals(listener->thisArg.Get(isolate));
     }
 }

@@ -31,7 +31,7 @@
 #include "binding/Environment.h"
 #include "binding/JSMain.h"
 #include "binding/DebugAgent.h"
-#include "binding/PerContextData.h"
+#include "binding/ScriptState.h"
 #include "binding/PerIsolateData.h"
 
 namespace cyder {
@@ -64,11 +64,13 @@ namespace cyder {
         v8::Isolate::CreateParams create_params;
         create_params.array_buffer_allocator = allocator;
         auto isolate = v8::Isolate::New(create_params);
+        v8::Isolate::Scope isolateScope(isolate);
         PerIsolateData isolateData(isolate);
         v8::HandleScope scope(isolate);
         // Create a new context.
         auto context = v8::Context::New(isolate);
-        PerContextData contextData(context);
+        v8::Context::Scope contextScope(context);
+        ScriptState scriptState(context);
         // Enable javascript debug agent.
         std::string arg = argc > 1 ? argv[1] : "";
         bool waitForConnection = (arg == "--debug-brk");

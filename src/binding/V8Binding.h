@@ -176,6 +176,10 @@ namespace cyder {
     inline bool IsUndefinedOrNull(v8::Local<v8::Value> value) {
         return value.IsEmpty() || value->IsNullOrUndefined();
     }
+
+    // These methods store hidden values into an array that is stored in the internal field of a v8 wrapper.
+    bool AddHiddenValueToTarget(v8::Isolate* isolate, v8::Local<v8::Object> target, v8::Local<v8::Value> value);
+    void RemoveHiddenValueFromTarget(v8::Isolate* isolate, v8::Local<v8::Object> target, v8::Local<v8::Value> value);
 }
 
 #endif //CYDER_V8BINDING_H
