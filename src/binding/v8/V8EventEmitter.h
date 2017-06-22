@@ -41,6 +41,13 @@ namespace cyder {
         static EventEmitter* toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value);
         static const WrapperTypeInfo wrapperTypeInfo;
 
+        static void onMethodEpilogueCustom(const v8::FunctionCallbackInfo<v8::Value>& info,
+                                           EventEmitter* eventEmitter);
+        static void onceMethodEpilogueCustom(const v8::FunctionCallbackInfo<v8::Value>& info,
+                                             EventEmitter* eventEmitter);
+        static void removeListenerMethodEpilogueCustom(const v8::FunctionCallbackInfo<v8::Value>& info,
+                                                       EventEmitter* eventEmitter);
+
         static void onMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void onceMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
         static void removeListenerMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info);

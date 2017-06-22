@@ -24,30 +24,45 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "V8NativeWindow.h"
-#include "platform/Window.h"
-#include "modules/NativeWindow.h"
+#ifndef CYDER_GLOBAL_H
+#define CYDER_GLOBAL_H
+
+#include "binding/ScriptWrappable.h"
+#include "modules/NativeApplication.h"
+#include "modules/Performance.h"
 
 namespace cyder {
 
-    static void activateMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto window = NativeWindow::GetCurrent(args);
-        window->activate();
-    }
+    class Global : public ScriptWrappable {
+    DEFINE_WRAPPERTYPEINFO();
 
-    static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto env = Environment::GetCurrent(args);
-        v8::HandleScope scope(env->isolate());
-        NativeWindow* nativeWindow = new NativeWindow(args);
-        auto self = args.This();
-        self->SetAlignedPointerInInternalField(0, nativeWindow);
-        env->bind(self, nativeWindow);
-    }
+    public:
+        Global() : _global(this), _performance(new Performance()) {
+        }
 
-    void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
-        auto classTemplate = env->makeFunctionTemplate(constructor);
-        auto prototypeTemplate = classTemplate->PrototypeTemplate();
-        env->setTemplateProperty(prototypeTemplate, "activate", activateMethod);
-        env->attachClass(parent, "NativeWindow", classTemplate);
-    }
+        Global* global() const {
+            return _global;
+        }
+
+        /**
+         * The Performance API represents timing-related performance information for the application.
+         */
+        Performance* performance() const {
+            return _performance;
+        }
+
+        /**
+         * The singleton instance of the NativeApplication object, which represents this application.
+         */
+        NativeApplication* nativeApplication() const {
+            return NativeApplication::nativeApplication();
+        }
+
+    private:
+        Global* _global;
+        Performance* _performance;
+    };
+
 }
+
+#endif //CYDER_GLOBAL_H

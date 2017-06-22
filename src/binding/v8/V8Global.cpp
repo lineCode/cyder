@@ -25,7 +25,45 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "V8Global.h"
+#include "V8Event.h"
+#include "V8EventEmitter.h"
 
 namespace cyder {
+    void V8Global::globalAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
+    }
+
+    void V8Global::performanceAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
+
+    void V8Global::nativeApplicationAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+
+    }
+
+    Global* V8Global::toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value) {
+        return V8Binding::HasInstance(isolate, &wrapperTypeInfo, value) ?
+               toImpl(v8::Local<v8::Object>::Cast(value)) : nullptr;
+    }
+
+    static const AccessorConfiguration V8GlobalAccessors[] = {
+            {"global",            V8Global::globalAttributeGetterCallback,            nullptr, v8::ReadOnly, InstallOnInstance},
+            {"performance",       V8Global::performanceAttributeGetterCallback,       nullptr, v8::ReadOnly, InstallOnInstance},
+            {"nativeApplication", V8Global::nativeApplicationAttributeGetterCallback, nullptr, v8::ReadOnly, InstallOnInstance}
+    };
+
+    static const LazyAttributeConfiguration V8GlobalLazyAttributes[] = {
+            {"Event",        V8ConstructorAttributeGetter, nullptr, static_cast<v8::PropertyAttribute>(v8::DontEnum)},
+            {"EventEmitter", V8ConstructorAttributeGetter, nullptr, static_cast<v8::PropertyAttribute>(v8::DontEnum)}
+    };
+
+
+    const WrapperTypeInfo V8Global::wrapperTypeInfo = {nullptr, "Global",
+                                                       nullptr, 0,
+                                                       V8GlobalAccessors, 3,
+                                                       nullptr, 0,
+                                                       nullptr, 0,
+                                                       V8GlobalLazyAttributes, 2};
+
+    const WrapperTypeInfo& Global::wrapperTypeInfo = V8Global::wrapperTypeInfo;
 }

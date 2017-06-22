@@ -46,8 +46,7 @@ namespace cyder {
             return;
         }
         impl->on(type, listener);
-        AddHiddenValueToTarget(isolate, holder, info[1]);
-        AddHiddenValueToTarget(isolate, holder, info[2]);
+        onMethodEpilogueCustom(info, impl);
     }
 
     void V8EventEmitter::onceMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -68,8 +67,7 @@ namespace cyder {
             return;
         }
         impl->once(type, listener);
-        AddHiddenValueToTarget(isolate, holder, info[1]);
-        AddHiddenValueToTarget(isolate, holder, info[2]);
+        onceMethodEpilogueCustom(info, impl);
     }
 
     void V8EventEmitter::removeListenerMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -91,8 +89,7 @@ namespace cyder {
             return;
         }
         impl->removeListener(type, listener);
-        RemoveHiddenValueFromTarget(isolate, holder, info[1]);
-        RemoveHiddenValueFromTarget(isolate, holder, info[2]);
+        removeListenerMethodEpilogueCustom(info, impl);
     }
 
     void V8EventEmitter::hasListenerMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -160,12 +157,12 @@ namespace cyder {
 
 
     static const MethodConfiguration V8EventMethods[] = {
-            {"on",             V8EventEmitter::onMethodCallback,             3, v8::None},
-            {"once",           V8EventEmitter::onceMethodCallback,           3, v8::None},
-            {"removeListener", V8EventEmitter::removeListenerMethodCallback, 3, v8::None},
-            {"hasListener",    V8EventEmitter::hasListenerMethodCallback,    1, v8::None},
-            {"emit",           V8EventEmitter::emitMethodCallback,           1, v8::None},
-            {"emitWith",       V8EventEmitter::emitWithMethodCallback,       2, v8::None},
+            {"on",             V8EventEmitter::onMethodCallback,             3, v8::None, InstallOnPrototype},
+            {"once",           V8EventEmitter::onceMethodCallback,           3, v8::None, InstallOnPrototype},
+            {"removeListener", V8EventEmitter::removeListenerMethodCallback, 3, v8::None, InstallOnPrototype},
+            {"hasListener",    V8EventEmitter::hasListenerMethodCallback,    1, v8::None, InstallOnPrototype},
+            {"emit",           V8EventEmitter::emitMethodCallback,           1, v8::None, InstallOnPrototype},
+            {"emitWith",       V8EventEmitter::emitWithMethodCallback,       2, v8::None, InstallOnPrototype},
     };
 
     const WrapperTypeInfo V8EventEmitter::wrapperTypeInfo = {nullptr, "EventEmitter",

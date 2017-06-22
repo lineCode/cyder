@@ -31,6 +31,14 @@
 #include <v8.h>
 
 namespace cyder {
+    /**
+     * Bitflags to show where the member will be defined.
+     */
+    enum InstallLocation : unsigned {
+        InstallOnInstance = 1 << 0,
+        InstallOnPrototype = 1 << 1,
+        InstallOnClass = 1 << 2
+    };
 
     /**
      * AccessorConfiguration translates into calls to SetAccessorProperty() on prototype ObjectTemplate.
@@ -41,6 +49,7 @@ namespace cyder {
         v8::FunctionCallback getter;
         v8::FunctionCallback setter;
         unsigned attribute; // v8::PropertyAttribute
+        unsigned location;
     };
 
     /**
@@ -53,6 +62,7 @@ namespace cyder {
         v8::FunctionCallback callback;
         int length; // the minimum number of callback function's parameters
         unsigned attribute; // v8::PropertyAttribute
+        unsigned location;
     };
 
     typedef std::function<v8::Local<v8::Value>(v8::Isolate*)> DelayedScriptValue;

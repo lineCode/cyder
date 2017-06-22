@@ -27,9 +27,23 @@
 #ifndef CYDER_V8GLOBAL_H
 #define CYDER_V8GLOBAL_H
 
+#include "binding/V8Binding.h"
+#include "modules/Global.h"
+
 namespace cyder {
 
     class V8Global {
+    public:
+        static Global* toImpl(v8::Local<v8::Object> object) {
+            return ToScriptWrappable(object)->toImpl<Global>();
+        }
+
+        static Global* toImplWithTypeCheck(v8::Isolate* isolate, v8::Local<v8::Value> value);
+        static const WrapperTypeInfo wrapperTypeInfo;
+
+        static void globalAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        static void performanceAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+        static void nativeApplicationAttributeGetterCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
 
     };
 

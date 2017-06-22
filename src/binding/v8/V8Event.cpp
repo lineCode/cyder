@@ -85,14 +85,14 @@ namespace cyder {
     }
 
     static const AccessorConfiguration V8EventAccessors[] = {
-            {"type",               V8Event::typeAttributeGetterCallback,               nullptr, v8::ReadOnly},
-            {"target",             V8Event::targetAttributeGetterCallback,             nullptr, v8::ReadOnly},
-            {"cancelable",         V8Event::cancelableAttributeGetterCallback,         nullptr, v8::ReadOnly},
-            {"isDefaultPrevented", V8Event::isDefaultPreventedAttributeGetterCallback, nullptr, v8::ReadOnly}
+            {"type",               V8Event::typeAttributeGetterCallback,               nullptr, v8::ReadOnly, InstallOnPrototype},
+            {"target",             V8Event::targetAttributeGetterCallback,             nullptr, v8::ReadOnly, InstallOnPrototype},
+            {"cancelable",         V8Event::cancelableAttributeGetterCallback,         nullptr, v8::ReadOnly, InstallOnPrototype},
+            {"isDefaultPrevented", V8Event::isDefaultPreventedAttributeGetterCallback, nullptr, v8::ReadOnly, InstallOnPrototype}
     };
 
     static const MethodConfiguration V8EventMethods[] = {
-            {"preventDefault", V8Event::preventDefaultMethodCallback, 0, v8::None},
+            {"preventDefault", V8Event::preventDefaultMethodCallback, 0, v8::None, InstallOnPrototype},
     };
 
     static const ConstantConfiguration V8EventConstants[]{

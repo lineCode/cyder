@@ -224,7 +224,7 @@ namespace cyder {
         }
         auto function = v8::Local<v8::Function>::Cast(callback);
         auto receiver = thisArg;
-        if (thisArg->IsNullOrUndefined()) {
+        if (thisArg.IsEmpty() || thisArg->IsNullOrUndefined()) {
             // in case that null !== undefined
             receiver = v8::Null(scriptState->isolate());
         }

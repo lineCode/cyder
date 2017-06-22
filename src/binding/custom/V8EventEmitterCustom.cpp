@@ -24,30 +24,27 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "V8NativeWindow.h"
-#include "platform/Window.h"
-#include "modules/NativeWindow.h"
+#include "binding/v8/V8EventEmitter.h"
 
 namespace cyder {
-
-    static void activateMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto window = NativeWindow::GetCurrent(args);
-        window->activate();
+    void V8EventEmitter::onceMethodEpilogueCustom(const v8::FunctionCallbackInfo<v8::Value>& info,
+                                                  EventEmitter* eventEmitter) {
+        onMethodEpilogueCustom(info, eventEmitter);
     }
 
-    static void constructor(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        auto env = Environment::GetCurrent(args);
-        v8::HandleScope scope(env->isolate());
-        NativeWindow* nativeWindow = new NativeWindow(args);
-        auto self = args.This();
-        self->SetAlignedPointerInInternalField(0, nativeWindow);
-        env->bind(self, nativeWindow);
+    void V8EventEmitter::onMethodEpilogueCustom(const v8::FunctionCallbackInfo<v8::Value>& info,
+                                                EventEmitter* eventEmitter) {
+        auto isolate = info.GetIsolate();
+        auto holder = info.Holder();
+        AddHiddenValueToTarget(isolate, holder, info[1]);
+        AddHiddenValueToTarget(isolate, holder, info[2]);
     }
 
-    void V8NativeWindow::install(v8::Local<v8::Object> parent, Environment* env) {
-        auto classTemplate = env->makeFunctionTemplate(constructor);
-        auto prototypeTemplate = classTemplate->PrototypeTemplate();
-        env->setTemplateProperty(prototypeTemplate, "activate", activateMethod);
-        env->attachClass(parent, "NativeWindow", classTemplate);
+    void V8EventEmitter::removeListenerMethodEpilogueCustom(const v8::FunctionCallbackInfo<v8::Value>& info,
+                                                            EventEmitter* eventEmitter) {
+        auto isolate = info.GetIsolate();
+        auto holder = info.Holder();
+        RemoveHiddenValueFromTarget(isolate, holder, info[1]);
+        RemoveHiddenValueFromTarget(isolate, holder, info[2]);
     }
 }

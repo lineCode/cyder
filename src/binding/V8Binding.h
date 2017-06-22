@@ -47,12 +47,17 @@ namespace cyder {
                                          v8::Local<v8::FunctionTemplate> classTemplate);
 
         static void InstallAccessor(v8::Isolate* isolate,
+                                    v8::Local<v8::ObjectTemplate> instanceTemplate,
                                     v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                    v8::Local<v8::FunctionTemplate> classTemplate,
+                                    v8::Local<v8::Value> data,
                                     v8::Local<v8::Signature> signature,
                                     const AccessorConfiguration& accessor);
 
         static void InstallMethod(v8::Isolate* isolate,
+                                  v8::Local<v8::ObjectTemplate> instanceTemplate,
                                   v8::Local<v8::ObjectTemplate> prototypeTemplate,
+                                  v8::Local<v8::FunctionTemplate> classTemplate,
                                   v8::Local<v8::Signature> signature,
                                   const MethodConfiguration& method);
 
@@ -63,10 +68,12 @@ namespace cyder {
 
         static void InstallLazyAttribute(v8::Isolate* isolate,
                                          v8::Local<v8::ObjectTemplate> instanceTemplate,
+                                         v8::Local<v8::Value> data,
                                          const LazyAttributeConfiguration& lazyAttribute);
 
         static v8::Local<v8::FunctionTemplate> CreateAccessorTemplate(v8::Isolate* isolate,
                                                                       v8::FunctionCallback callback,
+                                                                      v8::Local<v8::Value> data,
                                                                       v8::Local<v8::Signature> signature,
                                                                       int length);
     };
@@ -180,6 +187,8 @@ namespace cyder {
     // These methods store hidden values into an array that is stored in the internal field of a v8 wrapper.
     bool AddHiddenValueToTarget(v8::Isolate* isolate, v8::Local<v8::Object> target, v8::Local<v8::Value> value);
     void RemoveHiddenValueFromTarget(v8::Isolate* isolate, v8::Local<v8::Object> target, v8::Local<v8::Value> value);
+    void V8ConstructorAttributeGetter(v8::Local<v8::Name> propertyName,
+                                      const v8::PropertyCallbackInfo<v8::Value>& info);
 }
 
 #endif //CYDER_V8BINDING_H
