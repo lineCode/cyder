@@ -26,6 +26,7 @@
 
 #include "CanvasRenderingContext2D.h"
 #include <cmath>
+#include "utils/USE.h"
 
 namespace cyder {
     CanvasRenderingContext2D::CanvasRenderingContext2D(DrawingBuffer* buffer) : buffer(buffer) {
@@ -73,7 +74,8 @@ namespace cyder {
             float scaleY = dstRect.height() / srcRect.height();
             float offsetX = dstRect.fLeft * (scaleX - 1);
             float offsetY = dstRect.fTop * (scaleY - 1);
-            srcRect.intersect(imageRect);
+            auto result = srcRect.intersect(imageRect);
+            USE(result);
             // To clip the destination rectangle in the same proportion, transform the clipped src rect
             dstRect = srcRect;
             dstRect = SkRect::MakeXYWH(srcRect.x() * scaleX, srcRect.y() * scaleY,

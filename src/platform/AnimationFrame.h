@@ -45,7 +45,7 @@ namespace cyder {
          * @returns A integer value, the request id, that uniquely identifies the entry in the callback list. You can pass
          * this value to AnimationFrame::Cancel() to cancel the refresh callback request.
          */
-        static unsigned long Request(FrameRequestCallback callback);
+        static size_t Request(FrameRequestCallback callback);
 
         /**
          * Cancels an animation frame request previously scheduled through a call to AnimationFrame::Request().

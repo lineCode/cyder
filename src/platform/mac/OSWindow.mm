@@ -172,8 +172,8 @@ namespace cyder {
     void OSWindow::windowDidBecomeKey() {
         if (delegate) {
             delegate->onFocusIn();
-            OSAnimationFrame::ForceScreenUpdateNow();
         }
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     void OSWindow::windowDidResize() {
@@ -182,8 +182,8 @@ namespace cyder {
         _screenBuffer->updateSize(SkScalarRoundToInt(size.width * scaleFactor), SkScalarRoundToInt(size.height * scaleFactor));
         if (delegate) {
             delegate->onResized();
-            OSAnimationFrame::ForceScreenUpdateNow();
         }
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     void OSWindow::windowDidChangeBackingProperties() {
@@ -193,8 +193,8 @@ namespace cyder {
         if (delegate) {
             delegate->onScaleFactorChanged();
             // Update the screen immediately after the backend resetting to prevent flickering.
-            OSAnimationFrame::ForceScreenUpdateNow();
         }
+        OSAnimationFrame::ForceScreenUpdateNow();
     }
 
     NSWindow* OSWindow::createNSWindow(const WindowInitOptions &options) {

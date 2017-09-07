@@ -32,11 +32,11 @@
 #include "GPUContext.h"
 
 namespace cyder {
-    unsigned long AnimationFrame::Request(FrameRequestCallback callback) {
+    size_t AnimationFrame::Request(FrameRequestCallback callback) {
         return OSAnimationFrame::Request(callback);
     }
 
-    void AnimationFrame::Cancel(unsigned long handle) {
+    void AnimationFrame::Cancel(size_t handle) {
         OSAnimationFrame::Cancel(handle);
     }
 
@@ -77,7 +77,7 @@ namespace cyder {
 
     void OSAnimationFrame::update() {
         hasNextFrame = false;
-        if (callbackList->size()) {
+        if (!callbackList->empty()) {
             std::vector<FrameRequestCallback> list;
             callbackList->swap(list);
             double timestamp = GetTimer();
@@ -92,6 +92,7 @@ namespace cyder {
             for (const auto& window : *(app->openedWindows())) {
                 window->screenBuffer()->present();
             }
+            GPUContext::MakeCurrent();
         }
     }
 }

@@ -46,7 +46,7 @@ namespace cyder {
             animationFrame->requestNextFrame();
         }
 
-        static unsigned long Request(FrameRequestCallback callback) {
+        static size_t Request(FrameRequestCallback callback) {
             auto callbackList = animationFrame->callbackList;
             auto handle = callbackList->size();
             callbackList->push_back(callback);
@@ -54,7 +54,7 @@ namespace cyder {
             return handle;
         }
 
-        static void Cancel(unsigned long handle) {
+        static void Cancel(size_t handle) {
             auto callbackList = animationFrame->callbackList;
             if (handle < callbackList->size()) {
                 callbackList->erase(callbackList->begin() + handle);
